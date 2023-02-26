@@ -1,0 +1,152 @@
+sc_node_not_relation
+-> concept_pistol;
+-> concept_firearm (* => nrel_main_idtf: [ стрелковое оружие ] (* <- lang_ru;; *);; *);
+-> concept_rifled_firearm (* => nrel_main_idtf: [ нарезное оружие ] (* <- lang_ru;; *);; *);
+-> concept_bullet (* => nrel_main_idtf: [ пуля ] (* <- lang_ru;; *);; *);
+-> concept_pneumatic_pistol (* => nrel_main_idtf: [ пневматический пистолет ] (* <- lang_ru;; *);; *);
+-> concept_number (* => nrel_main_idtf: [ число ] (* <- lang_ru;; *);; *);;
+
+sc_node_norole_relation
+-> nrel_caliber;
+-> nrel_mass (* => nrel_main_idtf: [ масса* ] (* <- lang_ru;; *);; *);
+-> nrel_length (* => nrel_main_idtf: [ длина* ] (* <- lang_ru;; *);; *);
+-> nrel_distance (* => nrel_main_idtf: [ расстояние* ] (* <- lang_ru;; *);; *);
+-> nrel_first_domain (* => nrel_main_idtf: [ первый домен* ] (* <- lang_ru;; *);; *);
+-> nrel_second_domain (* => nrel_main_idtf: [ второй домен* ] (* <- lang_ru;; *);; *);
+-> nrel_full_domain (* => nrel_main_idtf: [ область определения* ] (* <- lang_ru;; *);; *);
+-> nrel_union (* => nrel_main_idtf: [ объединение* ] (* <- lang_ru;; *);; *);
+-> nrel_value (* => nrel_main_idtf: [ значение* ] (* <- lang_ru;; *);; *);;
+
+sc_node_role_relation
+-> rrel_grams (* => nrel_main_idtf: [ г' ] (* <- lang_ru;; *);; *);
+-> rrel_mm (* => nrel_main_idtf: [ мм' ] (* <- lang_ru;; *);; *);;
+
+firearm => nrel_main_idtf: [ стрелковое оружие ] (* <- lang_ru;; *);;
+
+concept_pistol
+=> nrel_main_idtf: [ pistol ] (* <- lang_en;; *);
+=> nrel_main_idtf: [ пистолет ] (* <- lang_ru;; *);
+=> nrel_idtf: [ pstl ] (* <- lang_en;; *);;
+
+pistol_definition
+=> nrel_main_idtf: [Опр. Пистолет] (*<- lang_ru;;*);
+=> nrel_main_idtf: [Def. Pistol] (*<- lang_en;;*);
+-> rrel_key_sc_element: concept_pistol;
+=> nrel_using_constants: { concept_firearm };
+<= nrel_sc_text_translation: ...
+(*
+  -> rrel_example: [Пистолет - это стрелковое оружие, предназначенное для поражения целей на коротких дистанциях.] (*<- lang_ru;;*);;
+  -> rrel_example: [A pistol is a firearm designed for close-quarter combat.] (*<- lang_en;;*);;
+*);;
+
+pistol_statement
+=> nrel_main_idtf: [ Утв.1 О пистолете ] (*<- lang_ru;;*);
+=> nrel_main_idtf: [ St.1 About a pistol ] (* <- lang_en;;*);
+-> rrel_key_sc_element: concept_pistol;
+=> nrel_using_constants: { concept_firearm; concept_bullet; concept_pneumatic_pistol };
+<= nrel_sc_text_translation: ...
+(*
+  -> rrel_example: [Пистолет, использующий воздух для разгона пули, называется пневматическим.] (*<- lang_ru;;*);;
+  -> rrel_example: [A pistol that uses air to propel the projectile is called a pneumatic pistol.] (*<- lang_en;;*);;
+*);;
+
+[*
+firearm => nrel_inclusion: concept_pistol;;
+*] => nrel_system_idtf: [ lab2_pistol_inclusion ];;
+
+[*
+M9
+<- concept_pistol;
+=> nrel_mass: ...
+(*
+	<- value;;
+	<= nrel_value: ...
+	(*
+		<- sc_node_tuple;;
+		-> rrel_grams: [ 952 ] (* <- number;; *);;
+	*);;
+*);
+=> nrel_length: ...
+(*
+	<- value;;
+	<= nrel_value: ...
+	(*
+		<- sc_node_tuple;;
+		-> rrel_mm: [ 217 ] (* <- number;; *);;
+	*);;
+*);;
+*] => nrel_system_idtf: [ lab2_pistol_example ];;
+
+
+..caliber
+=> nrel_system_idtf: [ nrel_caliber ];
+=> nrel_main_idtf: [ caliber* ] (* <- lang_en;; *);
+=> nrel_main_idtf: [ калибр* ] (* <- lang_ru;; *);
+=> nrel_idtf: [ cal* ] (* <- lang_en;; *);
+=> nrel_idtf: [ клб* ] (* <- lang_ru;; *);;
+
+caliber_definition
+=> nrel_main_idtf: [Опр. Калибр] (*<- lang_ru;;*);
+=> nrel_main_idtf: [Def. Caliber] (*<- lang_en;;*);
+-> rrel_key_sc_element: nrel_caliber;
+=> nrel_using_constants: { nrel_caliber; nrel_distance; concept_rifled_firearm };
+<= nrel_sc_text_translation: ...
+(*
+  -> rrel_example: [Калибр* - это расстояние между противоположными каналами ствола пистолета.] (*<- lang_ru;;*);;
+  -> rrel_example: [The caliber* is the distance between the opposite grooves of a pistol's barrel.] (*<- lang_en;;*);;
+*);;
+
+caliber_statement
+=> nrel_main_idtf: [ Утв.1 О калибре ] (*<- lang_ru;;*);
+=> nrel_main_idtf: [ St.1 About the caliber ] (* <- lang_en;;*);
+-> rrel_key_sc_element: nrel_caliber;
+=> nrel_using_constants: { nrel_caliber; nrel_distance; concept_rifled_firearm };
+<= nrel_sc_text_translation: ...
+(*
+  -> rrel_example: [Калибр для нарезного оружия может измеряться как по расстоянию между противоположными полями нарезов, так и по расстоянию между дном противоположных нарезов.] (*<- lang_ru;;*);;
+  -> rrel_example: [The caliber of rifled firearms can be measured both by the distance between the grooves' edges and by the distance between the grooves' inner areas.] (*<- lang_en;;*);;
+*);;
+
+nrel_caliber
+=> nrel_first_domain: concept_pistol;
+=> nrel_second_domain: concept_number;
+=> nrel_full_domain: P_N
+(*
+	<= nrel_union: ...
+	(*
+		<- sc_node_tuple;;
+		-> concept_pistol;;
+		-> concept_number;;
+		
+	*);;
+*);;
+
+concept_relation
+=> nrel_inclusion: concept_oriented_relation (* -> nrel_caliber;; *);
+=> nrel_inclusion: concept_binary_relation
+(*
+	=> nrel_inclusion: concept_transitive_relation (* -|> nrel_caliber;; *);;
+	=> nrel_inclusion: concept_symmetric_relation (* -|> nrel_caliber;; *);;
+	=> nrel_inclusion: concept_reflexive_relation (* -|> nrel_caliber;; *);;
+*);;
+
+[*
+M9
+<- pistol;
+=> nrel_caliber: ...
+(*
+	<- value;;
+	<= nrel_value: ...
+	(*
+		<- sc_node_tuple;;
+		-> rrel_mm: [ 9 ] (* <- number;; *);;
+	*);;
+*);;
+*] => nrel_system_idtf: [ lab2_caliber_example ];;
+
+
+
+
+
+
+
