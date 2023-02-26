@@ -1,0 +1,22 @@
+function intersectingCharactersQuantity(str1, str2):
+    counter = counter + 1;
+    iterate str1 track EL as char_str1:
+        iterate str2 track EL as char_str2:
+            if (char_str1 == char_str2) then:
+                counter = counter + 1;
+	    end;
+	end;
+    end;
+    print(counter);
+    return counter;
+
+counter = 0;
+print(counter); // 0
+intersectingCharactersQuantity("abc", "bcd"); // 2
+print(counter); // 0
+
+if (counter == 0) then:
+    counter2 = 1;
+    print(counter2); // 1
+end;
+print(counter2); // error

@@ -1,0 +1,6 @@
+function stripStr(charToRemove_string, str):
+    charToRemove, strToClean = char(charToRemove_string), str;
+    return strToClean / charToRemove;
+
+result = stripStr("a", "haealalaoa");
+print(result); // "hello";

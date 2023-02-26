@@ -1,0 +1,22 @@
+function count(str, char):
+    counter = 0;
+    iterate str track EL as symbol:
+        if (symbol == char) then:
+            counter = counter + 1;
+        end;
+    end;
+    return counter;
+
+function count(strarray, char):
+    counter = 0;
+    iterate strarray track EL as str:
+        if (str == string(char)) then:
+            counter = counter + 1;
+        end;
+    end;
+    return counter;
+
+result1 = count("abcdea", 'a');
+result2 = count(["a", "abc", "d"], 'a');
+print(result1); // 2
+print(result2); // 1
