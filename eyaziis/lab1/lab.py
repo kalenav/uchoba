@@ -65,9 +65,6 @@ def get_word_info(word):
 def get_normal_form(word):
     return morph_analyzer.parse(word)[0].normal_form
 
-def get_part_of_speech(word):
-    return morph_analyzer.parse(word)[0].tag.cyr_repr
-
 def extract_base(word):
     base = ""
     word_forms = list(map(lambda parse: parse.word, morph_analyzer.parse(word)[0].lexeme))
