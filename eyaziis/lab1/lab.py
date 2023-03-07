@@ -99,26 +99,74 @@ def derive_lexems(tokens):
     unique_tokens = list(set(tokens))
     return map(get_normal_form, unique_tokens)
 
-sentence = input()
-tokens = nltk.word_tokenize(sentence, language="russian")
-word_info_dict = {}
+def decompose_sentence(sentence):
+    tokens = nltk.word_tokenize(sentence, language="russian")
+    word_info_dict = {}
 
-for lexem in derive_lexems(tokens):
-    word_info = get_word_info(lexem)
-    dict_entry_str = ""
-    dict_entry_str_starting_index = 2
+    for lexem in derive_lexems(tokens):
+        word_info = get_word_info(lexem)
+        dict_entry_str = ""
+        dict_entry_str_starting_index = 2
 
-    if 'ЗПР' not in word_info:
-        dict_entry_str += ('основа: ' + extract_base(lexem))
-        dict_entry_str += (', окончание: ' + extract_ending(lexem))
-        dict_entry_str_starting_index = 0
+        if 'ЗПР' not in word_info:
+            dict_entry_str += ('основа: ' + extract_base(lexem))
+            dict_entry_str += (', окончание: ' + extract_ending(lexem))
+            dict_entry_str_starting_index = 0
 
-    for trait in re.findall(r'\w+', word_info):
-        try:
-            dict_entry_str += (', ' + MORPHOLOGIC_TRAIT_MAP[trait])
-        except:
-            pass
+        for trait in re.findall(r'\w+', word_info):
+            try:
+                dict_entry_str += (', ' + MORPHOLOGIC_TRAIT_MAP[trait])
+            except:
+                pass
 
-    word_info_dict[lexem] = dict_entry_str[dict_entry_str_starting_index:]
+        word_info_dict[lexem] = dict_entry_str[dict_entry_str_starting_index:]
 
-print(word_info_dict)
+    return word_info_dict
+
+# class HtmlBuilderHelper:
+#     html_base_template_pre_content = '''
+#     <html>
+#         <head>
+#             <title>Lab 1</title>
+#             <meta charset="utf-8">
+#         </head>
+
+#         <body>
+#     '''
+#     html_base_template_post_content = "</body></html>"
+#     styles = {
+#         'body': {
+#             'color': 'red'
+#         }
+#     }
+
+#     def __init__(self) -> None:
+#         pass
+
+#     def build_html_content(self, tags):
+#         content = self.html_base_template_pre_content
+#         file = open("index.html", 'w')
+
+#         for tag in tags:
+#             pass
+
+#         file.write(content + self.styles_obj_to_tag() + self.html_base_template_post_content)
+#         file.close()
+
+
+#     def styles_obj_to_tag(self): 
+#         style_tag = "<style>"
+
+#         for selector in self.styles:
+#             style_tag += f'{selector} {{'
+#             for style_trait in self.styles[selector]:
+#                 style_tag += (f'{style_trait}: {self.styles[selector][style_trait]};')
+#             style_tag += '}'
+
+#         return style_tag + '</style>'
+
+#     def tag_to_string(self, tag):
+#         pass
+
+# html_builder_helper = HtmlBuilderHelper()
+# html_builder_helper.build_html_content({})
