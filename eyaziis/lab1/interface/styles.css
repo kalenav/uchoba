@@ -1,3 +1,9 @@
-body {
-    background-color: red;
+.buttons-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.morph-word-button {
+    width: 20rem;
+    margin-top: 1rem;
 }

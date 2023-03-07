@@ -59,6 +59,10 @@ MORPHOLOGIC_TRAIT_MAP = {
     'ЗПР': 'знак препинания'
 }
 
+NON_ENDINGS = ['ить', 'чь', 'ти', '', 'ся', 'сь', 'ться']
+
+NON_ANALYSABLE_LEXEMS = ['ПР', 'СОЮЗ', 'ЧАСТ', 'МЕЖД', 'ЗПР']
+
 def get_word_info(word):
     return morph_analyzer.parse(word)[0].tag.cyr_repr
 
@@ -93,6 +97,9 @@ def extract_ending(word):
     for index in range(len(base), len(word)):
         ending += word[index]
 
+    if ending in NON_ENDINGS:
+        ending = 'нулевое'
+
     return ending
 
 def derive_lexems(tokens):
@@ -108,7 +115,7 @@ def decompose_sentence(sentence):
         dict_entry_str = ""
         dict_entry_str_starting_index = 2
 
-        if 'ЗПР' not in word_info:
+        if word_info.split(',')[0] not in NON_ANALYSABLE_LEXEMS:
             dict_entry_str += ('основа: ' + extract_base(lexem))
             dict_entry_str += (', окончание: ' + extract_ending(lexem))
             dict_entry_str_starting_index = 0
@@ -123,50 +130,5 @@ def decompose_sentence(sentence):
 
     return word_info_dict
 
-# class HtmlBuilderHelper:
-#     html_base_template_pre_content = '''
-#     <html>
-#         <head>
-#             <title>Lab 1</title>
-#             <meta charset="utf-8">
-#         </head>
-
-#         <body>
-#     '''
-#     html_base_template_post_content = "</body></html>"
-#     styles = {
-#         'body': {
-#             'color': 'red'
-#         }
-#     }
-
-#     def __init__(self) -> None:
-#         pass
-
-#     def build_html_content(self, tags):
-#         content = self.html_base_template_pre_content
-#         file = open("index.html", 'w')
-
-#         for tag in tags:
-#             pass
-
-#         file.write(content + self.styles_obj_to_tag() + self.html_base_template_post_content)
-#         file.close()
-
-
-#     def styles_obj_to_tag(self): 
-#         style_tag = "<style>"
-
-#         for selector in self.styles:
-#             style_tag += f'{selector} {{'
-#             for style_trait in self.styles[selector]:
-#                 style_tag += (f'{style_trait}: {self.styles[selector][style_trait]};')
-#             style_tag += '}'
-
-#         return style_tag + '</style>'
-
-#     def tag_to_string(self, tag):
-#         pass
-
-# html_builder_helper = HtmlBuilderHelper()
-# html_builder_helper.build_html_content({})
+def apply_morphological_traits_to_word(word, traits):
+    return morph_analyzer.parse(word)[0].inflect(traits).word
