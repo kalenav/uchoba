@@ -131,4 +131,9 @@ def decompose_sentence(sentence):
     return word_info_dict
 
 def apply_morphological_traits_to_word(word, traits):
-    return morph_analyzer.parse(word)[0].inflect(traits).word
+    for trait in traits:
+        try:
+            word = morph_analyzer.parse(word)[0].inflect({ trait }).word
+        except:
+            continue
+    return word

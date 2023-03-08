@@ -19,7 +19,42 @@
         <p id="decomposition"></p>
     </div>
     <hr>
-    <button class="morph-word-button" id="morph-word">Применить морфологические признаки к слову</button>
+    <div class="word-input-container">
+        <h3>Применение морфологических признаков к слову</h3>
+        <input type="text" class="word-input" id="word-input" placeholder="Слово">
+        <div class="traits-container">
+            <div class="select-container">
+                <label for="gend">Род</label>
+                <select id="gend">
+                    <option>Мужской</option>
+                    <option>Женский</option>
+                    <option>Средний</option>
+                </select>
+            </div>
+
+            <div class="select-container">
+                <label for="count">Число</label>
+                <select id="count">
+                    <option>Единственное</option>
+                    <option>Множественное</option>
+                </select>
+            </div>
+
+            <div class="select-container">
+                <label for="case">Падеж</label>
+                <select id="case">
+                    <option>Именительный</option>
+                    <option>Родительный</option>
+                    <option>Дательный</option>
+                    <option>Винительный</option>
+                    <option>Творительный</option>
+                    <option>Предложный</option>
+                </select>
+            </div>
+        </div>
+        <button class="morph-word-button" id="morph-word">Применить</button>
+        <p id="morphed-word"></p>
+    </div>
 </body>
 <script src="script.js"></script>
 

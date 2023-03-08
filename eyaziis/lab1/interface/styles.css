@@ -1,9 +1,44 @@
+* {
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
 .buttons-container {
     display: flex;
     flex-direction: column;
 }
 
+.word-input-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.word-input {
+    width: 10rem;
+    margin-bottom: 1rem;
+}
+
 .morph-word-button {
-    width: 20rem;
+    width: 10rem;
     margin-top: 1rem;
+}
+
+.traits-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.select-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem;
+}
+
+.select-container:not(:last-of-type) {
+    border-right: solid grey 1px;
+}
+
+.select-container label {
+    margin-bottom: 0.5rem;
 }
