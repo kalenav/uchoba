@@ -226,13 +226,14 @@ const logicCalculatorModule = (function() {
         const inputs = getAllPossibleBinaryInputs(atomicFormulae, inputsFrom, inputsTo);
         return {
             inputs,
-            outputs: inputs.map(input => {
-                const valuesObj = Object.fromEntries(atomicFormulae.map((atomicFormula, index) => {
-                    return [atomicFormula, input[index]];
-                }));
-                return evaluate(formula, valuesObj);
-            })
+            outputs: inputs.map(input => evaluate(formula, getValuesObj(input, atomicFormulae)))
         }
+    }
+
+    function getValuesObj(values, atomicFormulae) {
+        return Object.fromEntries(atomicFormulae.map((atomicFormula, index) => {
+            return [atomicFormula, values[index]];
+        }));
     }
 
     function combineAtomicFormulae(formula1, formula2) {
