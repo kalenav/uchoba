@@ -1,9 +1,9 @@
-const sentenceDecompositionModule = (function() {
+const sentenceDecompositionModule = (function () {
     const serverAddress = 'http://127.0.0.1:5000';
 
     const sentenceContainer = document.getElementById('sentence');
     const lexemsContainer = document.getElementById('decomposition');
-    document.getElementById('sentence-input').addEventListener('change', function() {
+    document.getElementById('sentence-input').addEventListener('change', function () {
         fileReaderModule.readTextFile(this.files[0]);
     });
 
@@ -53,8 +53,8 @@ const sentenceDecompositionModule = (function() {
             },
             body: JSON.stringify({ word, traits })
         })
-        .then(response => response.json())
-        .catch(error => console.error(error));
+            .then(response => response.json())
+            .catch(error => console.error(error));
         morphedWordContainer.innerHTML = `${word} -> ${response.result}`;
     }
 
@@ -66,8 +66,8 @@ const sentenceDecompositionModule = (function() {
             },
             body: JSON.stringify({ sentence })
         })
-        .then(response => response.json())
-        .catch(error => console.error(error));
+            .then(response => response.json())
+            .catch(error => console.error(error));
     }
 
     function gatherSelectedTraits() {
@@ -85,10 +85,232 @@ const sentenceDecompositionModule = (function() {
     }
 })();
 
-const fileReaderModule = (function() {
+const dictionaryModule = (function () {
+    const serverAddress = 'http://127.0.0.1:5000';
+
+    let currMaxEntryId = 0;
+    let currDictionary = {
+        "программа": {
+            "основа": "программ",
+            "окончание": "а",
+            "Признаки": [
+                "существительное",
+                "неодушевлённое",
+                "женский род",
+                "единственное число",
+                "именительный падеж"
+            ]
+        },
+        "тест": {
+            "основа": "тест",
+            "окончание": "нулевое",
+            "Признаки": [
+                "существительное",
+                "неодушевлённое",
+                "мужской род",
+                "единственное число",
+                "именительный падеж"
+            ]
+        },
+        "задача": {
+            "основа": "задач",
+            "окончание": "а",
+            "Признаки": [
+                "существительное",
+                "неодушевлённое",
+                "женский род",
+                "единственное число",
+                "именительный падеж"
+            ]
+        },
+        "навык": {
+            "основа": "навык",
+            "окончание": "нулевое",
+            "Признаки": [
+                "существительное",
+                "неодушевлённое",
+                "мужской род",
+                "единственное число",
+                "именительный падеж"
+            ]
+        },
+        "тея": {
+            "основа": "те",
+            "окончание": "я",
+            "Признаки": [
+                "существительное",
+                "одушевлённое",
+                "женский род",
+                "единственное число",
+                "именительный падеж"
+            ]
+        },
+        "программирование": {
+            "основа": "программирован",
+            "окончание": "ие",
+            "Признаки": [
+                "существительное",
+                "неодушевлённое",
+                "средний род",
+                "единственное число",
+                "именительный падеж"
+            ]
+        },
+        "автоматический": {
+            "основа": "автоматическ",
+            "окончание": "ий",
+            "Признаки": [
+                "прилагательное",
+                "мужской род",
+                "единственное число",
+                "именительный падеж"
+            ]
+        },
+        "обработка": {
+            "основа": "обработ",
+            "окончание": "ка",
+            "Признаки": [
+                "существительное",
+                "неодушевлённое",
+                "женский род",
+                "единственное число",
+                "именительный падеж"
+            ]
+        },
+        ".": {
+            "основа": null,
+            "окончание": null,
+            "Признаки": [
+                "знак препинания"
+            ]
+        },
+        "при": {
+            "основа": null,
+            "окончание": null,
+            "Признаки": [
+                "предлог"
+            ]
+        },
+        "закрепить": {
+            "основа": "закреп",
+            "окончание": "нулевое",
+            "Признаки": [
+                "инфинитив",
+                "совершенный вид",
+                "переходный"
+            ]
+        },
+        "решение": {
+            "основа": "решен",
+            "окончание": "ие",
+            "Признаки": [
+                "существительное",
+                "неодушевлённое",
+                "средний род",
+                "единственное число",
+                "винительный падеж"
+            ]
+        }
+    };
+
+    async function getDictionary() {
+        // currDictionary = await fetch(`${serverAddress}/dict`, {
+        //     method: 'GET',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     }
+        // })
+        // .then(response => response.json())
+        // .then(response => response.result);
+        this.buildDictionaryTag();
+    }
+
+    function updateDictionaryOnServer() {
+        fetch(`${serverAddress}/updatedict`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ newDictionary: currDictionary })
+        });
+    }
+
+    function buildDictionaryTag() {
+        const dictionaryContainer = document.getElementById('dictionary');
+        dictionaryContainer.innerHTML = '';
+        for (const lexem in currDictionary) {
+            dictionaryContainer.append(newDictionaryEntry(lexem, currDictionary[lexem]));
+            currMaxEntryId++;
+        }
+    }
+
+    function newDictionaryEntry(name, traitObj) {
+        const entry = document.createElement('div');
+        entry.classList.toggle('dictionary-entry');
+        entry.setAttribute('id', `lexem${currMaxEntryId}`);
+
+        const lexem = document.createElement('span');
+        lexem.classList.toggle('lexem');
+        lexem.append(`${name}`);
+        entry.appendChild(lexem);
+
+        const rightBlock = document.createElement('div');
+
+        const traitsStr = [ ...traitObj['Признаки'] ];
+        if (traitObj['основа']) {
+            traitsStr.unshift(`основа: ${traitObj['основа']}`);
+            traitsStr.unshift(`окончание: ${traitObj['окончание']}`);
+        }
+        rightBlock.append(traitsStr.join(', '));
+
+        getEditAndDeleteButtons(currMaxEntryId).forEach(button => rightBlock.appendChild(button));
+
+        entry.appendChild(rightBlock);
+        return entry;
+    }
+
+    function getEditAndDeleteButtons(id) {
+        const editButton = document.createElement('button');
+        editButton.append('edit');
+        editButton.classList.toggle('edit-button');
+        editButton.setAttribute('onclick', `dictionaryModule.editEntry(${id})`);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.append('delete');
+        deleteButton.classList.toggle('delete-button');
+        deleteButton.setAttribute('onclick', `dictionaryModule.deleteEntry(${id})`);
+
+        return [editButton, deleteButton];
+    }
+
+    function editEntry(id) {
+
+    }
+
+    function deleteEntry(id) {
+        const newDictionary = {};
+        for (const lexem in currDictionary) {
+            if (lexem !== document.getElementById(`lexem${id}`).children[0].innerHTML) {
+                newDictionary[lexem] = currDictionary[lexem];
+            }
+        }
+        currDictionary = newDictionary;
+        buildDictionaryTag();
+        updateDictionaryOnServer();
+    }
+
+    return {
+        getDictionary,
+        buildDictionaryTag,
+        editEntry,
+        deleteEntry
+    }
+})();
+
+const fileReaderModule = (function () {
     function readTextFile(file) {
         const reader = new FileReader();
-        reader.onload = function() {
+        reader.onload = function () {
             sentenceDecompositionModule.displayDecomposedSentenceAnalysis(reader.result);
         };
         reader.readAsText(file);
@@ -99,3 +321,5 @@ const fileReaderModule = (function() {
         readTextFile
     }
 })();
+
+dictionaryModule.getDictionary();

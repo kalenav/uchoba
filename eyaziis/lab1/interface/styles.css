@@ -42,3 +42,27 @@
 .select-container label {
     margin-bottom: 0.5rem;
 }
+
+.dictionary {
+    height: 15rem;
+    overflow: auto;
+}
+
+.dictionary-entry {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dictionary-entry:not(:last-of-type) {
+    border-bottom: solid lightgray 1px;
+}
+
+.dictionary-entry .lexem {
+    font-weight: bold;
+}
+
+.edit-button, .delete-button {
+    margin-left: 0.5rem;
+}

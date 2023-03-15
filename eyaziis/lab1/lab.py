@@ -113,7 +113,7 @@ def dump_file(path, data):
     with open(path, 'r') as f:
         temp = json.load(f)
     with open(path, 'w', encoding="utf-8") as f:
-        json.dump(temp | data, f, indent=4, ensure_ascii=True)
+        json.dump(temp | data, f, indent=4, ensure_ascii=False)
 
 def load_file(path):
     global DATA
@@ -160,12 +160,5 @@ def apply_morphological_traits_to_word(word, traits):
             continue
     return word
 
-def get_dictionary():
-    return DATA
-
-if __name__ == '__main__':
-    load_file('text.json')
-    # decompose_sentence("Закрепить навыки программирования программированию при решении задач автоматической обработки ТЕЯ.")
-    # decompose_sentence("Программа программу программы")
-    # decompose_sentence("Тест")
+load_file('text.json')
 
