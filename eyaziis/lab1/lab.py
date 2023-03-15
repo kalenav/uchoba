@@ -1,6 +1,7 @@
 import nltk
 import pymorphy2
 import re
+import json
 
 morph_analyzer = pymorphy2.MorphAnalyzer()
 
@@ -59,6 +60,8 @@ MORPHOLOGIC_TRAIT_MAP = {
     'ЗПР': 'знак препинания'
 }
 
+DATA = dict()
+
 NON_ENDINGS = ['ить', 'чь', 'ти', '', 'ся', 'сь', 'ться']
 
 NON_ANALYSABLE_LEXEMS = ['ПР', 'СОЮЗ', 'ЧАСТ', 'МЕЖД', 'ЗПР']
@@ -106,28 +109,47 @@ def derive_lexems(tokens):
     unique_tokens = list(set(tokens))
     return map(get_normal_form, unique_tokens)
 
+def dump_file(path, data):
+    with open(path, 'r') as f:
+        temp = json.load(f)
+    with open(path, 'w', encoding="utf-8") as f:
+        json.dump(temp | data, f, indent=4, ensure_ascii=True)
+
+def load_file(path):
+    global DATA
+    with open(path, 'r') as f:
+        DATA = DATA | json.load(f)
+
 def decompose_sentence(sentence):
     tokens = nltk.word_tokenize(sentence, language="russian")
     word_info_dict = {}
 
     for lexem in derive_lexems(tokens):
+        if lexem not in DATA.keys():
+            DATA[lexem] = list()
+            DATA[lexem] = {'основа': None, 'окончание': None, 'Признаки': None}
+
         word_info = get_word_info(lexem)
         dict_entry_str = ""
         dict_entry_str_starting_index = 2
 
         if word_info.split(',')[0] not in NON_ANALYSABLE_LEXEMS:
+            DATA[lexem] = {'основа': extract_base(lexem), 'окончание': extract_ending(lexem), 'Признаки': None}
+
             dict_entry_str += ('основа: ' + extract_base(lexem))
             dict_entry_str += (', окончание: ' + extract_ending(lexem))
             dict_entry_str_starting_index = 0
-
+        temp_list = list()
         for trait in re.findall(r'\w+', word_info):
             try:
+                temp_list.append(MORPHOLOGIC_TRAIT_MAP[trait])
                 dict_entry_str += (', ' + MORPHOLOGIC_TRAIT_MAP[trait])
             except:
                 pass
-
+        DATA[lexem]['Признаки'] = temp_list[::]
+        temp_list.clear()
         word_info_dict[lexem] = dict_entry_str[dict_entry_str_starting_index:]
-
+    dump_file('text.json', DATA)
     return word_info_dict
 
 def apply_morphological_traits_to_word(word, traits):
@@ -137,3 +159,13 @@ def apply_morphological_traits_to_word(word, traits):
         except:
             continue
     return word
+
+def get_dictionary():
+    return DATA
+
+if __name__ == '__main__':
+    load_file('text.json')
+    # decompose_sentence("Закрепить навыки программирования программированию при решении задач автоматической обработки ТЕЯ.")
+    # decompose_sentence("Программа программу программы")
+    # decompose_sentence("Тест")
+

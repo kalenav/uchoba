@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from lab import decompose_sentence, apply_morphological_traits_to_word
+from lab import decompose_sentence, apply_morphological_traits_to_word, get_dictionary
 
 app = Flask(__name__)
 CORS(app)
@@ -17,6 +17,10 @@ def morph():
     traits = { trait for trait in request.json['traits'] }
     result = apply_morphological_traits_to_word(word, traits)
     return jsonify({'result': result})
+
+@app.route('/dict', methods=['GET'])
+def dict():
+    return jsonify({'result': get_dictionary()})
 
 if __name__ == '__main__':
     app.run()
