@@ -12,8 +12,9 @@ const sentenceDecompositionModule = (function () {
     const countSelect = document.getElementById('count');
     const caseSelect = document.getElementById('case');
     const morphedWordContainer = document.getElementById('morphed-word');
-    document.getElementById('morph-word').addEventListener('click', () => {
-        applyMorphologicalTraitsToWord(wordInput.value);
+    document.getElementById('morph-word').addEventListener('click', async () => {
+        const morphed = (await applyMorphologicalTraitsToWord(wordInput.value)).result;
+        updateMorphedWordContainer(wordInput.value, morphed);
     });
     const traitToPymorphy2TraitMap = {
         'Мужской': 'masc',
@@ -46,16 +47,23 @@ const sentenceDecompositionModule = (function () {
 
     async function applyMorphologicalTraitsToWord(word) {
         const traits = gatherSelectedTraits();
-        const response = await fetch(`${serverAddress}/morph`, {
+        return fetch(`${serverAddress}/morph`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ word, traits })
         })
-            .then(response => response.json())
-            .catch(error => console.error(error));
-        morphedWordContainer.innerHTML = `${word} -> ${response.result}`;
+        .then(response => response.json())
+        .catch(error => console.error(error));
+    }
+
+    function updateMorphedWordContainer(word, morphedWord) {
+        morphedWordContainer.innerHTML = `${word} -> ${morphedWord}`;
+    }
+
+    function clearMorphedWordContainer() {
+        morphedWordContainer.innerHTML = '';
     }
 
     function decompose(sentence) {
@@ -66,8 +74,8 @@ const sentenceDecompositionModule = (function () {
             },
             body: JSON.stringify({ sentence })
         })
-            .then(response => response.json())
-            .catch(error => console.error(error));
+        .then(response => response.json())
+        .catch(error => console.error(error));
     }
 
     function gatherSelectedTraits() {
@@ -81,13 +89,46 @@ const sentenceDecompositionModule = (function () {
     return {
         decompose,
         applyMorphologicalTraitsToWord,
-        displayDecomposedSentenceAnalysis
+        displayDecomposedSentenceAnalysis,
+        clearMorphedWordContainer,
+        wordInput
     }
 })();
 
 const dictionaryModule = (function () {
     const serverAddress = 'http://127.0.0.1:5000';
+    const wordInput = sentenceDecompositionModule.wordInput;
+    const searchInput = document.getElementById('search');
 
+    document.getElementById('add-dictionary').addEventListener('click', async () => {
+        const lexem = prompt('Введите лексему или словоформу');
+        if (lexem in currDictionary) {
+            alert('Такая лексема уже есть в словаре');
+            return;
+        }
+        const entry = await getDictionaryEntryObj(lexem);
+        currDictionary[lexem] = entry;
+        buildDictionaryTag();
+        updateDictionaryOnServer();
+    });
+    searchInput.addEventListener('keyup', (event) => {
+        if (event.target !== searchInput) return;
+        buildDictionaryTag(searchInput.value);
+    });
+    document.getElementById('morph-word-and-update-dictionary').addEventListener('click', async () => {
+        const wordToMorph = wordInput.value;
+        if (!wordToMorph || currEditedEntryId === -1) {
+            return;
+        }
+        const morphed = (await sentenceDecompositionModule.applyMorphologicalTraitsToWord(wordToMorph)).result;
+
+        currDictionary[morphed] = await getDictionaryEntryObj(morphed);
+        buildDictionaryTag();
+        deleteEntry(currEditedEntryId);
+        updateDictionaryOnServer();
+    });
+
+    let currEditedEntryId = -1;
     let currMaxEntryId = 0;
     let currDictionary = {
         "программа": {
@@ -225,6 +266,29 @@ const dictionaryModule = (function () {
         this.buildDictionaryTag();
     }
 
+    function getWordTraits(word) {
+        return fetch(`${serverAddress}/wordinfo`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ word })
+        })
+        .then(response => response.json());
+    }
+
+    async function getDictionaryEntryObj(word) {
+        const traits = (await getWordTraits(word)).result;
+        const base = traits[0].split('основа: ')[1];
+        const ending = traits[1].split('окончание: ')[1];
+        const dictionaryEntry = {
+            'основа': base,
+            'окончание': ending,
+            'Признаки': traits.slice(2)
+        };
+        return dictionaryEntry;
+    }
+
     function updateDictionaryOnServer() {
         fetch(`${serverAddress}/updatedict`, {
             method: 'POST',
@@ -235,16 +299,23 @@ const dictionaryModule = (function () {
         });
     }
 
-    function buildDictionaryTag() {
+    function buildDictionaryTag(filter = "") {
         const dictionaryContainer = document.getElementById('dictionary');
         dictionaryContainer.innerHTML = '';
+        const entries = [];
         for (const lexem in currDictionary) {
-            dictionaryContainer.append(newDictionaryEntry(lexem, currDictionary[lexem]));
+            if (!lexem.includes(filter)) continue;
+            entries.push(newDictionaryEntryTag(lexem, currDictionary[lexem]));
             currMaxEntryId++;
         }
+        entries.sort((entry1, entry2) => {
+            const lexem1 = entry1.children[0].innerHTML;
+            const lexem2 = entry2.children[0].innerHTML;
+            return lexem1 > lexem2 ? 1 : -1;
+        }).forEach(entry => dictionaryContainer.appendChild(entry));
     }
 
-    function newDictionaryEntry(name, traitObj) {
+    function newDictionaryEntryTag(name, traitObj) {
         const entry = document.createElement('div');
         entry.classList.toggle('dictionary-entry');
         entry.setAttribute('id', `lexem${currMaxEntryId}`);
@@ -284,13 +355,20 @@ const dictionaryModule = (function () {
     }
 
     function editEntry(id) {
-
+        const lexem = document.getElementById(`lexem${id}`).children[0].innerHTML;
+        wordInput.value = lexem;
+        wordInput.classList.toggle('focused');
+        setTimeout(() => {
+            wordInput.classList.toggle('focused');
+        }, 1000);
+        currEditedEntryId = id;
     }
 
     function deleteEntry(id) {
         const newDictionary = {};
+        const toIgnore = document.getElementById(`lexem${id}`).children[0].innerHTML;
         for (const lexem in currDictionary) {
-            if (lexem !== document.getElementById(`lexem${id}`).children[0].innerHTML) {
+            if (lexem !== toIgnore) {
                 newDictionary[lexem] = currDictionary[lexem];
             }
         }

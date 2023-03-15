@@ -81,6 +81,8 @@ def extract_base(word):
         include_symbol_in_base = True
 
         for word_form in word_forms:
+            if (index >= len(word_form)):
+                continue
             if (word_form[index] != symbol):
                 include_symbol_in_base = False
                 break
@@ -160,5 +162,13 @@ def apply_morphological_traits_to_word(word, traits):
             continue
     return word
 
-load_file('text.json')
+def get_word_info_arr(word):
+    word_info = get_word_info(word)
+    traits = []
+    if word_info.split(',')[0] not in NON_ANALYSABLE_LEXEMS:
+        traits.append(f'основа: {extract_base(word)}')
+        traits.append(f'окончание: {extract_ending(word)}')
+    traits.extend(list(map(lambda trait: MORPHOLOGIC_TRAIT_MAP[trait], [trait for trait in re.findall(r'\w+', word_info)])))
+    return traits
 
+# load_file('text.json')

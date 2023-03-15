@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from lab import decompose_sentence, apply_morphological_traits_to_word, DATA
+from lab import decompose_sentence, apply_morphological_traits_to_word, get_word_info_arr, DATA
 
 app = Flask(__name__)
 CORS(app)
@@ -25,8 +25,13 @@ def dict():
 @app.route('/updatedict', methods=['POST'])
 def updatedict():
     new_dict = request.json['newDictionary']
-    # здесь меняем словарь внутри пайтона
+    # dump_file('text.json', new_dict)
     return jsonify({'result': DATA})
+
+@app.route('/wordinfo', methods=['POST'])
+def wordinfo():
+    word = request.json['word']
+    return jsonify({'result': get_word_info_arr(word)})
 
 
 if __name__ == '__main__':
