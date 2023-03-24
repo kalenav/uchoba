@@ -1,5 +1,10 @@
 const syntaxAnalyzerModule = (function() {
-    const syntax = {
+    const syntax: { [key: string]:
+        string
+        | { [key: string]: string }
+        | number[]
+        | string[]
+    } = {
         NOT: '!',
         ASSIGN: '=',
         COMMA: ',',
@@ -44,47 +49,123 @@ const syntaxAnalyzerModule = (function() {
         symbols: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'].map(symbol => [symbol, symbol.toLowerCase()]).flat()
     }
 
-    function extractRegExp(regexp) {
+    type regexpWithParams = {
+        regexp: string | RegExp,
+        optional?: boolean,
+        zeroOrMore?: boolean,
+        oneOrMore?: boolean
+    };
+    type rawSequentialRegexps = (string | RegExp | regexpWithParams)[];
+    type sequentialRegexps = (RegExp | regexpWithParams)[];
+
+    function extractRegExpStr(regexp: string | RegExp, keepBoundaryDelimiters: boolean = false): string {
+        if (typeof regexp === 'string') return regexp;
         const str = `${regexp}`;
-        return `${str.slice(1, str.length - 1)}`;
+        const offset: number = +keepBoundaryDelimiters;
+        const leftBound = 2 - offset;
+        const rightBound = str.length - 2 + offset;
+        return `${str.slice(leftBound, rightBound)}`;
     }
 
-    function combineRegExps_sequential(regexps) {
-        return new RegExp(`${regexps.map(re => `(${extractRegExp(re)})`).join('')}`);
+    function stringToRegexpMapper(string: string): RegExp {
+        return new RegExp(string);
     }
 
-    function combineRegExps_alternating(regexps) {
-        return new RegExp(`${regexps.map(re => `(${extractRegExp(re)})`).join('|')}`);
+    function startsWithBoundaryDelimiter(regexp: string | RegExp): boolean {
+        return ((regexp instanceof RegExp) ? extractRegExpStr(regexp) : regexp)[0] === '^';
     }
 
-    const re_ID = new RegExp(/[a-zA-Z_][a-zA-Z_0-9]*/);
-    const re_INT = new RegExp(/[0-9]+/);
-    const re_char = new RegExp(`${syntax.SINGLE_QUOTE}[\\w ]${syntax.SINGLE_QUOTE}`);
-    const re_string = new RegExp(`${syntax.DOUBLE_QUOTE}[\\w ]*${syntax.DOUBLE_QUOTE}`);
-    const re_strarray = new RegExp(`${syntax.LSQUARE}${extractRegExp(re_string)}(,${extractRegExp(re_string)})]*${syntax.RSQUARE}`);
+    function endsWithBoundaryDelimiter(regexp: string | RegExp): boolean {
+        const strToCheck = ((regexp instanceof RegExp) ? extractRegExpStr(regexp) : regexp);
+        return strToCheck[strToCheck.length - 1] === '$';
+    }
+
+    function getRegexpStrForCombination(regexp: string | RegExp): boolean {
+        return true;
+    }
+
+    function combineRegExps_sequential(regexps: sequentialRegexps, boolean = false): RegExp {
+        return new RegExp(`${regexps.map((obj: RegExp | regexpWithParams) => {
+            if (obj instanceof RegExp) return extractRegExpStr(obj);
+
+            obj = obj as regexpWithParams;
+            const baseStr = `(${extractRegExpStr(obj.regexp)})`;
+            if (obj.optional) return baseStr + '?';
+            if (obj.zeroOrMore) return baseStr + '*';
+            if (obj.oneOrMore) return baseStr + '+';
+            return baseStr;
+        }).join('')}`);
+    }
+
+    function combineRegExps_alternating(regexps: RegExp[]): RegExp {
+        return new RegExp(`${regexps.map((re: RegExp) => {
+
+        }).join('|')}`);
+    }
+
+    const re_WS = new RegExp(/^[\t\n\r\f ]*$/);
+    const re_ID = new RegExp(/^[a-zA-Z_][a-zA-Z_0-9]*$/);
+    const re_INT = new RegExp(/^[0-9]+$/);
+    const re_char = new RegExp(`^${syntax.SINGLE_QUOTE}[\\w ]${syntax.SINGLE_QUOTE}$`);
+    const re_string = new RegExp(`^${syntax.DOUBLE_QUOTE}[\\w ]*${syntax.DOUBLE_QUOTE}$`);
+    const re_strarray = combineRegExps_sequential([
+        `^\\${syntax['LSQUARE']}`,
+        re_WS,
+        {
+            regexp: combineRegExps_sequential([
+                re_string,
+                {
+                    regexp: combineRegExps_sequential([
+                        re_WS,
+                        ',',
+                        re_WS,
+                        re_string,
+                        re_WS
+                    ]),
+                    zeroOrMore: true
+                }
+            ], true),
+            optional: true
+        },
+        re_WS,
+        `\\${syntax['RSQUARE']}$`
+    ], true);
 
     const re_operand = new RegExp(combineRegExps_alternating([
+        '^',
         re_ID,
         re_INT,
         re_char,
         re_string,
-        re_strarray
+        re_strarray,
+        '$'
     ]));
 
-    function isCorrectFile(string) {
-        
+    function isCorrectFile(string: string): boolean {
+        return true;
     }
 
-    function createTestObjArray(correctStrings, incorrectStrings, regexp) {
-        const testObjArray = [];
+    //////////////////////////////
+    //////////////////////////////
+    //////////////////////////////
+
+    type testObj = {
+        string: string,
+        testedRegexp: RegExp,
+        expected: boolean
+    };
+    type testObjArray = testObj[];
+
+    function createTestObjArray(correctStrings: string[], incorrectStrings: string[], regexp: RegExp): testObjArray {
+        const testObjArray: testObjArray = [];
         correctStrings.forEach(string => testObjArray.push({
             string,
-            re: regexp,
+            testedRegexp: regexp,
             expected: true
         }));
         incorrectStrings.forEach(string => testObjArray.push({
             string,
-            re: regexp,
+            testedRegexp: regexp,
             expected: false
         }));
         return testObjArray;
@@ -108,7 +189,7 @@ const syntaxAnalyzerModule = (function() {
     }
 
     function tests() {
-        const tests = [
+        const tests: testObjArray = [
             ...createTestObjArray(testParams.correctIDs, testParams.incorrectIDs, re_ID),
             ...createTestObjArray(testParams.correctINTs, testParams.incorrectINTs, re_INT),
             ...createTestObjArray(testParams.correctCharConstants, testParams.incorrectCharConstants, re_char),
@@ -127,12 +208,12 @@ const syntaxAnalyzerModule = (function() {
 
         let testsPassed = 0;
         tests.forEach(test => {
-            if (test.re.test(test.string) === test.expected) testsPassed++;
+            if (test.testedRegexp.test(test.string) === test.expected) testsPassed++;
             else {
                 console.log(`====================
                 TEST FAIL
                 string: ${test.string}
-                regular expression: ${test.re}
+                regular expression: ${test.testedRegexp}
                 expected: ${test.expected}
                 ====================`);
             }
@@ -144,14 +225,8 @@ const syntaxAnalyzerModule = (function() {
     return {
         tests,
         isCorrectFile,
-        extractRegExp,
-        combineRegExps_alternating
+        syntax
     }
 })();
 
-const re1 = new RegExp('a');
-const re2 = new RegExp('b');
-console.log(syntaxAnalyzerModule.extractRegExp(re1));
-console.log(syntaxAnalyzerModule.extractRegExp(re2));
-console.log(syntaxAnalyzerModule.combineRegExps_alternating([re1, re2]));
 syntaxAnalyzerModule.tests();
