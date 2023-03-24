@@ -18,6 +18,10 @@
     margin-bottom: 1rem;
 }
 
+.word-input.focused {
+    border-color: red;
+}
+
 .morph-word-button {
     width: 10rem;
     margin-top: 1rem;
@@ -41,4 +45,44 @@
 
 .select-container label {
     margin-bottom: 0.5rem;
+}
+
+.dictionary {
+    height: 15rem;
+    overflow: auto;
+}
+
+.dictionary-entry {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dictionary-entry:not(:last-of-type) {
+    border-bottom: solid lightgray 1px;
+}
+
+.dictionary-entry .lexem {
+    font-weight: bold;
+}
+
+.edit-button, .delete-button {
+    margin-left: 0.5rem;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.header h3 {
+    margin: 0 1rem 0 0;
+}
+
+.header-left-block {
+    display: flex;
+    flex-direction: row;
 }
