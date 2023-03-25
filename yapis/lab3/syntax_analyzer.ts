@@ -1,64 +1,14 @@
-const syntaxAnalyzerModule = (function() {
-    const syntax: { [key: string]:
-        string
-        | { [key: string]: string }
-        | number[]
-        | string[]
-    } = {
-        NOT: '!',
-        ASSIGN: '=',
-        COMMA: ',',
-        SEMI: ';',
-        COLON: ':',
-        LPAREN: '(',
-        RPAREN: ')',
-        LCURLY: '{',
-        RCURLY: '}',
-        LSQUARE: '[',
-        RSQUARE: ']',
-        SINGLE_QUOTE: '\'',
-        DOUBLE_QUOTE: '"',
-        DEF: 'function',
-        RETURN: 'return',
-        ITERATE: 'iterate',
-        TRACK: 'track',
-        EL: 'EL',
-        AS: 'as',
-        EQ: '==',
-        GREATER: '>',
-        LESS: '<',
-        NOEQ: '!=',
-        IF: 'if',
-        THEN: 'then',
-        ELSE: 'else',
-        END: 'end;',
-
-        logicBinaryLinks: {
-            AND: '&&',
-            OR: '||',
-        },
-
-        binaryOperators: {
-            ADD: '+',
-            SUB: '-',
-            MUL: '*',
-            DIV: '/',
-        },
-
-        digits: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        symbols: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'].map(symbol => [symbol, symbol.toLowerCase()]).flat()
-    }
-
+const regexpModule = (function() {
     type regexpWithParams = {
         regexp: RegExp,
         optional?: boolean,
         zeroOrMore?: boolean,
         oneOrMore?: boolean
     };
-
+    
     type rawRegexpObj = string | RegExp | regexpWithParams;
     type regexpObj = RegExp | regexpWithParams;
-
+    
     type rawRegexpsObjArray = rawRegexpObj[];
     type regexpsObjArray = regexpObj[];
 
@@ -125,41 +75,138 @@ const syntaxAnalyzerModule = (function() {
         return !!matchingResults && matchingResults[0] === matchingResults.input;
     }
 
+    return {
+        combineRegExps_alternating,
+        combineRegExps_sequential,
+        checkFullMatch
+    }
+})();
+
+const syntaxAnalyzerModule = (function() {
+    const syntax: { [key: string]:
+        string
+        | { [key: string]: string }
+        | number[]
+        | string[]
+    } = {
+        NOT: '!',
+        ASSIGN: '=',
+        COMMA: ',',
+        SEMI: ';',
+        COLON: ':',
+        LPAREN: '(',
+        RPAREN: ')',
+        LCURLY: '{',
+        RCURLY: '}',
+        LSQUARE: '[',
+        RSQUARE: ']',
+        SINGLE_QUOTE: '\'',
+        DOUBLE_QUOTE: '"',
+        DEF: 'function',
+        RETURN: 'return',
+        ITERATE: 'iterate',
+        TRACK: 'track',
+        EL: 'EL',
+        AS: 'as',
+        EQ: '==',
+        GREATER: '>',
+        LESS: '<',
+        NOEQ: '!=',
+        IF: 'if',
+        THEN: 'then',
+        ELSE: 'else',
+        END: 'end;',
+
+        logicBinaryLinks: {
+            AND: '&&',
+            OR: '||',
+        },
+
+        binaryOperators: {
+            ADD: '+',
+            SUB: '-',
+            MUL: '*',
+            DIV: '/',
+        },
+
+        digits: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        symbols: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'].map(symbol => [symbol, symbol.toLowerCase()]).flat()
+    }
+
+    type testObj = {
+        string: string,
+        testedRegexp: RegExp,
+        expected: boolean
+    };
+    type testObjArray = testObj[];
+
     const re_WS = new RegExp(/[\t\n\r\f ]*/);
     const re_ID = new RegExp(/[a-zA-Z_][a-zA-Z_0-9]*/);
     const re_INT = new RegExp(/[0-9]+/);
     const re_char = new RegExp(`${syntax.SINGLE_QUOTE}[\\w ]${syntax.SINGLE_QUOTE}`);
     const re_string = new RegExp(`${syntax.DOUBLE_QUOTE}[\\w ]*${syntax.DOUBLE_QUOTE}`);
-    const re_strarray = combineRegExps_sequential([
+    const re_strarray = regexpModule.combineRegExps_sequential([
         `\\${syntax['LSQUARE']}`,
-        re_WS,
         {
-            regexp: combineRegExps_sequential([
+            regexp: regexpModule.combineRegExps_sequential([
                 re_string,
                 {
-                    regexp: combineRegExps_sequential([
-                        re_WS,
+                    regexp: regexpModule.combineRegExps_sequential([
                         ',',
                         re_WS,
                         re_string,
-                        re_WS
                     ]),
                     zeroOrMore: true
                 }
             ]),
             optional: true
         },
-        re_WS,
         `\\${syntax['RSQUARE']}`
     ]);
-
-    const re_operand = new RegExp(combineRegExps_alternating([
+    const re_operand = regexpModule.combineRegExps_alternating([
         re_ID,
         re_INT,
         re_char,
         re_string,
-        re_strarray,
-    ]));
+        re_strarray
+    ]);
+    const re_call = new RegExp('');
+    const re_expr = new RegExp('');
+    const re_condition = regexpModule.combineRegExps_sequential([
+        re_expr,
+        regexpModule.combineRegExps_alternating([
+            `${syntax['EQ']}`,
+            `${syntax['GREATER']}`,
+            `${syntax['LESS']}`,
+            `${syntax['NOEQ']}`
+        ]),
+        re_expr
+    ]);
+    const re_assignment = regexpModule.combineRegExps_sequential([
+        re_ID,
+        {
+            regexp: regexpModule.combineRegExps_sequential([
+                `${syntax['COMMA']}`,
+                re_WS,
+                re_ID
+            ]),
+            zeroOrMore: true
+        },
+        re_WS,
+        `${syntax['ASSIGN']}`,
+        re_WS,
+        re_expr,
+        {
+            regexp: regexpModule.combineRegExps_sequential([
+                `${syntax['COMMA']}`,
+                re_WS,
+                re_expr
+            ]),
+            zeroOrMore: true
+        },
+        `${syntax['SEMI']}`
+    ]);
+
 
     function isCorrectFile(string: string): boolean {
         return true;
@@ -168,13 +215,6 @@ const syntaxAnalyzerModule = (function() {
     //////////////////////////////
     //////////////////////////////
     //////////////////////////////
-
-    type testObj = {
-        string: string,
-        testedRegexp: RegExp,
-        expected: boolean
-    };
-    type testObjArray = testObj[];
 
     function createTestObjArray(correctStrings: string[], incorrectStrings: string[], regexp: RegExp): testObjArray {
         const testObjArray: testObjArray = [];
@@ -228,7 +268,7 @@ const syntaxAnalyzerModule = (function() {
 
         let testsPassed = 0;
         tests.forEach(test => {
-            if (checkFullMatch(test.string, test.testedRegexp) === test.expected) testsPassed++;
+            if (regexpModule.checkFullMatch(test.string, test.testedRegexp) === test.expected) testsPassed++;
             else {
                 console.log(`====================
                 TEST FAIL
@@ -244,9 +284,8 @@ const syntaxAnalyzerModule = (function() {
     
     return {
         tests,
-        isCorrectFile,
-        combineRegExps_sequential
+        isCorrectFile
     }
 })();
 
-syntaxAnalyzerModule.tests();
+// syntaxAnalyzerModule.tests();
