@@ -1,5 +1,19 @@
 import ExprParserListener from "../lab3/compiled_grammar/ExprParserListener.js";
 
+const typeIDToStringMap = {
+    '1': 'char',
+    '2': 'string',
+    '3': 'strarray',
+    '4': 'int'
+}
+
+const TYPES = {
+    [typeIDToStringMap[1]]: 1,
+    [typeIDToStringMap[2]]: 2,
+    [typeIDToStringMap[3]]: 3,
+    [typeIDToStringMap[4]]: 4,
+}
+
 class Scope {
     definedVariables = [];
     subscopes = [];
@@ -20,8 +34,12 @@ class Scope {
             || this.superscopes.some(superscope => superscope.hasVariableDefinition(name));
     }
 
-    addVariable(name) {
-        this.definedVariables.push(new VariableDefinition(name));
+    addVariable(name, value) {
+        this.definedVariables.push(new VariableDefinition(name, value));
+    }
+
+    updateVariable(name, newType) {
+        this.definedVariables.find(variable => variable.getName() === name).setType(newType);
     }
 
     addSubscope(scope) {
@@ -34,19 +52,30 @@ class Scope {
 }
 
 class VariableDefinition {
-    constructor(name) {
+    _type = "undefined";
+    constructor(name, type) {
         this._name = name;
+        this.setType(type);
     }
 
     getName() {
         return this._name;
     }
+
+    setType(type) {
+        this._type = typeIDToStringMap[type] || 'undefined';
+    }
+
+    getType() {
+        return this._type;
+    }
 }
 
 class FunctionDefinition {
-    constructor(name, argc) {
+    constructor(name, argc, returnedType) {
         this._name = name;
         this._argsQuantity = argc;
+        this.returnedType = typeIDToStringMap[returnedType] || 'undefined';
     }
 
     getName() {
@@ -61,13 +90,17 @@ class FunctionDefinition {
 export class TreeListener extends ExprParserListener {
     mainScope = new Scope();
     currScope = this.mainScope;
-    definedFunctions = [];
-    errors = [];
-    _predefinedFunctionNames = [
-        'char',
-        'string',
-        'print',
+    definedFunctions = [
+        new FunctionDefinition('char', 1, TYPES.char),
+        new FunctionDefinition('string', 1, TYPES.string),
+        new FunctionDefinition('print', 1),
+        new FunctionDefinition('substr', 2, TYPES.int),
+        new FunctionDefinition('slice', 3, TYPES.string),
+        new FunctionDefinition('split', 2, TYPES.strarray),
+        new FunctionDefinition('replace', 3, TYPES.string),
+        new FunctionDefinition('join', 2, TYPES.string),
     ];
+    errors = [];
 
     constructor() {
         super();
@@ -162,6 +195,10 @@ export class TreeListener extends ExprParserListener {
         });
     }
 
+    updateVariableTypesInCurrScope(variableObjArray) {
+        variableObjArray.forEach(variableObj => this.currScope.updateVariable(variableObj.name, variableObj.newType));
+    }
+
     getFunctionName(ctx) {
         return ctx.ID().getText();
     }
@@ -173,8 +210,7 @@ export class TreeListener extends ExprParserListener {
     }
 
     functionAlreadyDefined(name) {
-        return !!this._predefinedFunctionNames.find(predefinedFunctionName => predefinedFunctionName === name)
-            || !!this.definedFunctions.find(definedFunction => definedFunction.getName() === name);
+        return !!this.definedFunctions.find(definedFunction => definedFunction.getName() === name);
     }
 
     createNewScopeAndSetAsCurr() {

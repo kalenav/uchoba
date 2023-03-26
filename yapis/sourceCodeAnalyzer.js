@@ -26,7 +26,7 @@ function analyzeSyntaxAndSemantics(filename) {
     antlr4.tree.ParseTreeWalker.DEFAULT.walk(semanticsAnalyzer, tree);
 }
 
-analyzeSyntaxAndSemantics('./lab1/example3.said');
+analyzeSyntaxAndSemantics('./lab1/example2.said');
 
 if (!syntaxAnalyzer.isSyntaxCorrect()) {
     console.log(syntaxAnalyzer.getError());
@@ -35,5 +35,5 @@ if (!syntaxAnalyzer.isSyntaxCorrect()) {
         return `Semantics Error\n${error.message}\nAt line ${error.line}, column ${error.column}`
     }).join('\n=====================\n'));
 } else {
-    console.log('compile-ready!');
+    console.log('ready to compile!');
 }
