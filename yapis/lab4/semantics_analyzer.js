@@ -5,18 +5,32 @@ class Scope {
     definedVariables = [];
     subscopes = [];
     superscopes = [];
-    definedBy = "";
 
-    constructor(definedBy) {
-        this.definedBy = definedBy;
+    constructor(params = {}) {
+        if (params.parentScope) {
+            this.superscopes = [
+                params.parentScope,
+                ...params.parentScope.superscopes
+            ];
+            this.superscopes.forEach(superscope => superscope.addSubscope(this));
+        }
     }
 
     hasVariableDefinition(name) {
-        return !!this.definedVariables.find(variable => variable.getName() === name);
+        return !!this.definedVariables.find(variable => variable.getName() === name)
+            || this.superscopes.some(superscope => superscope.hasVariableDefinition(name));
     }
 
     addVariable(name) {
         this.definedVariables.push(new VariableDefinition(name));
+    }
+
+    addSubscope(scope) {
+        this.subscopes.push(scope);
+    }
+
+    getParentScope() {
+        return this.superscopes[0];
     }
 }
 
@@ -79,27 +93,33 @@ export class TreeListener extends ExprParserListener {
         }
     }
 
+    enterFunction(ctx) {
+        this.createNewScopeAndSetAsCurr();
+    }
+
     exitFunction(ctx) {
         const functionName = this.getFunctionName(ctx);
-
-        // if (this.functionAlreadyDefined(functionName)) {
-        //     this.errors.push(`Duplicate function definition: ${functionName}`);
-        //     return;
-        // }
 
         this.definedFunctions.push(new FunctionDefinition(
             functionName,
             this.getFunctionArgs(ctx).length
         ));
+
+        this.currScope = this.currScope.getParentScope();
+    }
+
+    enterCycle(ctx) {
+        this.createNewScopeAndSetAsCurr();
     }
 
     exitCycle(ctx) {
         const iteratedObjectName = ctx.ID()[0].getText();
-
         if (!this.variableAlreadyDefined(iteratedObjectName)) {
             this.addError(`${iteratedObjectName} is not defined`);
             return;
         }
+
+        this.currScope = this.currScope.getParentScope();
     }
 
     variableAlreadyDefined(name) {
@@ -156,6 +176,10 @@ export class TreeListener extends ExprParserListener {
                 }
                 return true;
             });
+    }
+
+    createNewScopeAndSetAsCurr() {
+        this.currScope = new Scope({ parentScope: this.currScope });
     }
 
     areSemanticsCorrect() {
