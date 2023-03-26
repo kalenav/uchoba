@@ -72,16 +72,23 @@ export class TreeListener extends ExprParserListener {
         super();
     }
 
+    exitExpr(ctx) {
+
+    }
+
     exitAssignment(ctx) {
         const ids = ctx.ID();
         const exprs = ctx.expr();
 
         if (ids.length !== exprs.length) {
-            this.addError(`Compound assignment operator misuse: LHS contains ${ids.length} argument(s) while RHS contains ${exprs.length} argument(s)`);
+            this.addError(
+                `Compound assignment operator misuse: LHS contains ${ids.length} argument(s) while RHS contains ${exprs.length} argument(s)`,
+                ctx
+            );
             return;
         }
 
-        this.checkAllAssignedValues(ctx);
+        this.checkAllExprIDs(ctx);
         this.checkAllFunctionCalls(ctx);
 
         this.addVariablesToCurrScope(ids);
@@ -105,7 +112,7 @@ export class TreeListener extends ExprParserListener {
             this.getFunctionArgs(ctx).length
         ));
 
-        this.currScope = this.currScope.getParentScope();
+        this.exitScope();
     }
 
     enterCycle(ctx) {
@@ -115,25 +122,37 @@ export class TreeListener extends ExprParserListener {
     exitCycle(ctx) {
         const iteratedObjectName = ctx.ID()[0].getText();
         if (!this.variableAlreadyDefined(iteratedObjectName)) {
-            this.addError(`${iteratedObjectName} is not defined`);
+            this.addError(`${iteratedObjectName} is not defined`, ctx);
             return;
         }
 
-        this.currScope = this.currScope.getParentScope();
+        this.exitScope();
     }
+
+    enterIf(ctx) {
+        this.createNewScopeAndSetAsCurr();
+    }
+
+    exitIf(ctx) {
+        this.exitScope();
+    }
+
+    ///////////////////////////////
+    ///////////////////////////////
+    ///////////////////////////////
 
     variableAlreadyDefined(name) {
         return this.currScope.hasVariableDefinition(name);
     }
 
-    checkAllAssignedValues(ctx) {
+    checkAllExprIDs(ctx) {
         ctx.expr()
             .map(expr => expr.operand()?.ID())
             .filter(variable => !!variable)
             .every(variable => {
                 const variableName = variable.getText();
                 if (!this.variableAlreadyDefined(variableName)) {
-                    this.addError(`${variableName} is not defined in the current scope or any of its superscopes`);
+                    this.addError(`${variableName} is not defined in the current scope or any of its superscopes`, variable);
                     return false;
                 }
                 return true;
@@ -171,7 +190,7 @@ export class TreeListener extends ExprParserListener {
             .every(functionCall => {
                 const functionName = this.getFunctionName(functionCall);
                 if (!this.functionAlreadyDefined(functionName)) {
-                    this.addError(`Function ${functionName} is not defined`);
+                    this.addError(`Function ${functionName} is not defined`, functionCall);
                     return false;
                 }
                 return true;
@@ -182,12 +201,21 @@ export class TreeListener extends ExprParserListener {
         this.currScope = new Scope({ parentScope: this.currScope });
     }
 
+    exitScope() {
+        this.currScope = this.currScope.getParentScope();
+    }
+
     areSemanticsCorrect() {
         return this.errors.length === 0;
     }
 
-    addError(error) {
-        this.errors.push(error);
+    addError(error, ctx) {
+        console.log('error');
+        this.errors.push({
+            message: error,
+            line: ctx.start.line,
+            column: ctx.start.column
+        });
     }
 
     getErrors() {

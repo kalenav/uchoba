@@ -23,7 +23,7 @@ export class ErrorListener extends antlr4.error.ErrorListener {
     _syntaxIsCorrect = true;
     syntaxError(recognizer, offendingSymbol, line, column, message, e) {
         this.error = `
-    SyntaxError
+    Syntax Error
     While parsing ${ruleNameMap[recognizer.ruleNames[recognizer._ctx.ruleIndex]]}
     unexpected token: '${offendingSymbol.text}' at line ${line}, column ${column}
     Please verify syntax

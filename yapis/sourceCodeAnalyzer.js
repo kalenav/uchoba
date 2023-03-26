@@ -26,12 +26,14 @@ function analyzeSyntaxAndSemantics(filename) {
     antlr4.tree.ParseTreeWalker.DEFAULT.walk(semanticsAnalyzer, tree);
 }
 
-analyzeSyntaxAndSemantics('./lab1/example2.said');
+analyzeSyntaxAndSemantics('./lab1/example3.said');
 
 if (!syntaxAnalyzer.isSyntaxCorrect()) {
     console.log(syntaxAnalyzer.getError());
 } else if (!semanticsAnalyzer.areSemanticsCorrect()) {
-    semanticsAnalyzer.getErrors().forEach(error => console.log(error));
+    console.log(semanticsAnalyzer.getErrors().map(error => {
+        return `Semantics Error\n${error.message}\nAt line ${error.line}, column ${error.column}`
+    }).join('\n=====================\n'));
 } else {
     console.log('compile-ready!');
 }
