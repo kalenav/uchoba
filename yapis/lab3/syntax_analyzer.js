@@ -1,8 +1,15 @@
 #!/usr/bin/env node
 
 import antlr4 from 'antlr4';
+import yargs from 'yargs';
+import fs from 'fs';
 import ExprLexer from './compiled_grammar/ExprLexer.js';
 import ExprParser from './compiled_grammar/ExprParser.js';
+
+const options = yargs
+    .usage("Usage: -f <filename>")
+    .option("f", { alias: "filename", describe: "path to file to analyze", type: "string", demandOption: true })
+    .argv;
 
 const ruleNameMap = {
     program: 'program',
@@ -33,17 +40,8 @@ class ErrorListener extends antlr4.error.ErrorListener {
     }
 };
 
-const input = `
-function abc():
-    a, b = c, d;
-    return a + b - c * d;
-
-abc(3, 5, hi);
-`
-const parser = initParser(input);
-parser.program();
-
-function initParser(inputStr) {
+function initParser(filename) {
+    const inputStr = fs.readFileSync(filename, 'utf-8');
     const chars = new antlr4.InputStream(inputStr);
     const lexer = new ExprLexer(chars);
     const tokens = new antlr4.CommonTokenStream(lexer);
@@ -54,4 +52,10 @@ function initParser(inputStr) {
     return parser;
 }
 
-console.log('hi');
+const parser = initParser(options.filename);
+try {
+    parser.program();
+}
+catch(err) {
+    console.error(err);
+}
