@@ -4,7 +4,9 @@ const typeIDToStringMap = {
     '1': 'char',
     '2': 'string',
     '3': 'strarray',
-    '4': 'int'
+    '4': 'int',
+    '5': 'undefined',
+    '6': 'any'
 }
 
 const TYPES = {
@@ -12,6 +14,8 @@ const TYPES = {
     [typeIDToStringMap[2]]: 2,
     [typeIDToStringMap[3]]: 3,
     [typeIDToStringMap[4]]: 4,
+    [typeIDToStringMap[5]]: 5,
+    [typeIDToStringMap[6]]: 6,
 }
 
 class Scope {
@@ -29,13 +33,20 @@ class Scope {
         }
     }
 
+    findVariable(name) {
+        return [this, ...this.superscopes]
+            .map(scope => scope.definedVariables)
+            .flat()
+            .find(variable => variable.getName() === name);
+    }
+
     hasVariableDefinition(name) {
-        return !!this.definedVariables.find(variable => variable.getName() === name)
+        return !!this.findVariable(name)
             || this.superscopes.some(superscope => superscope.hasVariableDefinition(name));
     }
 
-    addVariable(name, value) {
-        this.definedVariables.push(new VariableDefinition(name, value));
+    addVariable(name, type) {
+        this.definedVariables.push(new VariableDefinition(name, type));
     }
 
     updateVariable(name, newType) {
@@ -52,18 +63,21 @@ class Scope {
 }
 
 class VariableDefinition {
-    _type = "undefined";
     constructor(name, type) {
         this._name = name;
-        this.setType(type);
+        this._type = type;
     }
 
     getName() {
         return this._name;
     }
 
-    setType(type) {
-        this._type = typeIDToStringMap[type] || 'undefined';
+    setType(newType) {
+        this._type = newType;
+    }
+
+    isIterable() {
+        return this._type === TYPES.string || this._type === TYPES.strarray || this._type === TYPES.any;
     }
 
     getType() {
@@ -75,7 +89,7 @@ class FunctionDefinition {
     constructor(name, argc, returnedType) {
         this._name = name;
         this._argsQuantity = argc;
-        this.returnedType = typeIDToStringMap[returnedType] || 'undefined';
+        this._returnedType = returnedType;
     }
 
     getName() {
@@ -84,6 +98,10 @@ class FunctionDefinition {
 
     getArgsQuantity() {
         return this._argsQuantity;
+    }
+
+    getReturnedType() {
+        return this._returnedType;
     }
 }
 
@@ -126,19 +144,41 @@ export class TreeListener extends ExprParserListener {
             return;
         }
 
-        this.addVariablesToCurrScope(ids);
+        this.addVariablesToCurrScope(ids, exprs.map(expr => this.deriveExprType(expr)));
         this.checkAllExprVariables(ctx.expr(), ctx);
     }
 
     enterStatement(ctx) {
         const parentCtx = ctx.parentCtx;
         if (parentCtx.constructor.name === "FunctionContext") {
-            this.addVariablesToCurrScope(this.getFunctionArgs(parentCtx));
+            const args = this.getFunctionArgs(parentCtx);
+            this.addVariablesToCurrScope(args, new Array(args.length).fill(TYPES.any));
         }
         if (parentCtx.constructor.name === "CycleContext") {
             const cycleHeaderIDs = parentCtx.ID();
             this.checkIfVariableIsDefined(cycleHeaderIDs[0], parentCtx);
-            this.addVariablesToCurrScope([cycleHeaderIDs[cycleHeaderIDs.length - 1]])
+            const iteratedObjectName = cycleHeaderIDs[0].getText();
+            if (this.variableNotIterable(iteratedObjectName)) {
+                this.addError(
+                    `Variable '${iteratedObjectName}' is not iterable`,
+                    ctx
+                );
+            }
+            const iteratedObjectType = this.deriveVariableType(cycleHeaderIDs[0]);
+            const elType = iteratedObjectType === TYPES.strarray ? TYPES.string : TYPES.char;
+            const idsQuantity = cycleHeaderIDs.length;
+            if (idsQuantity === 3) {
+                this.addVariablesToCurrScope([
+                    cycleHeaderIDs[idsQuantity - 2],
+                    cycleHeaderIDs[idsQuantity - 1]
+                ], [
+                    elType,
+                    TYPES.int
+                ]);
+            }
+            else {
+                this.addVariablesToCurrScope([cycleHeaderIDs[idsQuantity - 1]], [elType]);
+            }
         }
     }
 
@@ -186,11 +226,15 @@ export class TreeListener extends ExprParserListener {
         return this.currScope.hasVariableDefinition(name);
     }
 
-    addVariablesToCurrScope(variables) {
-        variables.forEach(variable => {
+    variableNotIterable(name) {
+        return !this.currScope.findVariable(name).isIterable();
+    }
+
+    addVariablesToCurrScope(variables, types) {
+        variables.forEach((variable, index) => {
             const variableName = variable.getText();
             if (!this.currScope.hasVariableDefinition(variableName)) {
-                this.currScope.addVariable(variableName);
+                this.currScope.addVariable(variableName, types[index]);
             }
         });
     }
@@ -238,6 +282,198 @@ export class TreeListener extends ExprParserListener {
 
     checkAllExprVariables(exprs, ctx) {
         this.checkAllVariables(exprs.filter(expr => this.exprIsVar(expr)), ctx);
+    }
+
+    deriveVariableType(variable) {
+        return this.currScope.findVariable(variable.getText()).getType();
+    }
+
+    deriveExprType(expr) {
+        if (!!expr.operand()) {
+            const operandCtx = expr.operand();
+            if (!!operandCtx.ID()) {
+                return this.deriveVariableType(operandCtx.ID());
+            }
+            if (!!operandCtx.INT()) {
+                return TYPES.int;
+            }
+            if (!!operandCtx.char()) {
+                return TYPES.char;
+            }
+            if (!!operandCtx.string()) {
+                return TYPES.string;
+            }
+            if (!!operandCtx.strarray()) {
+                return TYPES.strarray;
+            }
+        }
+
+        if (!!expr.call()) {
+            return this.definedFunctions
+                .find(functionDef => functionDef._name === this.getFunctionName(expr.call()))
+                .getReturnedType();
+        }
+
+        if (!!expr.NOT()) {
+            const negatedExpr = expr.expr()[0];
+            const negatedExprType = this.deriveExprType(negatedExpr)
+            if (negatedExprType !== TYPES.int && negatedExprType !== TYPES.any) {
+                this.addError(
+                    `Cannot negate non-int variable/constant`,
+                    negatedExpr
+                );
+                return TYPES.undefined;
+            }
+            return TYPES.int;
+        }
+
+        // at this point it's definitely a binary expression or an index access expression
+
+        const leftSideExpr = expr.expr()[0];
+        const rightSideExpr = expr.expr()[1];
+        const leftSideExprType = this.deriveExprType(leftSideExpr);
+        const rightSideExprType = this.deriveExprType(rightSideExpr);
+
+        if (leftSideExprType === TYPES.undefined) {
+            this.addError(
+                `Variables of type 'undefined' cannot be used in expressions`,
+                leftSideExpr
+            );
+            return TYPES.undefined;
+        }
+        if (rightSideExprType === TYPES.undefined) {
+            this.addError(
+                `Variables of type 'undefined' cannot be used in expressions`,
+                rightSideExpr
+            );
+            return TYPES.undefined;
+        }
+
+        const leftSideIsInt = leftSideExprType === TYPES.int;
+        const leftSideIsChar = leftSideExprType === TYPES.char;
+        const leftSideIsString = leftSideExprType === TYPES.string;
+        const leftSideIsStrarray = leftSideExprType === TYPES.strarray;
+        const leftSideIsAny = leftSideExprType === TYPES.any;
+
+        const rightSideIsInt = rightSideExprType === TYPES.int;
+        const rightSideIsChar = rightSideExprType === TYPES.char;
+        const rightSideIsString = rightSideExprType === TYPES.string;
+        const rightSideIsStrarray = rightSideExprType === TYPES.strarray;
+        const rightSideIsAny = rightSideExprType === TYPES.any;
+
+        if (!!expr.LSQUARE()) {
+            if (!leftSideIsString && !leftSideIsStrarray && !leftSideIsAny) {
+                this.addError(
+                    `Cannot index a non-iterable variable/constant`,
+                    leftSideExpr
+                );
+                return TYPES.undefined;
+            }
+            if (!rightSideIsInt && !rightSideIsAny) {
+                this.addError(
+                    `Index accessor must be an integer`,
+                    rightSideExpr
+                );
+                return TYPES.undefined;
+            }
+            return leftSideIsString ? TYPES.char : TYPES.string;
+        }
+
+        if (!!expr.AND() || !!expr.OR()) {
+            if (!leftSideIsInt && !leftSideIsAny) {
+                this.addError(
+                    `Left side of a logic binary operator must be an integer`,
+                    leftSideExpr
+                );
+                return TYPES.undefined;
+            }
+            if (!rightSideIsInt && !rightSideIsAny) {
+                this.addError(
+                    `Right side of a logic binary operator must be an integer`,
+                    rightSideExpr
+                );
+                return TYPES.undefined;
+            }
+            return TYPES.int;
+        }
+
+        if (leftSideIsAny || rightSideIsAny) {
+            return TYPES.any;
+        }
+
+        if (!!expr.ADD()) {
+            if (leftSideIsInt && rightSideIsInt) {
+                return TYPES.int
+            }
+            if (leftSideIsChar && rightSideIsChar
+                || leftSideIsString && rightSideIsChar
+                || leftSideIsChar && rightSideIsString
+                || leftSideIsString && rightSideIsString) {
+                return TYPES.string;
+            }
+            if (leftSideIsStrarray && rightSideIsStrarray) {
+                return TYPES.strarray;
+            }
+            this.addError(
+                `Cannot add variable/constant of type '${leftSideExprType}' to variable/constant of type '${rightSideExprType}'`,
+                leftSideExpr
+            );
+            return TYPES.undefined;
+        }
+
+        if (!!expr.SUB()) {
+            if (leftSideIsInt && rightSideIsInt) {
+                return TYPES.int;
+            }
+            if (leftSideIsString && rightSideIsChar) {
+                return TYPES.string;
+            }
+            if (leftSideIsStrarray && rightSideIsString) {
+                return TYPES.strarray;
+            }
+            this.addError(
+                `Cannot subtract variable/constant of type '${leftSideExprType}' from variable/constant of type '${rightSideExprType}'`,
+                leftSideExpr
+            );
+            return TYPES.undefined;
+        }
+
+        if (!!expr.MUL()) {
+            if (leftSideIsInt && rightSideIsInt) {
+                return TYPES.int;
+            }
+            if (leftSideIsChar && rightSideIsInt
+                || leftSideIsString && rightSideIsInt) {
+                return TYPES.string;
+            }
+            if (leftSideIsStrarray && rightSideIsInt) {
+                return TYPES.strarray;
+            }
+            this.addError(
+                `Cannot multiply variable/constant of type '${leftSideExprType}' by variable/constant of type '${rightSideExprType}'`,
+                leftSideExpr
+            );
+            return TYPES.undefined;
+        }
+
+        if (!!expr.DIV()) {
+            if (leftSideIsInt && rightSideIsInt) {
+                return TYPES.int;
+            }
+            if (leftSideIsString && rightSideIsChar) {
+                return TYPES.string;
+            }
+            if (leftSideIsStrarray && rightSideIsString) {
+                return TYPES.strarray;
+            }
+            this.addError(
+                `Cannot divide variable/constant of type '${leftSideExprType}' by variable/constant of type '${rightSideExprType}'`,
+                leftSideExpr
+            );
+            return TYPES.undefined;
+        }
+
+        return TYPES.undefined;
     }
 
     ///////////////////////////////
