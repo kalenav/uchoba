@@ -19,8 +19,7 @@ const ruleNameMap = {
 };
 
 export class ErrorListener extends antlr4.error.ErrorListener {
-    _error;
-    _syntaxIsCorrect = true;
+    _error = "";
     syntaxError(recognizer, offendingSymbol, line, column, message, e) {
         this.error = `
     Syntax Error
@@ -28,11 +27,10 @@ export class ErrorListener extends antlr4.error.ErrorListener {
     unexpected token: '${offendingSymbol.text}' at line ${line}, column ${column}
     Please verify syntax
     `;
-        this._syntaxIsCorrect = false;
     }
 
     isSyntaxCorrect() {
-        return this._syntaxIsCorrect;
+        return this._error.length === 0;
     }
 
     getError() {
