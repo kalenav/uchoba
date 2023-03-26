@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import antlr4 from 'antlr4';
 import ExprLexer from './compiled_grammar/ExprLexer.js';
 import ExprParser from './compiled_grammar/ExprParser.js';
@@ -51,3 +53,5 @@ function initParser(inputStr) {
     parser.addErrorListener(new ErrorListener());
     return parser;
 }
+
+console.log('hi');
