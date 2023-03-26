@@ -26,7 +26,7 @@ function analyzeSyntaxAndSemantics(filename) {
     antlr4.tree.ParseTreeWalker.DEFAULT.walk(semanticsAnalyzer, tree);
 }
 
-analyzeSyntaxAndSemantics('./lab1/example1.said');
+analyzeSyntaxAndSemantics('./lab1/example2.said');
 
 if (!syntaxAnalyzer.isSyntaxCorrect()) {
     console.log(syntaxAnalyzer.getError());

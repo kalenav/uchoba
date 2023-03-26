@@ -14,6 +14,10 @@ class Scope {
     hasVariableDefinition(name) {
         return !!this.definedVariables.find(variable => variable.getName() === name);
     }
+
+    addVariable(name) {
+        this.definedVariables.push(new VariableDefinition(name));
+    }
 }
 
 class VariableDefinition {
@@ -46,7 +50,6 @@ export class TreeListener extends ExprParserListener {
     currScope = this.mainScope;
     definedFunctions = [];
     errors = [];
-    _semanticsAreCorrect = true;
     _predefinedFunctionNames = [
         'char',
     ];
@@ -60,49 +63,95 @@ export class TreeListener extends ExprParserListener {
         const exprs = ctx.expr();
 
         if (ids.length !== exprs.length) {
-            this.errors.push(`Compound assignment operator misuse: LHS contains ${ids.length} argument(s) while RHS contains ${exprs.length} argument(s)`);
-            this._semanticsAreCorrect = false;
+            this.addError(`Compound assignment operator misuse: LHS contains ${ids.length} argument(s) while RHS contains ${exprs.length} argument(s)`);
             return;
         }
 
-        this.checkThatAllFunctionCallsAreDefined(ctx);
+        this.checkAllAssignedValues(ctx);
+        this.checkAllFunctionCalls(ctx);
+
+        this.addVariablesToCurrScope(ids);
+    }
+
+    enterStatement(ctx) {
+        if (ctx.parentCtx.constructor.name === "FunctionContext") {
+            this.addVariablesToCurrScope(this.getFunctionArgs(ctx.parentCtx));
+        }
     }
 
     exitFunction(ctx) {
         const functionName = this.getFunctionName(ctx);
 
-        if (this.functionAlreadyDefined(functionName)) {
-            this.errors.push(`Duplicate function definition: ${functionName}`);
-            this._semanticsAreCorrect = false;
-            return;
-        }
+        // if (this.functionAlreadyDefined(functionName)) {
+        //     this.errors.push(`Duplicate function definition: ${functionName}`);
+        //     return;
+        // }
 
-        const lparenIndex = ctx.LPAREN().symbol.tokenIndex;
-        const rparenIndex = ctx.RPAREN().symbol.tokenIndex;
         this.definedFunctions.push(new FunctionDefinition(
             functionName,
-            ctx.expr().filter(expr => expr.start.tokenIndex > lparenIndex && expr.stop.tokenIndex < rparenIndex).length
+            this.getFunctionArgs(ctx).length
         ));
+    }
+
+    exitCycle(ctx) {
+        const iteratedObjectName = ctx.ID()[0].getText();
+
+        if (!this.variableAlreadyDefined(iteratedObjectName)) {
+            this.addError(`${iteratedObjectName} is not defined`);
+            return;
+        }
+    }
+
+    variableAlreadyDefined(name) {
+        return this.currScope.hasVariableDefinition(name);
+    }
+
+    checkAllAssignedValues(ctx) {
+        ctx.expr()
+            .map(expr => expr.operand()?.ID())
+            .filter(variable => !!variable)
+            .every(variable => {
+                const variableName = variable.getText();
+                if (!this.variableAlreadyDefined(variableName)) {
+                    this.addError(`${variableName} is not defined in the current scope or any of its superscopes`);
+                    return false;
+                }
+                return true;
+            })
+    }
+
+    addVariablesToCurrScope(variables) {
+        variables.forEach(variable => {
+            const variableName = variable.getText();
+            if (!this.currScope.hasVariableDefinition(variableName)) {
+                this.currScope.addVariable(variableName);
+            }
+        });
     }
 
     getFunctionName(ctx) {
         return ctx.ID().getText();
     }
 
-    functionAlreadyDefined(name) {
-        return !!this._predefinedFunctionNames.find(predefinedFunctionName => predefinedFunctionName === name)
-            || !!this.definedFunctions.find(definedFunction => definedFunction._name === name);
+    getFunctionArgs(ctx) {
+        const lparenIndex = ctx.LPAREN().symbol.tokenIndex;
+        const rparenIndex = ctx.RPAREN().symbol.tokenIndex;
+        return ctx.expr().filter(expr => expr.start.tokenIndex > lparenIndex && expr.stop.tokenIndex < rparenIndex);
     }
 
-    checkThatAllFunctionCallsAreDefined(ctx) {
+    functionAlreadyDefined(name) {
+        return !!this._predefinedFunctionNames.find(predefinedFunctionName => predefinedFunctionName === name)
+            || !!this.definedFunctions.find(definedFunction => definedFunction.getName() === name);
+    }
+
+    checkAllFunctionCalls(ctx) {
         ctx.expr()
             .map(expr => expr.call())
             .filter(call => !!call)
             .every(functionCall => {
                 const functionName = this.getFunctionName(functionCall);
                 if (!this.functionAlreadyDefined(functionName)) {
-                    this.errors.push(`Function ${functionName} is not defined`);
-                    this._semanticsAreCorrect = false;
+                    this.addError(`Function ${functionName} is not defined`);
                     return false;
                 }
                 return true;
@@ -110,7 +159,11 @@ export class TreeListener extends ExprParserListener {
     }
 
     areSemanticsCorrect() {
-        return this._semanticsAreCorrect;
+        return this.errors.length === 0;
+    }
+
+    addError(error) {
+        this.errors.push(error);
     }
 
     getErrors() {
