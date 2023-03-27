@@ -50,7 +50,7 @@ class Scope {
     }
 
     updateVariable(name, newType) {
-        this.definedVariables.find(variable => variable.getName() === name).setType(newType);
+        this.findVariable(name).setType(newType);
     }
 
     addSubscope(scope) {
@@ -144,7 +144,9 @@ export class TreeListener extends ExprParserListener {
             return;
         }
 
-        this.addVariablesToCurrScope(ids, exprs.map(expr => this.deriveExprType(expr)));
+        const assignedExprTypes = exprs.map(expr => this.deriveExprType(expr));
+        this.addVariablesToCurrScope(ids, assignedExprTypes);
+        this.updateVariableTypesInCurrScope(ids, assignedExprTypes);
         this.checkAllExprVariables(ctx.expr());
     }
 
@@ -161,7 +163,7 @@ export class TreeListener extends ExprParserListener {
             if (this.variableNotIterable(iteratedObjectName)) {
                 this.addError(
                     `Variable '${iteratedObjectName}' is not iterable`,
-                    ctx
+                    parentCtx
                 );
             }
             const iteratedObjectType = this.deriveVariableType(cycleHeaderIDs[0]);
@@ -237,8 +239,10 @@ export class TreeListener extends ExprParserListener {
         });
     }
 
-    updateVariableTypesInCurrScope(variableObjArray) {
-        variableObjArray.forEach(variableObj => this.currScope.updateVariable(variableObj.name, variableObj.newType));
+    updateVariableTypesInCurrScope(variables, types) {
+        variables.forEach((variable, index) => {
+            this.currScope.updateVariable(variable.getText(), types[index]);
+        });
     }
 
     getFunctionName(ctx) {

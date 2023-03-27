@@ -1,0 +1,8 @@
+print("hi");
+
+a, b, c = '0', 2;
+
+// expected output:
+//
+// Compound assignment operator misuse: LHS contains 3 argument(s) while RHS contains 2 argument(s)
+// At line 3, column 0

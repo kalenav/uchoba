@@ -1,0 +1,10 @@
+print("hi");
+
+countSymbols("hello", 'l');
+
+char("s");
+
+// expected output:
+//
+// Function 'countSymbols' is not defined
+// At line 3, column 0

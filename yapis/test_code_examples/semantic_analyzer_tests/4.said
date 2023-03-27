@@ -1,0 +1,11 @@
+if (0 == 0) then:
+    var = 0;
+    print(var);
+end;
+
+print(var);
+
+// expected output:
+//
+// Variable 'var' is not defined in this scope or any of its superscopes
+// At line 6, column 6

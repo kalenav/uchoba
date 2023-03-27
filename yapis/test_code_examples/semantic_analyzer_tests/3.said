@@ -1,0 +1,10 @@
+symbol = 'a';
+iterate symbol track EL as el:
+    print(el);
+end;
+print(symbol);
+
+// expected output:
+// 
+// Variable 'symbol' is not iterable
+// At line 3, column 4

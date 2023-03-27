@@ -1,0 +1,16 @@
+var = "strstrstr";
+iterate var track EL as el:
+    print(el);
+end;
+
+var = 'a';
+iterate var track EL as el:
+    print(el);
+end;
+
+print(var);
+
+// expected output:
+// 
+// Variable 'var' is not iterable
+// At line 7, column 0
