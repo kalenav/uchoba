@@ -1,0 +1,9 @@
+b = 3;
+a() = b;
+
+// expected output:
+// 
+// SyntaxError
+// While parsing 'statement'
+// unexpected token: '=' at line 2, column 4
+// Please verify syntax

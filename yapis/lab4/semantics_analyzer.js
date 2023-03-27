@@ -128,9 +128,19 @@ export class TreeListener extends ExprParserListener {
         const functionName = this.getFunctionName(ctx);
         if (!this.functionAlreadyDefined(functionName)) {
             this.addError(`Function '${functionName}' is not defined`, ctx);
+            return;
         }
 
         const args = ctx.expr();
+        const expectedArgsQuantity = this.definedFunctions
+            .find(functionDef => functionDef.getName() === functionName)
+            .getArgsQuantity();
+        if (expectedArgsQuantity !== args.length) {
+            this.addError(
+                `Function '${functionName}' accepts ${expectedArgsQuantity} argument(s), but ${args.length} argument(s) were passed`,
+                ctx
+            );
+        }
         this.checkAllExprVariables(args);
     }
 

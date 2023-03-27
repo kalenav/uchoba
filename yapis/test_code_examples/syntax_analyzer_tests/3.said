@@ -1,0 +1,14 @@
+str = "abc";
+
+iterate str:
+    print(el);
+end;
+
+print(0);
+
+// expected output:
+// 
+// SyntaxError
+// While parsing 'string constant'
+// unexpected token: '<EOF>' at line 14, column 23
+// Please verify syntax

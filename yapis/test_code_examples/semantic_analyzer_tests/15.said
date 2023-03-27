@@ -1,0 +1,23 @@
+function doSmth(arg1, arg2):
+    print(arg1);
+    print(arg2);
+    return
+
+print();
+doSmth();
+doSmth("hi");
+doSmth("well", "hello", "there");
+
+// expected output:
+// 
+// Functon 'print' accepts 1 argument(s), but 0 argument(s) were passed
+// At line 6, column 0
+// =================
+// Functon 'doSmth' accepts 2 argument(s), but 0 argument(s) were passed
+// At line 7, column 0
+// =================
+// Functon 'doSmth' accepts 2 argument(s), but 1 argument(s) were passed
+// At line 8, column 0
+// =================
+// Functon 'doSmth' accepts 2 argument(s), but 3 argument(s) were passed
+// At line 9, column 0

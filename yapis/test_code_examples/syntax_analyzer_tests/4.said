@@ -1,0 +1,8 @@
+a = ["str1", "str2", 'c'];
+
+// expected output:
+// 
+// SyntaxError
+// While parsing 'string constant'
+// unexpected token: '<EOF>' at line 8, column 23
+// Please verify syntax

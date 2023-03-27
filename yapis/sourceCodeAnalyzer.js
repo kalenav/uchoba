@@ -47,6 +47,11 @@ function tests() {
         './lab1/example1.said',
         './lab1/example2.said',
         './lab1/example3.said',
+        './test_code_examples/syntax_analyzer_tests/1.said',
+        './test_code_examples/syntax_analyzer_tests/2.said',
+        './test_code_examples/syntax_analyzer_tests/3.said',
+        './test_code_examples/syntax_analyzer_tests/4.said',
+        './test_code_examples/syntax_analyzer_tests/5.said',
         './test_code_examples/semantic_analyzer_tests/1.said',
         './test_code_examples/semantic_analyzer_tests/2.said',
         './test_code_examples/semantic_analyzer_tests/3.said',
@@ -61,9 +66,10 @@ function tests() {
         './test_code_examples/semantic_analyzer_tests/12.said',
         './test_code_examples/semantic_analyzer_tests/13.said',
         './test_code_examples/semantic_analyzer_tests/14.said',
+        './test_code_examples/semantic_analyzer_tests/15.said'
     ].forEach(filename => analyzeSyntaxAndSemantics(filename));
 }
 
 // tests();
 
-analyzeSyntaxAndSemantics('./test_code_examples/semantic_analyzer_tests/14.said');
+analyzeSyntaxAndSemantics('./test_code_examples/syntax_analyzer_tests/5.said');

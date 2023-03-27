@@ -1,0 +1,12 @@
+if (3 > 2):
+    print("hi");
+end;
+
+print(0);
+
+// expected output:
+// 
+// SyntaxError
+// While parsing 'if structure'
+// unexpected token: ':' at line 1, column 10
+// Please verify syntax
