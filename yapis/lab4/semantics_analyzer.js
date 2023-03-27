@@ -130,7 +130,7 @@ export class TreeListener extends ExprParserListener {
             this.addError(`Function '${functionName}' is not defined`, ctx);
         }
 
-        this.checkAllExprVariables(ctx.expr(), ctx);
+        this.checkAllExprVariables(ctx.expr());
     }
 
     exitAssignment(ctx) {
@@ -145,7 +145,7 @@ export class TreeListener extends ExprParserListener {
         }
 
         this.addVariablesToCurrScope(ids, exprs.map(expr => this.deriveExprType(expr)));
-        this.checkAllExprVariables(ctx.expr(), ctx);
+        this.checkAllExprVariables(ctx.expr());
     }
 
     enterStatement(ctx) {
@@ -187,14 +187,12 @@ export class TreeListener extends ExprParserListener {
     }
 
     exitFunction(ctx) {
-        const functionName = this.getFunctionName(ctx);
-
         this.definedFunctions.push(new FunctionDefinition(
-            functionName,
+            this.getFunctionName(ctx),
             this.getFunctionArgs(ctx).length
         ));
 
-        this.checkAllExprVariables(ctx.expr(), ctx);
+        this.checkAllExprVariables(ctx.expr());
         this.exitScope();
     }
 
@@ -215,7 +213,7 @@ export class TreeListener extends ExprParserListener {
     }
 
     exitCondition(ctx) {
-        this.checkAllExprVariables(ctx.expr(), ctx);
+        this.checkAllExprVariables(ctx.expr());
     }
 
     ///////////////////////////////
@@ -269,23 +267,23 @@ export class TreeListener extends ExprParserListener {
         return !!expr.operand()?.ID();
     }
 
-    checkIfVariableIsDefined(variable, ctx) {
+    checkIfVariableIsDefined(variable) {
         const variableName = variable.getText();
         if (!this.variableAlreadyDefined(variableName)) {
-            this.addError(`Variable '${variableName}' is not defined in this scope or any of its superscopes`, ctx);
+            this.addError(`Variable '${variableName}' is not defined in this scope or any of its superscopes`, variable);
         }
     }
 
-    checkAllVariables(variables, ctx) {
-        variables.forEach(variable => this.checkIfVariableIsDefined(variable, ctx)); 
+    checkAllVariables(variables) {
+        variables.forEach(variable => this.checkIfVariableIsDefined(variable)); 
     }
 
-    checkAllExprVariables(exprs, ctx) {
-        this.checkAllVariables(exprs.filter(expr => this.exprIsVar(expr)), ctx);
+    checkAllExprVariables(exprs) {
+        this.checkAllVariables(exprs.filter(expr => this.exprIsVar(expr)));
     }
 
     deriveVariableType(variable) {
-        return this.currScope.findVariable(variable.getText()).getType();
+        return this.currScope.findVariable(variable.getText())?.getType() || TYPES.undefined;
     }
 
     deriveExprType(expr) {
@@ -297,7 +295,7 @@ export class TreeListener extends ExprParserListener {
             if (!!operandCtx.INT()) {
                 return TYPES.int;
             }
-            if (!!operandCtx.char()) {
+            if (!!operandCtx.char_()) { // ??????????????
                 return TYPES.char;
             }
             if (!!operandCtx.string()) {

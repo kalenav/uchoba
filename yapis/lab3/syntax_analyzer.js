@@ -19,10 +19,11 @@ const ruleNameMap = {
 };
 
 export class ErrorListener extends antlr4.error.ErrorListener {
-    _error = "";
+    _error = ""
+
     syntaxError(recognizer, offendingSymbol, line, column, message, e) {
-        this.error = `
-    Syntax Error
+        this._error = `
+    SyntaxError
     While parsing ${ruleNameMap[recognizer.ruleNames[recognizer._ctx.ruleIndex]]}
     unexpected token: '${offendingSymbol.text}' at line ${line}, column ${column}
     Please verify syntax
