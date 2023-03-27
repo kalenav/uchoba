@@ -6,7 +6,7 @@ import { ErrorListener } from './lab3/syntax_analyzer.js';
 import { TreeListener } from './lab4/semantics_analyzer.js';
 
 function initParser(filename) {
-    const inputStr = fs.readFileSync(filename, 'utf-8');
+    const inputStr = getFileContents(filename);
     const chars = new antlr4.InputStream(inputStr);
     const lexer = new ExprLexer(chars);
     const tokens = new antlr4.CommonTokenStream(lexer);
@@ -16,7 +16,11 @@ function initParser(filename) {
     return parser;
 }
 
-function analyzeSyntaxAndSemantics(filename) {
+export function getFileContents(filename) {
+    return fs.readFileSync(filename, 'utf-8');
+}
+
+export function analyzeSyntaxAndSemantics(filename) {
     const syntaxAnalyzer = new ErrorListener();
     const semanticsAnalyzer = new TreeListener();
 
@@ -28,7 +32,7 @@ function analyzeSyntaxAndSemantics(filename) {
     const tree = parser.program();
     if (!syntaxAnalyzer.isSyntaxCorrect()) {
         console.log(syntaxAnalyzer.getError());
-        return;
+        return false;
     }
 
     antlr4.tree.ParseTreeWalker.DEFAULT.walk(semanticsAnalyzer, tree);
@@ -36,10 +40,11 @@ function analyzeSyntaxAndSemantics(filename) {
         console.log(semanticsAnalyzer.getErrors().map(error => {
             return `   Semantics Error\n   ${error.message}\n   At line ${error.line}, column ${error.column}`
         }).join('\n=====================\n'));
-        return;
+        return false;
     }
 
     console.log('ready to compile');
+    return true;
 }
 
 function tests() {
@@ -67,9 +72,5 @@ function tests() {
         './test_code_examples/semantic_analyzer_tests/13.said',
         './test_code_examples/semantic_analyzer_tests/14.said',
         './test_code_examples/semantic_analyzer_tests/15.said'
-    ].forEach(filename => analyzeSyntaxAndSemantics(filename));
+    ].forEach(analyzeSyntaxAndSemantics);
 }
-
-// tests();
-
-analyzeSyntaxAndSemantics('./test_code_examples/syntax_analyzer_tests/5.said');
