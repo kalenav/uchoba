@@ -1,0 +1,23 @@
+char = 'a';
+string = "hello";
+array = ["hi", "there"];
+number = 10;
+
+print(number / number);
+print(string / char);
+print(array / string);
+
+print(char / number);
+print(array / array);
+print(string / number);
+
+// expected output:
+// 
+// Cannot divide variable/constant of type 'char' by variable/constant of type 'int'
+// At line 10, column 6
+// ===============
+// Cannot divide variable/constant of type 'strarray' by variable/constant of type 'strarray'
+// At line 11, column 6
+// ===============
+// Cannot divide variable/constant of type 'string' by variable/constant of type 'int'
+// At line 12, column 6

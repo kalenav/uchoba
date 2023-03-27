@@ -10,6 +10,7 @@ print(char + char);
 print(string + char);
 print(char + string);
 print(string + string);
+print(array + array);
 
 print(number + char);
 print(char + number);

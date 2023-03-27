@@ -34,7 +34,7 @@ function analyzeSyntaxAndSemantics(filename) {
     antlr4.tree.ParseTreeWalker.DEFAULT.walk(semanticsAnalyzer, tree);
     if (!semanticsAnalyzer.areSemanticsCorrect()) {
         console.log(semanticsAnalyzer.getErrors().map(error => {
-            return `Semantics Error\n${error.message}\nAt line ${error.line}, column ${error.column}`
+            return `   Semantics Error\n   ${error.message}\n   At line ${error.line}, column ${error.column}`
         }).join('\n=====================\n'));
         return;
     }
@@ -66,4 +66,4 @@ function tests() {
 
 // tests();
 
-analyzeSyntaxAndSemantics('./test_code_examples/semantic_analyzer_tests/12.said');
+analyzeSyntaxAndSemantics('./test_code_examples/semantic_analyzer_tests/14.said');

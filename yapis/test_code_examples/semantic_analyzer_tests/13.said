@@ -1,0 +1,23 @@
+char = 'a';
+string = "hello";
+array = ["hi", "there"];
+number = 10;
+
+print(number * number);
+print(char * number);
+print(string * number);
+
+print(char * char);
+print(string * char);
+print(array * string);
+
+// expected output:
+// 
+// Cannot multiply variable/constant of type 'char' by variable/constant of type 'char'
+// At line 10, column 6
+// ===============
+// Cannot multiply variable/constant of type 'string' by variable/constant of type 'char'
+// At line 11, column 6
+// ===============
+// Cannot multiply variable/constant of type 'strarray' by variable/constant of type 'string'
+// At line 12, column 6

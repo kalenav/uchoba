@@ -451,7 +451,7 @@ export class TreeListener extends ExprParserListener {
                 return TYPES.strarray;
             }
             this.addError(
-                `Cannot subtract variable/constant of type '${leftSideExprTypeStr}' from variable/constant of type '${rightSideExprTypeStr}'`,
+                `Cannot subtract variable/constant of type '${rightSideExprTypeStr}' from variable/constant of type '${leftSideExprTypeStr}'`,
                 leftSideExpr
             );
             return TYPES.undefined;
