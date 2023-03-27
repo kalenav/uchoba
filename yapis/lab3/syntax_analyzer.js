@@ -1,21 +1,21 @@
 import antlr4 from 'antlr4';
 
 const ruleNameMap = {
-    program: 'program',
-    statement: 'statement',
-    assignment: 'assignment',
-    function: 'function declaration',
-    call: 'function call',
-    cycle: 'cycle structure',
-    if: 'if structure',
-    control: 'control',
-    char: 'character constant',
-    string: 'string constant',
-    strarray: 'strarray constant',
-    operand: 'number or variable name',
-    condition: 'condition expression',
-    expr: 'expression',
-    comment: 'comment'
+    program: `'program'`,
+    statement: `'statement'`,
+    assignment: `'assignment'`,
+    function: `'function declaration'`,
+    call: `'function call'`,
+    cycle: `'cycle structure'`,
+    if: `'if structure'`,
+    control: `'control'`,
+    char: `'character constant'`,
+    string: `'string constant'`,
+    strarray: `'strarray constant'`,
+    operand: `'number or variable name'`,
+    condition: `'condition expression'`,
+    expr: `'expression'`,
+    comment: `'comment'`
 };
 
 export class ErrorListener extends antlr4.error.ErrorListener {

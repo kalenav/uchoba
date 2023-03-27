@@ -1,0 +1,47 @@
+print(3 + 2);
+
+char = 'a';
+string = "hello";
+array = ["hi", "there"];
+number = 10;
+
+print(number + number);
+print(char + char);
+print(string + char);
+print(char + string);
+print(string + string);
+
+print(number + char);
+print(char + number);
+print(string + number);
+print(number + string);
+print(array + number);
+print(number + array);
+print(string + array);
+print(array + string);
+
+// expected output:
+// 
+// Cannot add variable/constant of type 'char' to variable/constant of type 'int'
+// At line 14, column 6
+// =================
+// Cannot add variable/constant of type 'int' to variable/constant of type 'char'
+// At line 15, column 6
+// =================
+// Cannot add variable/constant of type 'int' to variable/constant of type 'string'
+// At line 16, column 6
+// =================
+// Cannot add variable/constant of type 'string' to variable/constant of type 'int'
+// At line 17, column 6
+// =================
+// Cannot add variable/constant of type 'int' to variable/constant of type 'strarray'
+// At line 18, column 6
+// =================
+// Cannot add variable/constant of type 'strarray' to variable/constant of type 'int'
+// At line 19, column 6
+// =================
+// Cannot add variable/constant of type 'strarray' to variable/constant of type 'string'
+// At line 20, column 6
+// =================
+// Cannot add variable/constant of type 'string' to variable/constant of type 'strarray'
+// At line 21, column 6

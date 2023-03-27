@@ -52,7 +52,18 @@ function tests() {
         './test_code_examples/semantic_analyzer_tests/3.said',
         './test_code_examples/semantic_analyzer_tests/4.said',
         './test_code_examples/semantic_analyzer_tests/5.said',
+        './test_code_examples/semantic_analyzer_tests/6.said',
+        './test_code_examples/semantic_analyzer_tests/7.said',
+        './test_code_examples/semantic_analyzer_tests/8.said',
+        './test_code_examples/semantic_analyzer_tests/9.said',
+        './test_code_examples/semantic_analyzer_tests/10.said',
+        './test_code_examples/semantic_analyzer_tests/11.said',
+        './test_code_examples/semantic_analyzer_tests/12.said',
+        './test_code_examples/semantic_analyzer_tests/13.said',
+        './test_code_examples/semantic_analyzer_tests/14.said',
     ].forEach(filename => analyzeSyntaxAndSemantics(filename));
 }
 
-tests();
+// tests();
+
+analyzeSyntaxAndSemantics('./test_code_examples/semantic_analyzer_tests/12.said');

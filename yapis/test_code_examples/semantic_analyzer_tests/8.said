@@ -1,0 +1,11 @@
+c[0];
+
+["abc", "cde"][index];
+
+// expected output:
+// 
+// Variables of type 'undefined' cannot be used in expressions
+// At line 1, column 0
+// ==================
+// Variables of type 'undefined' cannot be used in expressions
+// At line 3, column 15

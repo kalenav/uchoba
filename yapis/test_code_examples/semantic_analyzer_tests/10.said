@@ -1,0 +1,17 @@
+if (3 > 'a') then:
+    print("hi");
+end;
+
+if ('b' == 5) then:
+    print("hi");
+end;
+
+print("hi");
+
+// expected output:
+// 
+// Both sides of a condition must be integers
+// At line 1, column 9
+// ================
+// Both sides of a condition must be integers
+// At line 5, column 4

@@ -1,0 +1,6 @@
+a = b;
+
+// expected output:
+// 
+// Variable 'b' is not defined in this scope or any of its superscopes
+// At line 1, column 4

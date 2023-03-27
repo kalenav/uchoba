@@ -130,7 +130,8 @@ export class TreeListener extends ExprParserListener {
             this.addError(`Function '${functionName}' is not defined`, ctx);
         }
 
-        this.checkAllExprVariables(ctx.expr());
+        const args = ctx.expr();
+        this.checkAllExprVariables(args);
     }
 
     exitAssignment(ctx) {
@@ -215,7 +216,21 @@ export class TreeListener extends ExprParserListener {
     }
 
     exitCondition(ctx) {
-        this.checkAllExprVariables(ctx.expr());
+        const exprs = ctx.expr();
+        this.checkAllExprVariables(exprs);
+        const leftSideExprType = this.deriveExprType(exprs[0]);
+        const rightSideExprType = this.deriveExprType(exprs[1]);
+        if ((leftSideExprType !== TYPES.int && leftSideExprType !== TYPES.any)
+        || (rightSideExprType !== TYPES.int && rightSideExprType !== TYPES.any)) {
+            this.addError(
+                `Both sides of a condition must be integers`,
+                ctx
+            );
+        }
+    }
+
+    exitExpr(ctx) {
+        this.checkExprTypes([ctx]);
     }
 
     ///////////////////////////////
@@ -318,7 +333,7 @@ export class TreeListener extends ExprParserListener {
 
         if (!!expr.NOT()) {
             const negatedExpr = expr.expr()[0];
-            const negatedExprType = this.deriveExprType(negatedExpr)
+            const negatedExprType = this.deriveExprType(negatedExpr);
             if (negatedExprType !== TYPES.int && negatedExprType !== TYPES.any) {
                 this.addError(
                     `Cannot negate non-int variable/constant`,
@@ -335,6 +350,8 @@ export class TreeListener extends ExprParserListener {
         const rightSideExpr = expr.expr()[1];
         const leftSideExprType = this.deriveExprType(leftSideExpr);
         const rightSideExprType = this.deriveExprType(rightSideExpr);
+        const leftSideExprTypeStr = typeIDToStringMap[leftSideExprType];
+        const rightSideExprTypeStr = typeIDToStringMap[rightSideExprType];
 
         if (leftSideExprType === TYPES.undefined) {
             this.addError(
@@ -417,8 +434,8 @@ export class TreeListener extends ExprParserListener {
                 return TYPES.strarray;
             }
             this.addError(
-                `Cannot add variable/constant of type '${leftSideExprType}' to variable/constant of type '${rightSideExprType}'`,
-                leftSideExpr
+                `Cannot add variable/constant of type '${rightSideExprTypeStr}' to variable/constant of type '${leftSideExprTypeStr}'`,
+                leftSideExpr.parentCtx
             );
             return TYPES.undefined;
         }
@@ -434,7 +451,7 @@ export class TreeListener extends ExprParserListener {
                 return TYPES.strarray;
             }
             this.addError(
-                `Cannot subtract variable/constant of type '${leftSideExprType}' from variable/constant of type '${rightSideExprType}'`,
+                `Cannot subtract variable/constant of type '${leftSideExprTypeStr}' from variable/constant of type '${rightSideExprTypeStr}'`,
                 leftSideExpr
             );
             return TYPES.undefined;
@@ -452,7 +469,7 @@ export class TreeListener extends ExprParserListener {
                 return TYPES.strarray;
             }
             this.addError(
-                `Cannot multiply variable/constant of type '${leftSideExprType}' by variable/constant of type '${rightSideExprType}'`,
+                `Cannot multiply variable/constant of type '${leftSideExprTypeStr}' by variable/constant of type '${rightSideExprTypeStr}'`,
                 leftSideExpr
             );
             return TYPES.undefined;
@@ -469,13 +486,17 @@ export class TreeListener extends ExprParserListener {
                 return TYPES.strarray;
             }
             this.addError(
-                `Cannot divide variable/constant of type '${leftSideExprType}' by variable/constant of type '${rightSideExprType}'`,
+                `Cannot divide variable/constant of type '${leftSideExprTypeStr}' by variable/constant of type '${rightSideExprTypeStr}'`,
                 leftSideExpr
             );
             return TYPES.undefined;
         }
 
         return TYPES.undefined;
+    }
+
+    checkExprTypes(exprs) {
+        exprs.forEach(expr => this.deriveExprType(expr));
     }
 
     ///////////////////////////////

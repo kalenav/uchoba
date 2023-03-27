@@ -1,0 +1,16 @@
+'a'[0];
+
+2[1];
+
+"hello"['e'];
+
+// expected output:
+// 
+// Cannot index a non-iterable variable/constant
+// At line 1, column 0;
+// ================
+// Cannot index a non-iterable variable/constant
+// At line 3, column 0;
+// ================
+// Index accessor must be an integer
+// At line 5, column 8

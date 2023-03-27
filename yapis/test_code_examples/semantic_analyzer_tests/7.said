@@ -1,0 +1,18 @@
+function abc(arg):
+    print(!arg);
+    return
+
+print(!'a');
+
+b = "hi";
+print(!b);
+
+print(!1);
+
+// expected output:
+// 
+// Cannot negate non-int variable/constant 
+// At line 5, column 7
+// ================
+// Cannot negate non-int variable/constant
+// At line 8, column 7
