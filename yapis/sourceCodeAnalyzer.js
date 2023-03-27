@@ -43,7 +43,6 @@ export function analyzeSyntaxAndSemantics(filename) {
         return false;
     }
 
-    console.log('ready to compile');
     return true;
 }
 

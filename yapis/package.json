@@ -1,6 +1,6 @@
 {
   "bin": {
-    "interprete": "interprete.js"
+    "compile": "compile.js"
   },
   "name": "yapis",
   "version": "1.0.0",
