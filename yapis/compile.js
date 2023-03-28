@@ -1,7 +1,8 @@
 import yargs from 'yargs';
 import fs from 'fs';
+import { initParser } from './sourceCodeAnalyzer.js';
 import { exec } from 'child_process';
-import { analyzeSyntaxAndSemantics, getFileContents } from './sourceCodeAnalyzer.js';
+import { analyzeSyntaxAndSemantics } from './sourceCodeAnalyzer.js';
 import { Interpreter } from './lab5/said_to_cil_interpreter.js';
 
 const options = yargs
@@ -9,13 +10,14 @@ const options = yargs
     .option("f", { alias: "filename", describe: "path to file to compile", type: "string", demandOption: true })
     .argv;
 
-if (analyzeSyntaxAndSemantics(options.filename)) {
+const tree = analyzeSyntaxAndSemantics(initParser(options.filename));
+if (!!tree) {
     console.log('syntax and semantics OK');
     try {
         console.log('interpreting...');
         fs.writeFileSync(
-            'assembly.cil',
-            new Interpreter().interpret(getFileContents(options.filename))
+            'assembly.il',
+            new Interpreter(tree).interpretation()
         );
 
         console.log('interpreted successfully, compiling...');
@@ -24,11 +26,11 @@ if (analyzeSyntaxAndSemantics(options.filename)) {
                 throw err;
             }
             console.log('compiled successfully to file "assembly.exe"!');
-            fs.unlink('assembly.cil', (err) => {
-                if (err) {
-                    throw err;
-                }
-            });
+            // fs.unlink('assembly.il', (err) => {
+            //     if (err) {
+            //         throw err;
+            //     }
+            // });
         });
     }
     catch (err) {

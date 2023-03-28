@@ -5,7 +5,11 @@ import ExprParser from './lab3/compiled_grammar/ExprParser.js';
 import { ErrorListener } from './lab3/syntax_analyzer.js';
 import { TreeListener } from './lab4/semantics_analyzer.js';
 
-function initParser(filename) {
+function getFileContents(filename) {
+    return fs.readFileSync(filename, 'utf-8');
+}
+
+export function initParser(filename) {
     const inputStr = getFileContents(filename);
     const chars = new antlr4.InputStream(inputStr);
     const lexer = new ExprLexer(chars);
@@ -16,18 +20,11 @@ function initParser(filename) {
     return parser;
 }
 
-export function getFileContents(filename) {
-    return fs.readFileSync(filename, 'utf-8');
-}
-
-export function analyzeSyntaxAndSemantics(filename) {
+export function analyzeSyntaxAndSemantics(parser) {
     const syntaxAnalyzer = new ErrorListener();
     const semanticsAnalyzer = new TreeListener();
 
-    const parser = initParser(filename);
     parser.addErrorListener(syntaxAnalyzer);
-
-    console.log(`----------------------------------------------------------------------------------------------\nAnalyzing file: ${filename}`)
 
     const tree = parser.program();
     if (!syntaxAnalyzer.isSyntaxCorrect()) {
@@ -43,7 +40,7 @@ export function analyzeSyntaxAndSemantics(filename) {
         return false;
     }
 
-    return true;
+    return tree;
 }
 
 function tests() {
@@ -71,5 +68,8 @@ function tests() {
         './test_code_examples/semantic_analyzer_tests/13.said',
         './test_code_examples/semantic_analyzer_tests/14.said',
         './test_code_examples/semantic_analyzer_tests/15.said'
-    ].forEach(analyzeSyntaxAndSemantics);
+    ].forEach(filename => {
+        const parser = initParser(filename);
+        analyzeSyntaxAndSemantics(parser);
+    });
 }
