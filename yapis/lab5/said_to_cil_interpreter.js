@@ -24,8 +24,6 @@ class Variable {
 
 class Method {
     name = "";
-    isEntryPoint = false;
-    maxStackSize = 8;
     returnType = dotnetCILtypes.void;
     arguments = [];
     localVariables = [];
@@ -34,22 +32,34 @@ class Method {
     constructor(params) {
         this.name = params.name;
         if (params.arguments) this.arguments = params.arguments.slice();
+        if (params.returnType) this.returnType = params.returnType;
+        this.addLineOfCode(`.maxstack ${params.maxStackSize ?? 8}`);
         if (params.isEntryPoint) {
             this.addLineOfCode('.entrypoint');
-            this.isEntryPoint = true;
         }
-        if (params.maxStackSize) this.maxStackSize = params.maxStackSize;
-        if (params.returnType) this.returnType = params.returnType;
-        this.addLineOfCode(`.maxstack ${this.maxStackSize}`);
         if (params.localVariables) {
             this.localVariables = params.localVariables.slice();
-            this.addLineOfCode(`.locals init (${this.localVariables.map(CodeUtils.variableMapper).join(', ')})`);
+            this.addLineOfCode(`.locals init (${this.getLocalVariablesCode()})`);
         }
+        if (params.linesOfCode) {
+            this.linesOfCode = [
+                ...this.linesOfCode,
+                ...params.linesOfCode
+            ]
+        };
     }
 
     addLineOfCode(line) {
         this.linesOfCode.push(line);
     }
+
+    addLinesOfCode(lines) {
+        lines.forEach(line => this.linesOfCode.push(line));
+    }
+
+    getLocalVariablesCode() {
+        return this.localVariables.map(CodeUtils.variableMapper).join(', ');
+    };
 
     getArgsCode() {
         return this.arguments.map(CodeUtils.variableMapper).join(', ');
@@ -89,8 +99,8 @@ class CodeUtils {
         return `call ${method.returnType} ${method.name}(${method.getArgTypesForCall()})`
     }
 
-    static box() {
-        return `box`;
+    static box(type) {
+        return `box ${type}`;
     }
 
     static convertToInt32() {
@@ -99,6 +109,18 @@ class CodeUtils {
 
     static variableMapper(variable) {
         return `${variable.type} ${variable.name}`;
+    }
+
+    static setVarValue(index) {
+        return `stloc ${index}`;
+    }
+
+    static getVarValue(index) {
+        return `ldloc ${index}`;
+    }
+
+    static setVar_keepStack(index) {
+        return [CodeUtils.setVarValue(index), CodeUtils.getVarValue(index)];
     }
 }
 
@@ -152,45 +174,126 @@ ${this.methods.map(method => method.getCode()).join('\n')}`;
         const printNumber = new Method({
             name: 'print',
             maxStackSize: 1,
-            arguments: [new Variable('printedValue', dotnetCILtypes.int32)]
+            arguments: [new Variable('printedValue', dotnetCILtypes.int32)],
+            linesOfCode: [
+                CodeUtils.loadArgIntoStack(0),
+                `call void [mscorlib]System.Console::WriteLine(int32)`
+            ]
         });
-        printNumber.addLineOfCode(CodeUtils.loadArgIntoStack(0));
-        printNumber.addLineOfCode(`call void [mscorlib]System.Console::WriteLine(int32)`);
         const printChar = new Method({
             name: 'print',
             maxStackSize: 1,
-            arguments: [new Variable('printedValue', dotnetCILtypes.char)]
+            arguments: [new Variable('printedValue', dotnetCILtypes.char)],
+            linesOfCode: [
+                CodeUtils.loadArgIntoStack(0),
+                `call void [mscorlib]System.Console::Write(char)`
+            ]
         });
-        printChar.addLineOfCode(CodeUtils.loadArgIntoStack(0));
-        printChar.addLineOfCode(`call void [mscorlib]System.Console::Write(char)`);
         const printString = new Method({
             name: 'print',
             maxStackSize: 1,
-            arguments: [new Variable('printedValue', dotnetCILtypes.object)]
+            arguments: [new Variable('printedValue', dotnetCILtypes.string)],
+            linesOfCode: [
+                CodeUtils.loadArgIntoStack(0),
+                `call void [mscorlib]System.Console::WriteLine(string)`
+            ]
         });
-        printString.addLineOfCode(CodeUtils.loadArgIntoStack(0));
-        printString.addLineOfCode(`call void [mscorlib]System.Console::WriteLine(object)`);
-
         const strToChar = new Method({
             name: 'strToChar',
             maxStackSize: 2,
             arguments: [new Variable('str', dotnetCILtypes.string)],
-            returnType: dotnetCILtypes.char
+            returnType: dotnetCILtypes.char,
+            linesOfCode: [
+                CodeUtils.loadArgIntoStack(0),
+                CodeUtils.loadNumericConstantIntoStack(0),
+                `callvirt instance char string::get_Chars(int32)`
+            ]
         });
-        strToChar.addLineOfCode(CodeUtils.loadArgIntoStack(0));
-        strToChar.addLineOfCode(CodeUtils.loadNumericConstantIntoStack(0));
-        strToChar.addLineOfCode(`callvirt instance char string::get_Chars(int32)`);
-
+        const charToStr = new Method({
+            name: 'charToStr',
+            maxStackSize: 1,
+            arguments: [new Variable('chr', dotnetCILtypes.char)],
+            returnType: dotnetCILtypes.string,
+            linesOfCode: [
+                CodeUtils.loadArgIntoStack(0),
+                CodeUtils.box(dotnetCILtypes.char),
+                `callvirt instance string class [mscorlib]System.Object::ToString()`
+            ]
+        });
+        const addChars = new Method({
+            name: 'addChars',
+            maxStackSize: 2,
+            arguments: [new Variable('chr1', dotnetCILtypes.char), new Variable('chr2', dotnetCILtypes.char)],
+            returnType: dotnetCILtypes.string,
+            linesOfCode: [
+                CodeUtils.loadArgIntoStack(0),
+                CodeUtils.methodCall(charToStr),
+                CodeUtils.loadArgIntoStack(1),
+                CodeUtils.methodCall(charToStr),
+                `call string System.String::Concat(string, string)`
+            ]
+        });
+        const addStringAndChar = new Method({
+            name: 'addStringAndChar',
+            maxStackSize: 2,
+            arguments: [new Variable('str', dotnetCILtypes.string), new Variable('chr', dotnetCILtypes.char)],
+            returnType: dotnetCILtypes.string,
+            linesOfCode: [
+                CodeUtils.loadArgIntoStack(0),
+                CodeUtils.loadArgIntoStack(1),
+                CodeUtils.methodCall(charToStr),
+                `call string System.String::Concat(string, string)`
+            ]
+        });
+        const addCharAndString = new Method({
+            name: 'addStringAndChar',
+            maxStackSize: 2,
+            arguments: [new Variable('chr', dotnetCILtypes.char), new Variable('str', dotnetCILtypes.string)],
+            returnType: dotnetCILtypes.string,
+            linesOfCode: [
+                CodeUtils.loadArgIntoStack(0),
+                CodeUtils.methodCall(charToStr),
+                CodeUtils.loadArgIntoStack(1),
+                `call string System.String::Concat(string, string)`
+            ]
+        });
+        const addStrings = new Method({
+            name: 'addStrings',
+            maxStackSize: 2,
+            arguments: [new Variable('str1', dotnetCILtypes.string), new Variable('str2', dotnetCILtypes.string)],
+            returnType: dotnetCILtypes.string,
+            linesOfCode: [
+                CodeUtils.loadArgIntoStack(0),
+                CodeUtils.loadArgIntoStack(1),
+                `call string System.String::Concat(string, string)`
+            ]
+        });
         const main = new Method({
             name: 'Main',
             isEntryPoint: true,
-            arguments: [new Variable('args', `${dotnetCILtypes.string}[]`)]
+            arguments: [new Variable('args', `${dotnetCILtypes.string}[]`)],
+            localVariables: [new Variable('temp', dotnetCILtypes.char)],
+            linesOfCode: [
+                CodeUtils.loadStringConstantIntoStack("a"),
+                CodeUtils.loadStringConstantIntoStack("bcd"),
+                CodeUtils.methodCall(addStrings),
+                CodeUtils.methodCall(printString)
+            ]
         });
-        main.addLineOfCode(CodeUtils.loadStringConstantIntoStack("hello"));
-        main.addLineOfCode(CodeUtils.methodCall(strToChar));
-        main.addLineOfCode(CodeUtils.methodCall(printChar));
 
-        [main, printString, printNumber, printChar, strToChar].forEach(method => this.methods.push(method));
+        [
+            main,
+            printString,
+            printNumber,
+            printChar,
+            strToChar,
+            charToStr,
+            addChars,
+            addStringAndChar,
+            addCharAndString,
+            addStrings,
+            // addStrarrays
+        ].forEach(method => this.methods.push(method));
     }
 
     ///////////////////////////////
