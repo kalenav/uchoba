@@ -4,6 +4,7 @@ import ExprParserListener from "../lab3/compiled_grammar/ExprParserListener.js";
 const dotnetCILtypes = {
     char: 'char',
     string: 'string',
+    strarray: 'string[]',
     int8: 'int8',
     int16: 'int16',
     int32: 'int32',
@@ -100,6 +101,28 @@ class CodeUtils {
         return `ldstr "${string}"`;
     }
 
+    static loadStrarrayConstantIntoStack(strarray, name) {
+        return [
+            CodeUtils.loadNumericConstantIntoStack(strarray.length),
+            `newarr string`,
+            CodeUtils.setVarValue(name),
+            ...strarray.map((string, index) => [
+                CodeUtils.getVarValue(name),
+                CodeUtils.loadNumericConstantIntoStack(index),
+                CodeUtils.loadStringConstantIntoStack(string),
+                CodeUtils.addElemToStrarray()
+            ]).flat(),
+            CodeUtils.getVarValue(name)
+        ]
+    }
+
+    static initEmptyStrarray(name) { // int32 length value must already be in the stack
+        return [
+            `newarr string`,
+            CodeUtils.setVarValue(name)
+        ]
+    }
+
     static methodCall(method) {
         return `call ${method.returnType} ${method.name}(${method.getArgTypesForCall()})`
     }
@@ -192,6 +215,22 @@ class CodeUtils {
         let hexNum = new Number(number).toString(16);
         while (hexNum.length < 4) hexNum = `0${hexNum}`;
         return `IL_${hexNum}`;
+    }
+
+    static addElemToStrarray() {
+        return `stelem.ref`;
+    }
+
+    static getElemFromStrarray() {
+        return `ldelem.ref`;
+    }
+
+    static getArrayLength() {
+        return `ldlen`;
+    }
+
+    static return() {
+        return `ret`;
     }
 }
 
@@ -376,6 +415,20 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 `callvirt instance char string::get_Chars(int32)`
             ]
         });
+        const getStringAtIndex = new Method({
+            name: 'getStringAtIndex',
+            maxStackSize: 2,
+            arguments: [
+                new Variable('strarray', dotnetCILtypes.strarray),
+                new Variable('index', dotnetCILtypes.int32)
+            ],
+            returnType: dotnetCILtypes.string,
+            linesOfCode: [
+                CodeUtils.loadArgIntoStack(0),
+                CodeUtils.loadArgIntoStack(1),
+                CodeUtils.getElemFromStrarray()
+            ]
+        });
         const getStringLength = new Method({
             name: 'getStringLength',
             maxStackSize: 1,
@@ -390,7 +443,7 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         });
         const subtractCharFromStr = new Method({
             name: 'subtractCharFromStr',
-            maxStackSize: 20,
+            maxStackSize: 2,
             arguments: [
                 new Variable('chr', dotnetCILtypes.char),
                 new Variable('str', dotnetCILtypes.string),
@@ -409,7 +462,6 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 CodeUtils.setVarValue('charFound'),
                 ...CodeUtils.iterate({
                     branchID: 0,
-                    iteratedObjName: 'str',
                     iteratedObjInArgsIndex: 1,
                     indexAlias: 'ind',
                     elAlias: 'el',
@@ -451,17 +503,280 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 CodeUtils.getVarValue('resultStr'),
             ]
         });
+        const getStrarrayLength = new Method({
+            name: 'getStrarrayLength',
+            maxStackSize: 1,
+            arguments: [
+                new Variable('strarray', dotnetCILtypes.strarray)
+            ],
+            returnType: dotnetCILtypes.int32,
+            linesOfCode: [
+                CodeUtils.loadArgIntoStack(0),
+                CodeUtils.getArrayLength()
+            ]
+        });
+        const printStrarray = new Method({
+            name: 'print',
+            maxStackSize: 3,
+            arguments: [
+                new Variable('strarray', dotnetCILtypes.strarray)
+            ],
+            localVariables: [
+                new Variable('ind', dotnetCILtypes.int32),
+                new Variable('el', dotnetCILtypes.string),
+                new Variable('resultStr', dotnetCILtypes.string)
+            ],
+            linesOfCode: [
+                CodeUtils.loadStringConstantIntoStack("["),
+                CodeUtils.setVarValue('resultStr'),
+                ...CodeUtils.iterate({
+                    branchID: 5,
+                    iteratedObjInArgsIndex: 0,
+                    indexAlias: 'ind',
+                    elAlias: 'el',
+                    indexAccessorMethod: getStringAtIndex,
+                    getLengthMethod: getStrarrayLength,
+                    linesOfCode: [
+                        CodeUtils.getVarValue('resultStr'),
+                        CodeUtils.getVarValue('el'),
+                        CodeUtils.methodCall(addStrings),
+                        CodeUtils.setVarValue('resultStr'),
+                        CodeUtils.getVarValue('ind'),
+                        CodeUtils.loadArgIntoStack(0),
+                        CodeUtils.methodCall(getStrarrayLength),
+                        CodeUtils.loadNumericConstantIntoStack(1),
+                        `sub`,
+                        ...CodeUtils.condition({
+                            branchIDs: [6, 7],
+                            condition: 'firstLessThanSecond',
+                            linesOfCodeOnTrue: [
+                                CodeUtils.getVarValue('resultStr'),
+                                CodeUtils.loadStringConstantIntoStack(", "),
+                                CodeUtils.methodCall(addStrings),
+                                CodeUtils.setVarValue('resultStr')
+                            ],
+                            linesOfCodeOnFalse: []
+                        }),
+                    ]
+                }),
+                CodeUtils.getVarValue('resultStr'),
+                CodeUtils.loadStringConstantIntoStack("]"),
+                CodeUtils.methodCall(addStrings),
+                CodeUtils.methodCall(printString)
+            ]
+        });
+        const strarraySlice = new Method({
+            name: 'arraySlice',
+            maxStack: 3,
+            arguments: [
+                new Variable('strarray', dotnetCILtypes.strarray),
+                new Variable('fromInd', dotnetCILtypes.int32),
+                new Variable('toInd', dotnetCILtypes.int32),
+            ],
+            localVariables: [
+                new Variable('ind', dotnetCILtypes.int32),
+                new Variable('el', dotnetCILtypes.string),
+                new Variable('resultArray', dotnetCILtypes.strarray),
+                new Variable('currResultArrayIndex', dotnetCILtypes.int32)
+            ],
+            returnType: dotnetCILtypes.strarray,
+            linesOfCode: [
+                CodeUtils.loadArgIntoStack(2),
+                CodeUtils.loadArgIntoStack(1),
+                `sub`,
+                ...CodeUtils.initEmptyStrarray('resultArray'),
+                CodeUtils.loadNumericConstantIntoStack(0),
+                CodeUtils.setVarValue('currResultArrayIndex'),
+                ...CodeUtils.iterate({
+                    branchID: 6,
+                    iteratedObjInArgsIndex: 0,
+                    indexAlias: 'ind',
+                    elAlias: 'el',
+                    indexAccessorMethod: getStringAtIndex,
+                    getLengthMethod: getStrarrayLength,
+                    linesOfCode: [
+                        CodeUtils.getVarValue('ind'),
+                        CodeUtils.loadArgIntoStack(1),
+                        CodeUtils.loadNumericConstantIntoStack(1),
+                        `sub`,
+                        ...CodeUtils.condition({
+                            branchIDs: [7, 8],
+                            condition: 'firstGreaterThanSecond',
+                            linesOfCodeOnTrue: [
+                                CodeUtils.getVarValue('ind'),
+                                CodeUtils.loadArgIntoStack(2),
+                                ...CodeUtils.condition({
+                                    branchIDs: [9, 10],
+                                    condition: 'firstLessThanSecond',
+                                    linesOfCodeOnTrue: [
+                                        CodeUtils.getVarValue('resultArray'),
+                                        CodeUtils.getVarValue('currResultArrayIndex'),
+                                        CodeUtils.getVarValue('el'),
+                                        CodeUtils.addElemToStrarray(),
+                                        CodeUtils.loadNumericConstantIntoStack(1),
+                                        CodeUtils.getVarValue('currResultArrayIndex'),
+                                        `add`,
+                                        CodeUtils.setVarValue('currResultArrayIndex'),
+                                    ],
+                                    linesOfCodeOnFalse: []
+                                }),
+                            ],
+                            linesOfCodeOnFalse: []
+                        }),
+                    ]
+                }),
+                CodeUtils.getVarValue('resultArray'),
+            ]
+        });
+        const strarrayConcat = new Method({
+            name: 'strarrayConcat',
+            maxStackSize: 3,
+            arguments: [
+                new Variable('strarr1', dotnetCILtypes.strarray),
+                new Variable('strarr2', dotnetCILtypes.strarray)
+            ],
+            localVariables: [
+                new Variable('ind', dotnetCILtypes.int32),
+                new Variable('el', dotnetCILtypes.string),
+                new Variable('resultStrarr', dotnetCILtypes.strarray),
+                new Variable('currResultStrarrIndex', dotnetCILtypes.int32)
+            ],
+            returnType: dotnetCILtypes.strarray,
+            linesOfCode: [
+                CodeUtils.loadArgIntoStack(0),
+                CodeUtils.methodCall(getStrarrayLength),
+                CodeUtils.loadArgIntoStack(1),
+                CodeUtils.methodCall(getStrarrayLength),
+                `add`,
+                ...CodeUtils.initEmptyStrarray('resultStrarr'),
+                CodeUtils.loadNumericConstantIntoStack(0),
+                CodeUtils.setVarValue('currResultStrarrIndex'),
+                ...CodeUtils.iterate({
+                    branchID: 11,
+                    iteratedObjInArgsIndex: 0,
+                    indexAlias: 'ind',
+                    elAlias: 'el',
+                    indexAccessorMethod: getStringAtIndex,
+                    getLengthMethod: getStrarrayLength,
+                    linesOfCode: [
+                        CodeUtils.getVarValue('resultStrarr'),
+                        CodeUtils.getVarValue('currResultStrarrIndex'),
+                        CodeUtils.getVarValue('el'),
+                        CodeUtils.addElemToStrarray(),
+                        CodeUtils.getVarValue('currResultStrarrIndex'),
+                        CodeUtils.loadNumericConstantIntoStack(1),
+                        `add`,
+                        CodeUtils.setVarValue('currResultStrarrIndex')
+                    ],
+                }),
+                ...CodeUtils.iterate({
+                    branchID: 12,
+                    iteratedObjInArgsIndex: 1,
+                    indexAlias: 'ind',
+                    elAlias: 'el',
+                    indexAccessorMethod: getStringAtIndex,
+                    getLengthMethod: getStrarrayLength,
+                    linesOfCode: [
+                        CodeUtils.getVarValue('resultStrarr'),
+                        CodeUtils.getVarValue('currResultStrarrIndex'),
+                        CodeUtils.getVarValue('el'),
+                        CodeUtils.addElemToStrarray(),
+                        CodeUtils.getVarValue('currResultStrarrIndex'),
+                        CodeUtils.loadNumericConstantIntoStack(1),
+                        `add`,
+                        CodeUtils.setVarValue('currResultStrarrIndex')
+                    ],
+                }),
+                CodeUtils.getVarValue('resultStrarr')
+            ]
+        });
+        const subtractStrFromStrarray = new Method({
+            name: 'subtractStrFromStrarray',
+            maxStackSize: 20,
+            arguments: [
+                new Variable('str', dotnetCILtypes.string),
+                new Variable('strarray', dotnetCILtypes.strarray)
+            ],
+            localVariables: [
+                new Variable('ind', dotnetCILtypes.int32),
+                new Variable('el', dotnetCILtypes.string),
+                new Variable('resultArr', dotnetCILtypes.strarray),
+                new Variable('strFound', dotnetCILtypes.int8)
+            ],
+            returnType: dotnetCILtypes.strarray,
+            linesOfCode: [
+                CodeUtils.loadNumericConstantIntoStack(0),
+                CodeUtils.setVarValue('strFound'),
+                ...CodeUtils.iterate({
+                    branchID: 13,
+                    iteratedObjInArgsIndex: 1,
+                    indexAlias: 'ind',
+                    elAlias: 'el',
+                    indexAccessorMethod: getStringAtIndex,
+                    getLengthMethod: getStrarrayLength,
+                    linesOfCode: [
+                        CodeUtils.getVarValue('strFound'),
+                        CodeUtils.loadNumericConstantIntoStack(1),
+                        ...CodeUtils.condition({
+                            branchIDs: [14, 15],
+                            condition: 'areEqual',
+                            linesOfCodeOnTrue: [
+                            ],
+                            linesOfCodeOnFalse: [
+                                CodeUtils.loadArgIntoStack(0),
+                                CodeUtils.getVarValue('el'),
+                                ...CodeUtils.condition({
+                                    branchIDs: [16, 17],
+                                    condition: 'areEqual',
+                                    linesOfCodeOnTrue: [
+                                        CodeUtils.loadArgIntoStack(1),
+                                        CodeUtils.loadNumericConstantIntoStack(0),
+                                        CodeUtils.getVarValue('ind'),
+                                        CodeUtils.methodCall(strarraySlice),
+                                        CodeUtils.loadArgIntoStack(1),
+                                        CodeUtils.getVarValue('ind'),
+                                        CodeUtils.loadNumericConstantIntoStack(1),
+                                        `add`,
+                                        CodeUtils.loadArgIntoStack(1),
+                                        CodeUtils.methodCall(getStrarrayLength),
+                                        CodeUtils.methodCall(strarraySlice),
+                                        CodeUtils.methodCall(strarrayConcat),
+                                        CodeUtils.setVarValue('resultArr'),
+                                        CodeUtils.loadNumericConstantIntoStack(1),
+                                        CodeUtils.setVarValue('strFound')
+                                    ],
+                                    linesOfCodeOnFalse: []
+                                }),
+                            ]
+                        }),
+                    ]
+                }),
+                CodeUtils.getVarValue('strFound'),
+                CodeUtils.loadNumericConstantIntoStack(1),
+                ...CodeUtils.condition({
+                    branchIDs: [18, 19],
+                    condition: 'areEqual',
+                    linesOfCodeOnTrue: [
+                        CodeUtils.getVarValue('resultArr'),
+                    ],
+                    linesOfCodeOnFalse: [
+                        CodeUtils.loadArgIntoStack(1)
+                    ]
+                }),
+            ]
+        });
         const main = new Method({
             name: 'Main',
             isEntryPoint: true,
             localVariables: [
+                new Variable('strarrayPlaceholder1', dotnetCILtypes.strarray),
+                new Variable('strarrayPlaceholder2', dotnetCILtypes.strarray)
             ],
             linesOfCode: [
-                CodeUtils.loadStringConstantIntoStack('a'),
-                CodeUtils.methodCall(strToChar),
-                CodeUtils.loadStringConstantIntoStack("baacd"),
-                CodeUtils.methodCall(subtractCharFromStr),
-                CodeUtils.methodCall(printString)
+                CodeUtils.loadStringConstantIntoStack("there"),
+                ...CodeUtils.loadStrarrayConstantIntoStack(["hi", "there", "sweetheart", "hi", "there", "sweetheart"], `strarrayPlaceholder1`),
+                CodeUtils.methodCall(subtractStrFromStrarray),
+                CodeUtils.methodCall(printStrarray)
             ]
         });
 
@@ -478,7 +793,13 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
             addStrings,
             getCharAtIndex,
             getStringLength,
-            subtractCharFromStr
+            subtractCharFromStr,
+            getStringAtIndex,
+            getStrarrayLength,
+            printStrarray,
+            strarraySlice,
+            strarrayConcat,
+            subtractStrFromStrarray
         };
     }
 
