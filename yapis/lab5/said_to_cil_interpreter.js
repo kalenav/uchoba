@@ -232,6 +232,43 @@ class CodeUtils {
     static return() {
         return `ret`;
     }
+
+    static iterateInNumberRange(params) { // stack must be: ... from, to
+        return [
+            ...CodeUtils.iterateInNumberRange_init(params),
+            ...params.linesOfCode,
+            ...CodeUtils.iterateInNumberRange_updateCounter(params),
+            ...CodeUtils.iterateInNumberRange_checkOutOfBounds(params)
+        ]
+    }
+
+    static iterateInNumberRange_init(params) {
+        params.branchID = `${CodeUtils.hex(params.branchID)}`;
+        return [
+            CodeUtils.setVarValue(params.rightBoundAlias),
+            CodeUtils.setVarValue(params.counterAlias),
+            `${params.branchID}:`,
+        ]
+    }
+
+    static iterateInNumberRange_updateCounter(params) {
+        return [
+            CodeUtils.getVarValue(params.counterAlias),
+            CodeUtils.loadNumericConstantIntoStack(1),
+            `add`,
+            CodeUtils.setVarValue(params.counterAlias)
+        ]
+    }
+
+    static iterateInNumberRange_checkOutOfBounds(params) {
+        return [
+            CodeUtils.getVarValue(params.counterAlias),
+            CodeUtils.getVarValue(params.rightBoundAlias),
+            CodeUtils.loadNumericConstantIntoStack(1),
+            `add`,
+            `blt ${params.branchID}`
+        ]
+    }
 }
 
 export class Interpreter extends ExprParserListener {
@@ -566,7 +603,7 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
             ]
         });
         const strarraySlice = new Method({
-            name: 'arraySlice',
+            name: 'strarraySlice',
             maxStack: 3,
             arguments: [
                 new Variable('strarray', dotnetCILtypes.strarray),
@@ -692,7 +729,7 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         });
         const subtractStrFromStrarray = new Method({
             name: 'subtractStrFromStrarray',
-            maxStackSize: 20,
+            maxStackSize: 4,
             arguments: [
                 new Variable('str', dotnetCILtypes.string),
                 new Variable('strarray', dotnetCILtypes.strarray)
@@ -733,6 +770,7 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                                         CodeUtils.loadNumericConstantIntoStack(0),
                                         CodeUtils.getVarValue('ind'),
                                         CodeUtils.methodCall(strarraySlice),
+
                                         CodeUtils.loadArgIntoStack(1),
                                         CodeUtils.getVarValue('ind'),
                                         CodeUtils.loadNumericConstantIntoStack(1),
@@ -740,8 +778,10 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                                         CodeUtils.loadArgIntoStack(1),
                                         CodeUtils.methodCall(getStrarrayLength),
                                         CodeUtils.methodCall(strarraySlice),
+
                                         CodeUtils.methodCall(strarrayConcat),
                                         CodeUtils.setVarValue('resultArr'),
+
                                         CodeUtils.loadNumericConstantIntoStack(1),
                                         CodeUtils.setVarValue('strFound')
                                     ],
@@ -765,17 +805,116 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 }),
             ]
         });
+        const mutiplyCharByNumber =  new Method({
+            name: 'multiplyCharByNumber',
+            maxStackSize: 3,
+            arguments: [
+                new Variable('chr', dotnetCILtypes.char),
+                new Variable('multiplier', dotnetCILtypes.int32),
+            ],
+            localVariables: [
+                new Variable('resultStr', dotnetCILtypes.string),
+                new Variable('cnt', dotnetCILtypes.int32),
+                new Variable('rb', dotnetCILtypes.int32)
+            ],
+            returnType: dotnetCILtypes.string,
+            linesOfCode: [
+                CodeUtils.loadStringConstantIntoStack(""),
+                CodeUtils.setVarValue('resultStr'),
+                CodeUtils.loadNumericConstantIntoStack(1),
+                CodeUtils.loadArgIntoStack(1),
+                ...CodeUtils.iterateInNumberRange({
+                    branchID: 20,
+                    counterAlias: 'cnt',
+                    rightBoundAlias: 'rb',
+                    linesOfCode: [
+                        CodeUtils.getVarValue('resultStr'),
+                        CodeUtils.loadArgIntoStack(0),
+                        CodeUtils.methodCall(addStringAndChar),
+                        CodeUtils.setVarValue('resultStr')
+                    ]
+                }),
+                CodeUtils.getVarValue('resultStr')
+            ]
+        });
+        const mutiplyStringByNumber =  new Method({
+            name: 'multiplyStringByNumber',
+            maxStackSize: 3,
+            arguments: [
+                new Variable('str', dotnetCILtypes.string),
+                new Variable('multiplier', dotnetCILtypes.int32),
+            ],
+            localVariables: [
+                new Variable('resultStr', dotnetCILtypes.string),
+                new Variable('cnt', dotnetCILtypes.int32),
+                new Variable('rb', dotnetCILtypes.int32)
+            ],
+            returnType: dotnetCILtypes.string,
+            linesOfCode: [
+                CodeUtils.loadStringConstantIntoStack(""),
+                CodeUtils.setVarValue('resultStr'),
+                CodeUtils.loadNumericConstantIntoStack(1),
+                CodeUtils.loadArgIntoStack(1),
+                ...CodeUtils.iterateInNumberRange({
+                    branchID: 21,
+                    counterAlias: 'cnt',
+                    rightBoundAlias: 'rb',
+                    linesOfCode: [
+                        CodeUtils.getVarValue('resultStr'),
+                        CodeUtils.loadArgIntoStack(0),
+                        CodeUtils.methodCall(addStrings),
+                        CodeUtils.setVarValue('resultStr')
+                    ]
+                }),
+                CodeUtils.getVarValue('resultStr')
+            ]
+        });
+        const mutiplyStrarrayByNumber =  new Method({
+            name: 'multiplyStrarrayByNumber',
+            maxStackSize: 3,
+            arguments: [
+                new Variable('strarr', dotnetCILtypes.strarray),
+                new Variable('multiplier', dotnetCILtypes.int32),
+            ],
+            localVariables: [
+                new Variable('resultStrarr', dotnetCILtypes.strarray),
+                new Variable('cnt', dotnetCILtypes.int32),
+                new Variable('rb', dotnetCILtypes.int32)
+            ],
+            returnType: dotnetCILtypes.strarray,
+            linesOfCode: [
+                CodeUtils.loadNumericConstantIntoStack(1),
+                ...CodeUtils.initEmptyStrarray('resultStrarr'),
+                CodeUtils.loadNumericConstantIntoStack(1),
+                CodeUtils.loadArgIntoStack(1),
+                ...CodeUtils.iterateInNumberRange({
+                    branchID: 22,
+                    counterAlias: 'cnt',
+                    rightBoundAlias: 'rb',
+                    linesOfCode: [
+                        CodeUtils.getVarValue('resultStrarr'),
+                        CodeUtils.loadArgIntoStack(0),
+                        CodeUtils.methodCall(strarrayConcat),
+                        CodeUtils.setVarValue('resultStrarr')
+                    ]
+                }),
+                CodeUtils.getVarValue('resultStrarr'),
+                CodeUtils.loadNumericConstantIntoStack(1),
+                CodeUtils.getVarValue('resultStrarr'),
+                CodeUtils.methodCall(getStrarrayLength),
+                CodeUtils.methodCall(strarraySlice)
+            ]
+        });
         const main = new Method({
             name: 'Main',
             isEntryPoint: true,
             localVariables: [
-                new Variable('strarrayPlaceholder1', dotnetCILtypes.strarray),
-                new Variable('strarrayPlaceholder2', dotnetCILtypes.strarray)
+                new Variable('strarr1', dotnetCILtypes.strarray)
             ],
             linesOfCode: [
-                CodeUtils.loadStringConstantIntoStack("there"),
-                ...CodeUtils.loadStrarrayConstantIntoStack(["hi", "there", "sweetheart", "hi", "there", "sweetheart"], `strarrayPlaceholder1`),
-                CodeUtils.methodCall(subtractStrFromStrarray),
+                ...CodeUtils.loadStrarrayConstantIntoStack(["hi", "there"], 'strarr1'),
+                CodeUtils.loadNumericConstantIntoStack(10),
+                CodeUtils.methodCall(mutiplyStrarrayByNumber),
                 CodeUtils.methodCall(printStrarray)
             ]
         });
@@ -799,7 +938,10 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
             printStrarray,
             strarraySlice,
             strarrayConcat,
-            subtractStrFromStrarray
+            subtractStrFromStrarray,
+            mutiplyCharByNumber,
+            mutiplyStringByNumber,
+            mutiplyStrarrayByNumber
         };
     }
 
