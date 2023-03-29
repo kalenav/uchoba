@@ -21,7 +21,7 @@ if (!!tree) {
         );
 
         console.log('interpreted successfully, compiling...');
-        exec('compile.bat', (err, stdout, stderr) => {
+        exec('C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\ilasm.exe assembly.il > errors.txt', (err, stdout, stderr) => {
             if (err) {
                 throw err;
             }

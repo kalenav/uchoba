@@ -4,13 +4,18 @@ import ExprParserListener from "../lab3/compiled_grammar/ExprParserListener.js";
 const dotnetCILtypes = {
     char: 'char',
     string: 'string',
-    int4: 'int4',
     int8: 'int8',
     int16: 'int16',
     int32: 'int32',
     void: 'void',
     object: 'object'
 };
+
+const conditionToInstructionMap = {
+    areEqual: 'beq',
+    firstLessThanSecond: 'blt',
+    firstGreaterThanSecond: 'bgt'
+}
 
 class Variable {
     name = "";
@@ -124,7 +129,7 @@ class CodeUtils {
     }
 
     static iterate(params) {
-        params.branchID = `IL_${CodeUtils.hex(params.branchID)}`;
+        params.branchID = `${CodeUtils.hex(params.branchID)}`;
         return [
             ...CodeUtils.iterate_initINDEX(params),
             `${params.branchID}:`,
@@ -137,7 +142,6 @@ class CodeUtils {
 
     static iterate_initINDEX(params) {
         return [
-            params.iteratingString ? CodeUtils.loadStringConstantIntoStack(params.iteratedObj) : '',
             CodeUtils.loadNumericConstantIntoStack(0),
             CodeUtils.setVarValue(params.indexAlias)
         ];
@@ -155,24 +159,39 @@ class CodeUtils {
     static iterate_checkOutOfBounds(params) {
         return [
             CodeUtils.getVarValue(params.indexAlias),
-            CodeUtils.loadNumericConstantIntoStack(params.iteratedObjLength),
-            `blt.s ${params.branchID}`
+            (params.iteratedObjInArgsIndex >= 0) ? CodeUtils.loadArgIntoStack(params.iteratedObjInArgsIndex) : CodeUtils.getVarValue(params.iteratedObjName),
+            CodeUtils.methodCall(params.getLengthMethod),
+            `blt ${params.branchID}`
         ]
     }
 
     static iterate_setEL(params) {
         return [
-            CodeUtils.getVarValue(params.iteratedObjName),
+            (params.iteratedObjInArgsIndex >= 0) ? CodeUtils.loadArgIntoStack(params.iteratedObjInArgsIndex) : CodeUtils.getVarValue(params.iteratedObjName),
             CodeUtils.getVarValue(params.indexAlias),
             CodeUtils.methodCall(params.indexAccessorMethod),
             CodeUtils.setVarValue(params.elAlias)
         ]
     }
 
+    static condition(params) {
+        const branchInstruction = conditionToInstructionMap[params.condition];
+        const hexOnTrue = CodeUtils.hex(params.branchIDs[0]);
+        const hexOnFalse = CodeUtils.hex(params.branchIDs[1]);
+        return [
+            `${branchInstruction} ${hexOnTrue}`,
+            ...params.linesOfCodeOnFalse,
+            `br ${hexOnFalse}`,
+            `${hexOnTrue}:`,
+            ...params.linesOfCodeOnTrue,
+            `${hexOnFalse}:`
+        ]
+    }
+
     static hex(number) {
         let hexNum = new Number(number).toString(16);
         while (hexNum.length < 4) hexNum = `0${hexNum}`;
-        return hexNum;
+        return `IL_${hexNum}`;
     }
 }
 
@@ -214,12 +233,12 @@ export class Interpreter extends ExprParserListener {
     constructor(tree) {
         super();
         this.initPredefinedMethods();
-        antlr4.tree.ParseTreeWalker.DEFAULT.walk(this, tree);
+        // antlr4.tree.ParseTreeWalker.DEFAULT.walk(this, tree);
     }
 
     interpretation() {
         return `.assembly extern mscorlib {}
-.assembly ${Interpreter.defaultAssemblyName} {}
+.assembly ${this.defaultAssemblyName} {}
 ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
     }
 
@@ -227,7 +246,9 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         const printNumber = new Method({
             name: 'print',
             maxStackSize: 1,
-            arguments: [new Variable('printedValue', dotnetCILtypes.int32)],
+            arguments: [
+                new Variable('printedValue', dotnetCILtypes.int32)
+            ],
             linesOfCode: [
                 CodeUtils.loadArgIntoStack(0),
                 `call void [mscorlib]System.Console::WriteLine(int32)`
@@ -236,7 +257,9 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         const printChar = new Method({
             name: 'print',
             maxStackSize: 1,
-            arguments: [new Variable('printedValue', dotnetCILtypes.char)],
+            arguments: [
+                new Variable('printedValue', dotnetCILtypes.char)
+            ],
             linesOfCode: [
                 CodeUtils.loadArgIntoStack(0),
                 `call void [mscorlib]System.Console::Write(char)`
@@ -245,7 +268,9 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         const printString = new Method({
             name: 'print',
             maxStackSize: 1,
-            arguments: [new Variable('printedValue', dotnetCILtypes.string)],
+            arguments: [
+                new Variable('printedValue', dotnetCILtypes.string)
+            ],
             linesOfCode: [
                 CodeUtils.loadArgIntoStack(0),
                 `call void [mscorlib]System.Console::WriteLine(string)`
@@ -254,7 +279,9 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         const strToChar = new Method({
             name: 'strToChar',
             maxStackSize: 2,
-            arguments: [new Variable('str', dotnetCILtypes.string)],
+            arguments: [
+                new Variable('str', dotnetCILtypes.string)
+            ],
             returnType: dotnetCILtypes.char,
             linesOfCode: [
                 CodeUtils.loadArgIntoStack(0),
@@ -265,7 +292,9 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         const charToStr = new Method({
             name: 'charToStr',
             maxStackSize: 1,
-            arguments: [new Variable('chr', dotnetCILtypes.char)],
+            arguments: [
+                new Variable('chr', dotnetCILtypes.char)
+            ],
             returnType: dotnetCILtypes.string,
             linesOfCode: [
                 CodeUtils.loadArgIntoStack(0),
@@ -276,7 +305,10 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         const addChars = new Method({
             name: 'addChars',
             maxStackSize: 2,
-            arguments: [new Variable('chr1', dotnetCILtypes.char), new Variable('chr2', dotnetCILtypes.char)],
+            arguments: [
+                new Variable('chr1', dotnetCILtypes.char),
+                new Variable('chr2', dotnetCILtypes.char)
+            ],
             returnType: dotnetCILtypes.string,
             linesOfCode: [
                 CodeUtils.loadArgIntoStack(0),
@@ -289,7 +321,10 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         const addStringAndChar = new Method({
             name: 'addStringAndChar',
             maxStackSize: 2,
-            arguments: [new Variable('str', dotnetCILtypes.string), new Variable('chr', dotnetCILtypes.char)],
+            arguments: [
+                new Variable('str', dotnetCILtypes.string),
+                new Variable('chr', dotnetCILtypes.char)
+            ],
             returnType: dotnetCILtypes.string,
             linesOfCode: [
                 CodeUtils.loadArgIntoStack(0),
@@ -301,7 +336,10 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         const addCharAndString = new Method({
             name: 'addStringAndChar',
             maxStackSize: 2,
-            arguments: [new Variable('chr', dotnetCILtypes.char), new Variable('str', dotnetCILtypes.string)],
+            arguments: [
+                new Variable('chr', dotnetCILtypes.char),
+                new Variable('str', dotnetCILtypes.string)
+            ],
             returnType: dotnetCILtypes.string,
             linesOfCode: [
                 CodeUtils.loadArgIntoStack(0),
@@ -313,7 +351,10 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         const addStrings = new Method({
             name: 'addStrings',
             maxStackSize: 2,
-            arguments: [new Variable('str1', dotnetCILtypes.string), new Variable('str2', dotnetCILtypes.string)],
+            arguments: [
+                new Variable('str1', dotnetCILtypes.string),
+                new Variable('str2', dotnetCILtypes.string)
+            ],
             returnType: dotnetCILtypes.string,
             linesOfCode: [
                 CodeUtils.loadArgIntoStack(0),
@@ -324,7 +365,10 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         const getCharAtIndex = new Method({
             name: 'getCharAtIndex',
             maxStackSize: 2,
-            arguments: [new Variable('str', dotnetCILtypes.string), new Variable('index', dotnetCILtypes.int32)],
+            arguments: [
+                new Variable('str', dotnetCILtypes.string),
+                new Variable('index', dotnetCILtypes.int32)
+            ],
             returnType: dotnetCILtypes.char,
             linesOfCode: [
                 CodeUtils.loadArgIntoStack(0),
@@ -332,32 +376,92 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 `callvirt instance char string::get_Chars(int32)`
             ]
         });
-        const main = new Method({
-            name: 'Main',
-            isEntryPoint: true,
-            arguments: [new Variable('args', `${dotnetCILtypes.string}[]`)],
-            localVariables: [
-                new Variable('str', dotnetCILtypes.string),
-                new Variable('ind', dotnetCILtypes.int32),
-                new Variable('el', dotnetCILtypes.char)
+        const getStringLength = new Method({
+            name: 'getStringLength',
+            maxStackSize: 1,
+            arguments: [
+                new Variable('str', dotnetCILtypes.string)
             ],
+            returnType: dotnetCILtypes.int32,
             linesOfCode: [
-                CodeUtils.loadStringConstantIntoStack("hewwo"),
-                CodeUtils.setVarValue("str"),
+                CodeUtils.loadArgIntoStack(0),
+                `callvirt instance int32 string::get_Length()`,
+            ]
+        });
+        const subtractCharFromStr = new Method({
+            name: 'subtractCharFromStr',
+            maxStackSize: 20,
+            arguments: [
+                new Variable('chr', dotnetCILtypes.char),
+                new Variable('str', dotnetCILtypes.string),
+            ],
+            localVariables: [
+                new Variable('ind', dotnetCILtypes.int32),
+                new Variable('el', dotnetCILtypes.char),
+                new Variable('resultStr', dotnetCILtypes.string),
+                new Variable('charFound', dotnetCILtypes.int8)
+            ],
+            returnType: dotnetCILtypes.string,
+            linesOfCode: [
+                CodeUtils.loadStringConstantIntoStack(""),
+                CodeUtils.setVarValue('resultStr'),
+                CodeUtils.loadNumericConstantIntoStack(0),
+                CodeUtils.setVarValue('charFound'),
                 ...CodeUtils.iterate({
-                    branchID: this.currBranchID,
-                    iteratedObjName: "str",
-                    iteratedObjLength: 5,
+                    branchID: 0,
+                    iteratedObjName: 'str',
+                    iteratedObjInArgsIndex: 1,
                     indexAlias: 'ind',
                     elAlias: 'el',
                     indexAccessorMethod: getCharAtIndex,
+                    getLengthMethod: getStringLength,
                     linesOfCode: [
-                        CodeUtils.getVarValue('el'),
-                        CodeUtils.methodCall(printChar),
-                        CodeUtils.getVarValue('ind'),
-                        CodeUtils.methodCall(printNumber)
-                    ]
+                        CodeUtils.getVarValue('charFound'),
+                        CodeUtils.loadNumericConstantIntoStack(1),
+                        ...CodeUtils.condition({
+                            branchIDs: [1, 2],
+                            condition: 'areEqual',
+                            linesOfCodeOnTrue: [
+                                CodeUtils.getVarValue('resultStr'),
+                                CodeUtils.getVarValue('el'),
+                                CodeUtils.methodCall(addStringAndChar),
+                                CodeUtils.setVarValue('resultStr')
+                            ],
+                            linesOfCodeOnFalse: [
+                                CodeUtils.getVarValue('el'),
+                                CodeUtils.loadArgIntoStack(0),
+                                ...CodeUtils.condition({
+                                    branchIDs: [3, 4],
+                                    condition: 'areEqual',
+                                    linesOfCodeOnTrue: [
+                                        CodeUtils.loadNumericConstantIntoStack(1),
+                                        CodeUtils.setVarValue('charFound'),
+                                    ],
+                                    linesOfCodeOnFalse: [
+                                        CodeUtils.getVarValue('resultStr'),
+                                        CodeUtils.getVarValue('el'),
+                                        CodeUtils.methodCall(addStringAndChar),
+                                        CodeUtils.setVarValue('resultStr')
+                                    ],
+                                })                                
+                            ]
+                        }),
+                    ],
                 }),
+                CodeUtils.getVarValue('resultStr'),
+            ]
+        });
+        const main = new Method({
+            name: 'Main',
+            isEntryPoint: true,
+            localVariables: [
+            ],
+            linesOfCode: [
+                CodeUtils.loadStringConstantIntoStack('a'),
+                CodeUtils.methodCall(strToChar),
+                CodeUtils.loadStringConstantIntoStack("baacd"),
+                CodeUtils.methodCall(subtractCharFromStr),
+                CodeUtils.methodCall(printString)
             ]
         });
 
@@ -373,6 +477,8 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
             addCharAndString,
             addStrings,
             getCharAtIndex,
+            getStringLength,
+            subtractCharFromStr
         };
     }
 
