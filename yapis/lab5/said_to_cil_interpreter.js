@@ -122,6 +122,58 @@ class CodeUtils {
     static setVar_keepStack(index) {
         return [CodeUtils.setVarValue(index), CodeUtils.getVarValue(index)];
     }
+
+    static iterate(params) {
+        params.branchID = `IL_${CodeUtils.hex(params.branchID)}`;
+        return [
+            ...CodeUtils.iterate_initINDEX(params),
+            `${params.branchID}:`,
+            ...CodeUtils.iterate_setEL(params),
+            ...params.linesOfCode,
+            ...CodeUtils.iterate_updateINDEX(params),
+            ...CodeUtils.iterate_checkOutOfBounds(params)
+        ];
+    }
+
+    static iterate_initINDEX(params) {
+        return [
+            params.iteratingString ? CodeUtils.loadStringConstantIntoStack(params.iteratedObj) : '',
+            CodeUtils.loadNumericConstantIntoStack(0),
+            CodeUtils.setVarValue(params.indexAlias)
+        ];
+    }
+
+    static iterate_updateINDEX(params) {
+        return [
+            CodeUtils.loadNumericConstantIntoStack(1),
+            CodeUtils.getVarValue(params.indexAlias),
+            `add`,
+            CodeUtils.setVarValue(params.indexAlias),
+        ]
+    }
+
+    static iterate_checkOutOfBounds(params) {
+        return [
+            CodeUtils.getVarValue(params.indexAlias),
+            CodeUtils.loadNumericConstantIntoStack(params.iteratedObjLength),
+            `blt.s ${params.branchID}`
+        ]
+    }
+
+    static iterate_setEL(params) {
+        return [
+            CodeUtils.getVarValue(params.iteratedObjName),
+            CodeUtils.getVarValue(params.indexAlias),
+            CodeUtils.methodCall(params.indexAccessorMethod),
+            CodeUtils.setVarValue(params.elAlias)
+        ]
+    }
+
+    static hex(number) {
+        let hexNum = new Number(number).toString(16);
+        while (hexNum.length < 4) hexNum = `0${hexNum}`;
+        return hexNum;
+    }
 }
 
 export class Interpreter extends ExprParserListener {
@@ -155,8 +207,9 @@ export class Interpreter extends ExprParserListener {
                     ret
     }
     `]
-    methods = [];
-    static defaultAssemblyName = 'Program';
+    methods = {};
+    currBranchID = 0;
+    defaultAssemblyName = 'Program';
 
     constructor(tree) {
         super();
@@ -167,7 +220,7 @@ export class Interpreter extends ExprParserListener {
     interpretation() {
         return `.assembly extern mscorlib {}
 .assembly ${Interpreter.defaultAssemblyName} {}
-${this.methods.map(method => method.getCode()).join('\n')}`;
+${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
     }
 
     initPredefinedMethods() {
@@ -268,20 +321,47 @@ ${this.methods.map(method => method.getCode()).join('\n')}`;
                 `call string System.String::Concat(string, string)`
             ]
         });
+        const getCharAtIndex = new Method({
+            name: 'getCharAtIndex',
+            maxStackSize: 2,
+            arguments: [new Variable('str', dotnetCILtypes.string), new Variable('index', dotnetCILtypes.int32)],
+            returnType: dotnetCILtypes.char,
+            linesOfCode: [
+                CodeUtils.loadArgIntoStack(0),
+                CodeUtils.loadArgIntoStack(1),
+                `callvirt instance char string::get_Chars(int32)`
+            ]
+        });
         const main = new Method({
             name: 'Main',
             isEntryPoint: true,
             arguments: [new Variable('args', `${dotnetCILtypes.string}[]`)],
-            localVariables: [new Variable('temp', dotnetCILtypes.char)],
+            localVariables: [
+                new Variable('str', dotnetCILtypes.string),
+                new Variable('ind', dotnetCILtypes.int32),
+                new Variable('el', dotnetCILtypes.char)
+            ],
             linesOfCode: [
-                CodeUtils.loadStringConstantIntoStack("a"),
-                CodeUtils.loadStringConstantIntoStack("bcd"),
-                CodeUtils.methodCall(addStrings),
-                CodeUtils.methodCall(printString)
+                CodeUtils.loadStringConstantIntoStack("hewwo"),
+                CodeUtils.setVarValue("str"),
+                ...CodeUtils.iterate({
+                    branchID: this.currBranchID,
+                    iteratedObjName: "str",
+                    iteratedObjLength: 5,
+                    indexAlias: 'ind',
+                    elAlias: 'el',
+                    indexAccessorMethod: getCharAtIndex,
+                    linesOfCode: [
+                        CodeUtils.getVarValue('el'),
+                        CodeUtils.methodCall(printChar),
+                        CodeUtils.getVarValue('ind'),
+                        CodeUtils.methodCall(printNumber)
+                    ]
+                }),
             ]
         });
 
-        [
+        this.methods = {
             main,
             printString,
             printNumber,
@@ -292,8 +372,12 @@ ${this.methods.map(method => method.getCode()).join('\n')}`;
             addStringAndChar,
             addCharAndString,
             addStrings,
-            // addStrarrays
-        ].forEach(method => this.methods.push(method));
+            getCharAtIndex,
+        };
+    }
+
+    updateBranchID() {
+        this.currBranchID++;
     }
 
     ///////////////////////////////
