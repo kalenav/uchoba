@@ -46,8 +46,10 @@ class Method {
         }
         if (params.localVariables) {
             this.localVariables = params.localVariables.slice();
-            this.addLineOfCode(`.locals init (${this.getLocalVariablesCode()})`);
         }
+        if (params.addStrarrayPlaceholder) {
+            this.localVariables.push(new Variable('STRARRAY_PLACEHOLDER', dotnetCILtypes.strarray));
+        } 
         if (params.linesOfCode) {
             this.linesOfCode = [
                 ...this.linesOfCode,
@@ -77,6 +79,9 @@ class Method {
     }
 
     getCode() {
+        if (this.localVariables.length) {
+            this.linesOfCode.unshift(`.locals init (${this.getLocalVariablesCode()})`);
+        }
         return `.method public static ${this.returnType} ${this.name}(${this.getArgsCode()}) cil managed
 {
     ${this.linesOfCode.join('\n    ')}
@@ -270,47 +275,23 @@ class CodeUtils {
             `blt ${params.branchID}`
         ]
     }
+
+    static deriveValueType(value) {
+
+    }
 }
 
 export class Interpreter extends ExprParserListener {
-    dummies = [`.assembly Hello {}
-    .method public static void Main() cil managed
-    {
-         .entrypoint
-         .maxstack 1
-         ldstr "Hello, world!"
-         call void [mscorlib]System.Console::WriteLine(string)
-         ret
-    }`, `
-    .assembly ass {}
-    .method public static void Main() cil managed
-    {
-        .entrypoint
-        .maxstack 5
-        .locals init (int8 NUM)
-
-                    ldc.i4.1
-                    stloc NUM
-        IL_0004:    ldloc NUM
-                    call            void [mscorlib]System.Console::WriteLine(int32)
-                    ldloc NUM
-                    ldc.i4.1
-                    add
-                    stloc NUM
-                    ldloc NUM
-                    ldc.i4 0xb
-                    blt.s           IL_0004
-                    ret
-    }
-    `]
     methods = {};
     currBranchID = 0;
     defaultAssemblyName = 'Program';
+    currMethod;
 
     constructor(tree) {
         super();
         this.initPredefinedMethods();
-        // antlr4.tree.ParseTreeWalker.DEFAULT.walk(this, tree);
+        this.currMethod = this.methods.main;
+        antlr4.tree.ParseTreeWalker.DEFAULT.walk(this, tree);
     }
 
     interpretation() {
@@ -1185,14 +1166,9 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         const main = new Method({
             name: 'Main',
             isEntryPoint: true,
-            localVariables: [
-                new Variable('strarr1', dotnetCILtypes.strarray)
-            ],
+            addStrarrayPlaceholder: true,
+            localVariables: [],
             linesOfCode: [
-                ...CodeUtils.loadStrarrayConstantIntoStack(["hi", "there", "mynigga"], 'strarr1'),
-                CodeUtils.loadStringConstantIntoStack("bruh"),
-                CodeUtils.methodCall(join),
-                CodeUtils.methodCall(printString)
             ]
         });
 
@@ -1233,9 +1209,75 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         this.currBranchID++;
     }
 
+    // getAssignmentLinesOfCode(name, value) {
+    //     switch(CodeUtils.deriveValueType(value)) {
+    //         case dotnetCILtypes.char:
+    //             return [
+    //                 CodeUtils.loadStringConstantIntoStack(value),
+    //                 CodeUtils.methodCall(this.methods.strToChar),
+    //                 CodeUtils.setVarValue(name)
+    //             ]
+    //         case dotnetCILtypes.string:
+    //             return [               
+    //                 CodeUtils.loadStringConstantIntoStack(value),
+    //                 CodeUtils.setVarValue(name)
+    //             ]
+    //         case dotnetCILtypes.strarray:
+    //             return [
+    //                 CodeUtils.loadStrarrayConstantIntoStack(value, name),
+    //                 CodeUtils.setVarValue(name)
+    //             ]
+    //         case dotnetCILtypes.int32:
+    //             return [
+    //                 CodeUtils.loadNumericConstantIntoStack(value),
+    //                 CodeUtils.setVarValue('name')
+    //             ]
+    //         case 'CALL':
+    //             return [
+
+    //             ]
+    //     }
+    // }
+
+    // getCompoundAssignmentLinesOfCode(varObjArray) {
+    //     return varObjArray
+    //         .map(varObj => [this.getAssignmentLinesOfCode(varObj.name, varObj.value)])
+    //         .flat();
+    // }
+
     ///////////////////////////////
     ///////////////////////////////
     ///////////////////////////////
 
+    loadExprValueIntoStack(ctx) {
+        if (!!ctx.operand().ID()) {
+            return [CodeUtils.getVarValue(ctx.getText())];
+        }
+        if (!!ctx.operand().INT()) {
+            return [CodeUtils.loadNumericConstantIntoStack(ctx.getText())];
+        }
+        if (!!ctx.operand().char_()) {
+            return [
+                CodeUtils.loadStringConstantIntoStack(ctx.getText()[1]),
+                CodeUtils.methodCall(this.methods.strToChar)
+            ]
+        }
+        if (!!ctx.operand().string()) {
+            const string = ctx.getText().slice(1, ctx.getText().length - 1);
+            return [CodeUtils.loadStringConstantIntoStack(string)];
+        }
+        if (!!ctx.operand().strarray()) {
+            return [
+                ...CodeUtils.loadStrarrayConstantIntoStack(ctx.operand().strarray().string(), 'STRARRAY_PLACEHOLDER')
+            ]
+        }
+    }
 
+    exitExpr(ctx) {
+        this.currMethod.addLinesOfCode(this.loadExprValueIntoStack(ctx));
+    }
+
+    exitAssignment(ctx) {
+
+    }
 }
