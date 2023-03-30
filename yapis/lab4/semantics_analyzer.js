@@ -230,10 +230,9 @@ export class TreeListener extends ExprParserListener {
         this.checkAllExprVariables(exprs);
         const leftSideExprType = this.deriveExprType(exprs[0]);
         const rightSideExprType = this.deriveExprType(exprs[1]);
-        if ((leftSideExprType !== TYPES.int && leftSideExprType !== TYPES.any)
-        || (rightSideExprType !== TYPES.int && rightSideExprType !== TYPES.any)) {
+        if (leftSideExprType !== rightSideExprType && leftSideExprType !== TYPES.any && rightSideExprType !== TYPES.any) {
             this.addError(
-                `Both sides of a condition must be integers`,
+                `Cannot compare values of different types`,
                 ctx
             );
         }
@@ -337,7 +336,8 @@ export class TreeListener extends ExprParserListener {
 
         if (!!expr.call()) {
             return this.definedFunctions
-                .find(functionDef => functionDef.getName() === this.getFunctionName(expr.call()))?.getReturnedType() || TYPES.undefined;
+                .find(functionDef => functionDef.getName() === this.getFunctionName(expr.call()))?.getReturnedType()
+                || TYPES.undefined;
         }
 
         if (!!expr.NOT()) {
