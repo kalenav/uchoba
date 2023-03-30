@@ -178,7 +178,8 @@ export class TreeListener extends ExprParserListener {
                 );
             }
             const iteratedObjectType = this.deriveVariableType(cycleHeaderIDs[0]);
-            const elType = iteratedObjectType === TYPES.strarray ? TYPES.string : TYPES.char;
+            const elType = iteratedObjectType === TYPES.any ? TYPES.any
+                : iteratedObjectType === TYPES.strarray ? TYPES.string : TYPES.char;
             const idsQuantity = cycleHeaderIDs.length;
             if (idsQuantity === 3) {
                 this.addVariablesToCurrScope([
