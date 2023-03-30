@@ -337,8 +337,7 @@ export class TreeListener extends ExprParserListener {
 
         if (!!expr.call()) {
             return this.definedFunctions
-                .find(functionDef => functionDef._name === this.getFunctionName(expr.call()))
-                .getReturnedType();
+                .find(functionDef => functionDef.getName() === this.getFunctionName(expr.call()))?.getReturnedType() || TYPES.undefined;
         }
 
         if (!!expr.NOT()) {
