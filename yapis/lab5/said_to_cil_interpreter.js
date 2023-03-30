@@ -217,7 +217,7 @@ class CodeUtils {
         return `IL_${hexNum}`;
     }
 
-    static addElemToStrarray() {
+    static addElemToStrarray() { // stack must be: ... array, index, elem
         return `stelem.ref`;
     }
 
@@ -905,6 +905,101 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 CodeUtils.methodCall(strarraySlice)
             ]
         });
+        const divideStrByChar = new Method({
+            name: 'divideStrByChar',
+            maxStackSize: 2,
+            arguments: [
+                new Variable('str', dotnetCILtypes.string),
+                new Variable('chr', dotnetCILtypes.char),
+            ],
+            localVariables: [
+                new Variable('ind', dotnetCILtypes.int32),
+                new Variable('el', dotnetCILtypes.char),
+                new Variable('resultStr', dotnetCILtypes.string)
+            ],
+            returnType: dotnetCILtypes.string,
+            linesOfCode: [
+                CodeUtils.loadStringConstantIntoStack(""),
+                CodeUtils.setVarValue('resultStr'),
+                ...CodeUtils.iterate({
+                    branchID: 23,
+                    iteratedObjInArgsIndex: 0,
+                    indexAlias: 'ind',
+                    elAlias: 'el',
+                    indexAccessorMethod: getCharAtIndex,
+                    getLengthMethod: getStringLength,
+                    linesOfCode: [
+                        CodeUtils.getVarValue('el'),
+                        CodeUtils.loadArgIntoStack(1),
+                        ...CodeUtils.condition({
+                            branchIDs: [24, 25],
+                            condition: 'areEqual',
+                            linesOfCodeOnTrue: [],
+                            linesOfCodeOnFalse: [
+                                CodeUtils.getVarValue('resultStr'),
+                                CodeUtils.getVarValue('el'),
+                                CodeUtils.methodCall(addStringAndChar),
+                                CodeUtils.setVarValue('resultStr')
+                            ]
+                        })
+                    ]
+                }),
+                CodeUtils.getVarValue('resultStr'),
+            ]
+        });
+        const divideStrarrayByStr = new Method({
+            name: 'divideStrarrayByStr',
+            maxStackSize: 3,
+            arguments: [
+                new Variable('strarr', dotnetCILtypes.strarray),
+                new Variable('str', dotnetCILtypes.string)
+            ],
+            localVariables: [
+                new Variable('ind', dotnetCILtypes.int32),
+                new Variable('el', dotnetCILtypes.string),
+                new Variable('resultStrarr', dotnetCILtypes.strarray),
+                new Variable('tempStrarr', dotnetCILtypes.strarray)
+            ],
+            returnType: dotnetCILtypes.strarray,
+            linesOfCode: [
+                CodeUtils.loadNumericConstantIntoStack(1),
+                ...CodeUtils.initEmptyStrarray('resultStrarr'),
+                ...CodeUtils.iterate({
+                    branchID: 26,
+                    iteratedObjInArgsIndex: 0,
+                    indexAlias: 'ind',
+                    elAlias: 'el',
+                    indexAccessorMethod: getStringAtIndex,
+                    getLengthMethod: getStrarrayLength,
+                    linesOfCode: [
+                        CodeUtils.loadArgIntoStack(1),
+                        CodeUtils.getVarValue('el'),
+                        ...CodeUtils.condition({
+                            branchIDs: [27, 28],
+                            condition: 'areEqual',
+                            linesOfCodeOnTrue: [],
+                            linesOfCodeOnFalse: [
+                                CodeUtils.loadNumericConstantIntoStack(1),
+                                ...CodeUtils.initEmptyStrarray('tempStrarr'),
+                                CodeUtils.getVarValue('tempStrarr'),
+                                CodeUtils.loadNumericConstantIntoStack(0),
+                                CodeUtils.getVarValue('el'),
+                                CodeUtils.addElemToStrarray(),
+                                CodeUtils.getVarValue('resultStrarr'),
+                                CodeUtils.getVarValue('tempStrarr'),
+                                CodeUtils.methodCall(strarrayConcat),
+                                CodeUtils.setVarValue('resultStrarr')
+                            ]
+                        }),
+                    ]
+                }),
+                CodeUtils.getVarValue('resultStrarr'),
+                CodeUtils.loadNumericConstantIntoStack(1),
+                CodeUtils.getVarValue('resultStrarr'),
+                CodeUtils.methodCall(getStrarrayLength),
+                CodeUtils.methodCall(strarraySlice)
+            ]
+        });
         const main = new Method({
             name: 'Main',
             isEntryPoint: true,
@@ -912,9 +1007,9 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 new Variable('strarr1', dotnetCILtypes.strarray)
             ],
             linesOfCode: [
-                ...CodeUtils.loadStrarrayConstantIntoStack(["hi", "there"], 'strarr1'),
-                CodeUtils.loadNumericConstantIntoStack(10),
-                CodeUtils.methodCall(mutiplyStrarrayByNumber),
+                ...CodeUtils.loadStrarrayConstantIntoStack(["hi", "there", "hi", "sweetheart", "hi"], 'strarr1'),
+                CodeUtils.loadStringConstantIntoStack("hi"),
+                CodeUtils.methodCall(divideStrarrayByStr),
                 CodeUtils.methodCall(printStrarray)
             ]
         });
@@ -941,7 +1036,9 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
             subtractStrFromStrarray,
             mutiplyCharByNumber,
             mutiplyStringByNumber,
-            mutiplyStrarrayByNumber
+            mutiplyStrarrayByNumber,
+            divideStrByChar,
+            divideStrarrayByStr
         };
     }
 
