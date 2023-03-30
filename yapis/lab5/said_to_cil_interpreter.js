@@ -15,7 +15,8 @@ const dotnetCILtypes = {
 const conditionToInstructionMap = {
     areEqual: 'beq',
     firstLessThanSecond: 'blt',
-    firstGreaterThanSecond: 'bgt'
+    firstGreaterThanSecond: 'bgt',
+    areEqual_strings: 'ceq brtrue',
 }
 
 class Variable {
@@ -604,7 +605,7 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         });
         const strarraySlice = new Method({
             name: 'strarraySlice',
-            maxStack: 3,
+            maxStackSize: 3,
             arguments: [
                 new Variable('strarray', dotnetCILtypes.strarray),
                 new Variable('fromInd', dotnetCILtypes.int32),
@@ -1000,6 +1001,187 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 CodeUtils.methodCall(strarraySlice)
             ]
         });
+        const slice = new Method({
+            name: 'slice',
+            maxStackSize: 3,
+            arguments: [
+                new Variable('str', dotnetCILtypes.string),
+                new Variable('fromInd', dotnetCILtypes.int32),
+                new Variable('toInd', dotnetCILtypes.int32),
+            ],
+            localVariables: [
+                new Variable('cnt', dotnetCILtypes.int32),
+                new Variable('rb', dotnetCILtypes.int32),
+                new Variable('resultStr', dotnetCILtypes.string)
+            ],
+            returnType: dotnetCILtypes.string,
+            linesOfCode: [
+                CodeUtils.loadStringConstantIntoStack(""),
+                CodeUtils.setVarValue('resultStr'),
+                CodeUtils.loadArgIntoStack(1),
+                CodeUtils.loadArgIntoStack(2),
+                CodeUtils.loadNumericConstantIntoStack(1),
+                `sub`,
+                ...CodeUtils.iterateInNumberRange({
+                    branchID: 29,
+                    counterAlias: 'cnt',
+                    rightBoundAlias: 'rb',
+                    linesOfCode: [
+                        CodeUtils.getVarValue('resultStr'),
+                        CodeUtils.loadArgIntoStack(0),
+                        CodeUtils.getVarValue('cnt'),
+                        CodeUtils.methodCall(getCharAtIndex),
+                        CodeUtils.methodCall(addStringAndChar),
+                        CodeUtils.setVarValue('resultStr'),
+                    ]
+                }),
+                CodeUtils.getVarValue('resultStr'),
+                CodeUtils.loadStringConstantIntoStack("\\0"),
+                CodeUtils.methodCall(addStrings)
+            ]
+        })
+        const substr = new Method({
+            name: 'substr',
+            maxStackSize: 2,
+            arguments: [
+                new Variable('str', dotnetCILtypes.string),
+                new Variable('substr', dotnetCILtypes.string)
+            ],
+            returnType: dotnetCILtypes.int32,
+            linesOfCode: [
+                CodeUtils.loadArgIntoStack(0),
+                CodeUtils.loadArgIntoStack(1),
+                `callvirt instance int32 string::IndexOf(string)`
+            ]
+        });
+        const split = new Method({
+            name: 'split',
+            maxStackSize: 3,
+            arguments: [
+                new Variable('str', dotnetCILtypes.string),
+                new Variable('chr', dotnetCILtypes.char)
+            ],
+            localVariables: [
+                new Variable('ind', dotnetCILtypes.int32),
+                new Variable('el', dotnetCILtypes.char),
+                new Variable('resultStrarr', dotnetCILtypes.strarray),
+                new Variable('tempStrarr', dotnetCILtypes.strarray),
+                new Variable('currTempStrarrElement', dotnetCILtypes.string),
+            ],
+            returnType: dotnetCILtypes.strarray,
+            linesOfCode: [
+                CodeUtils.loadNumericConstantIntoStack(1),
+                ...CodeUtils.initEmptyStrarray('resultStrarr'),
+                CodeUtils.loadStringConstantIntoStack(""),
+                CodeUtils.setVarValue('currTempStrarrElement'),
+                CodeUtils.loadNumericConstantIntoStack(1),
+                ...CodeUtils.initEmptyStrarray('tempStrarr'),
+                ...CodeUtils.iterate({
+                    branchID: 30,
+                    iteratedObjInArgsIndex: 0,
+                    indexAlias: 'ind',
+                    elAlias: 'el',
+                    indexAccessorMethod: getCharAtIndex,
+                    getLengthMethod: getStringLength,
+                    linesOfCode: [
+                        CodeUtils.getVarValue('el'),
+                        CodeUtils.loadArgIntoStack(1),
+                        ...CodeUtils.condition({
+                            branchIDs: [31, 32],
+                            condition: 'areEqual',
+                            linesOfCodeOnTrue: [
+                                CodeUtils.getVarValue('tempStrarr'),
+                                CodeUtils.loadNumericConstantIntoStack(0),
+                                CodeUtils.getVarValue('currTempStrarrElement'),
+                                CodeUtils.addElemToStrarray(),
+                                CodeUtils.getVarValue('resultStrarr'),
+                                CodeUtils.getVarValue('tempStrarr'),
+                                CodeUtils.methodCall(strarrayConcat),
+                                CodeUtils.setVarValue('resultStrarr'),
+                                CodeUtils.loadStringConstantIntoStack(""),
+                                CodeUtils.setVarValue('currTempStrarrElement'),
+                                CodeUtils.loadNumericConstantIntoStack(1),
+                                ...CodeUtils.initEmptyStrarray('tempStrarr'),
+                            ],
+                            linesOfCodeOnFalse: [
+                                CodeUtils.getVarValue('currTempStrarrElement'),
+                                CodeUtils.getVarValue('el'),
+                                CodeUtils.methodCall(addStringAndChar),
+                                CodeUtils.setVarValue('currTempStrarrElement')
+                            ]
+                        }),
+                    ]
+                }),
+                CodeUtils.getVarValue('tempStrarr'),
+                CodeUtils.loadNumericConstantIntoStack(0),
+                CodeUtils.getVarValue('currTempStrarrElement'),
+                CodeUtils.addElemToStrarray(),
+                CodeUtils.getVarValue('resultStrarr'),
+                CodeUtils.getVarValue('tempStrarr'),
+                CodeUtils.methodCall(strarrayConcat),
+                ...CodeUtils.setVar_keepStack('resultStrarr'),
+                CodeUtils.loadNumericConstantIntoStack(1),
+                CodeUtils.getVarValue('resultStrarr'),
+                CodeUtils.methodCall(getStrarrayLength),
+                CodeUtils.methodCall(strarraySlice)
+            ]
+        });
+        const replace = new Method({
+            name: 'replace',
+            maxStackSize: 3,
+            arguments: [
+                new Variable('str', dotnetCILtypes.string),
+                new Variable('replacing', dotnetCILtypes.string),
+                new Variable('replacement', dotnetCILtypes.string)
+            ],
+            returnType: dotnetCILtypes.string,
+            linesOfCode: [
+                CodeUtils.loadArgIntoStack(0),
+                CodeUtils.loadArgIntoStack(1),
+                CodeUtils.loadArgIntoStack(2),
+                `call instance string string::Replace(string, string)`
+            ]
+        });
+        const join = new Method({
+            name: 'join',
+            maxStackSize: 4,
+            arguments: [
+                new Variable('strarr', dotnetCILtypes.strarray),
+                new Variable('str', dotnetCILtypes.string),
+            ],
+            localVariables: [
+                new Variable('ind', dotnetCILtypes.int32),
+                new Variable('el', dotnetCILtypes.string),
+                new Variable('resultStr', dotnetCILtypes.string),
+            ],
+            returnType: dotnetCILtypes.string,
+            linesOfCode: [
+                ...CodeUtils.iterate({
+                    branchID: 31,
+                    iteratedObjInArgsIndex: 0,
+                    indexAlias: 'ind',
+                    elAlias: 'el',
+                    indexAccessorMethod: getStringAtIndex,
+                    getLengthMethod: getStrarrayLength,
+                    linesOfCode: [
+                        CodeUtils.getVarValue('resultStr'),
+                        CodeUtils.getVarValue('el'),
+                        CodeUtils.methodCall(addStrings),
+                        CodeUtils.loadArgIntoStack(1),
+                        CodeUtils.methodCall(addStrings),
+                        CodeUtils.setVarValue('resultStr'),
+                    ]
+                }),
+                CodeUtils.getVarValue('resultStr'),
+                CodeUtils.loadNumericConstantIntoStack(0),
+                CodeUtils.getVarValue('resultStr'),
+                CodeUtils.methodCall(getStringLength),
+                CodeUtils.loadArgIntoStack(1),
+                CodeUtils.methodCall(getStringLength),
+                `sub`,
+                CodeUtils.methodCall(slice)
+            ]
+        });
         const main = new Method({
             name: 'Main',
             isEntryPoint: true,
@@ -1007,10 +1189,10 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 new Variable('strarr1', dotnetCILtypes.strarray)
             ],
             linesOfCode: [
-                ...CodeUtils.loadStrarrayConstantIntoStack(["hi", "there", "hi", "sweetheart", "hi"], 'strarr1'),
-                CodeUtils.loadStringConstantIntoStack("hi"),
-                CodeUtils.methodCall(divideStrarrayByStr),
-                CodeUtils.methodCall(printStrarray)
+                ...CodeUtils.loadStrarrayConstantIntoStack(["hi", "there", "mynigga"], 'strarr1'),
+                CodeUtils.loadStringConstantIntoStack("bruh"),
+                CodeUtils.methodCall(join),
+                CodeUtils.methodCall(printString)
             ]
         });
 
@@ -1038,7 +1220,12 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
             mutiplyStringByNumber,
             mutiplyStrarrayByNumber,
             divideStrByChar,
-            divideStrarrayByStr
+            divideStrarrayByStr,
+            slice,
+            substr,
+            split,
+            replace,
+            join
         };
     }
 
