@@ -11,7 +11,11 @@ function getSelectLine(extractedFields) {
 }
 
 function getEntryValue(entries, key) {
-    return entries.get(key).id;
+    const raw = entries.get(key).id;
+    switch (key) {
+        default:
+            return raw.split('"')[1];
+    }
 }
 
 async function firearmRequest(params) {
@@ -83,13 +87,11 @@ const fullEffectiveRangeQuery = `(${effectiveRangeQuery})|(${minEffectiveRangeQu
 const optionalQueries = [classQuery, fullCaliberQuery, fullEffectiveRangeQuery];
 
 const getFirearmsURL = `${firearmsRequest}${optionalQueries.map(query => `(&(${query}))?`).join('')}`;
-console.log(getFirearmsURL);
 
 server.get(getFirearmsURL, (req, res) => {
-    console.log(req.params);
     firearmRequest({
         res,
-        extractedFields: ['name'],
+        extractedFields: ['name', 'caliber', 'effectiveRange'],
         class: req.params.class,
         caliber: req.params.caliber,
         caliberMin: req.params.caliberMin,
