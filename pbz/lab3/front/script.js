@@ -1,9 +1,9 @@
-const paramsObj = {
-    class: 'Rifle',
-    caliberMin: '5',
-    effectiveRangeMax: '1000'
-};
-const searchParams = new URLSearchParams(paramsObj).toString();
+const params = {
+    class: "Rifle",
+    caliberMin: 7,
+    effectiveRangeMax: 500
+}
+const searchParams = new URLSearchParams(params).toString();
 
 fetch(`http://localhost:3000/firearms&${searchParams}`, {
     method: 'get'
