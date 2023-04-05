@@ -2,12 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const QueryEngine = require('@comunica/query-sparql').QueryEngine;
 
-const queryEngine = new QueryEngine();
 const server = express();
 server.use(cors());
 
-const PREFIX = 'PREFIX lab2: <http://www.semanticweb.org/konst/ontologies/2023/1/lab2#>';
-const ontologyURL = `http://kalenav.github.io/ontology.rdf`;
+const queryEngine = new QueryEngine();
+
+const ontologyIRI = 'http://www.semanticweb.org/konst/ontologies/2023/1/lab2';
+const PREFIX = `PREFIX lab2: <${ontologyIRI}#>`;
+const ontologyURL = `http://localhost:3000/sparql`;
 const labelToIRIMap = {
     'Firearm': 'OWLClass_d4e6352d_2e30_4826_be37_6dd536c0d1b3',
     'effectiveRange_m': 'OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac',
@@ -57,9 +59,15 @@ const labelToIRIMap = {
     'Automatic shotgun': 'OWLClass_f7d6b9a7_68e3_4a04_b143_8c8b9e9a3a48'
 }
 
+//////////////////////////////////////
+
 function getSelectLine(extractedFields) {
     return `SELECT ${extractedFields.map(field => `?${field}`).join(' ')}`;
 }
+
+//////////////////////////////////////
+/// get firearms list with filters ///
+//////////////////////////////////////
 
 function getEntryValue(entries, key) {
     const raw = entries.get(key).id;
@@ -95,8 +103,6 @@ async function firearmRequest(params) {
 
     ${getSelectLine(params.extractedFields)}
     WHERE {
-        { ?firearm rdf:type lab2:${classIRI} }
-        UNION
         { ?firearm rdf:type/rdfs:subClassOf* lab2:${classIRI} }
 
         ?firearm rdfs:label ?name .
@@ -110,7 +116,7 @@ async function firearmRequest(params) {
     `;
 
     const bindingsStream = await queryEngine.queryBindings(query, {
-        sources: [ontologyURL],
+        sources: [{ type: 'sparql', value: ontologyURL }],
     });
 
     bindingsStream.on('data', (binding) => {
@@ -122,9 +128,10 @@ async function firearmRequest(params) {
     });
 
     bindingsStream.on('end', () => {
-        params.res.send(response.map(entries => Object.fromEntries(
-            params.extractedFields.map(field => [field, getEntryValue(entries, field)])
-        )));
+        params.res.send(response);
+        // params.res.send(response.map(entries => Object.fromEntries(
+        //     params.extractedFields.map(field => [field, getEntryValue(entries, field)])
+        // )));
     })
 }
 
@@ -159,6 +166,52 @@ server.get(getFirearmsURL, (req, res) => {
     });
 });
 
-server.listen(3000, () => {
-    console.log(`Server listening on port 3000`)
+//////////////////////////////////////
+///  create new class in ontology  ///
+//////////////////////////////////////
+
+function classAlreadyExists(className) {
+    return !!labelToIRIMap[className];
+}
+
+async function createNewClass(params) {
+    if (!params.subClassOf) params.subClassOf = 'Firearm';
+    if (params.className.includes(' ') || classAlreadyExists(params.className)) {
+        params.res.send(false);
+        return;
+    }
+    else {
+        const query = `
+        INSERT DATA {
+            <${ontologyIRI}/${params.className}> rdf:type owl:Class .
+        }
+        `;
+
+        fetch('http://localhost:3000/sparql', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/sparql-update',
+            },
+            body: {
+                update: query
+            }
+        })
+        .then(response => {
+            console.log(response);
+            params.res.send(true);
+        })
+        .catch(err => console.error(err));
+    }
+}
+
+server.put('/newClass(&className=:className)((&subClassOf=:subClassOf)?)', (req, res) => {
+    createNewClass({
+        res,
+        className: req.params.className,
+        subClassOf: req.params.subClassOf
+    });
+});
+
+server.listen(4000, () => {
+    console.log(`Server listening on port 4000`)
 });
