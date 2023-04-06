@@ -1,12 +1,10 @@
 const params = {
-    class: "Rifle",
-    caliberMin: 7,
-    effectiveRangeMax: 500
+    className: "Riffe",
 }
 const searchParams = new URLSearchParams(params).toString();
 
-fetch(`http://localhost:3000/firearms&${searchParams}`, {
-    method: 'get'
+fetch(`http://localhost:4000/newClass&${searchParams}`, {
+    method: 'put'
 })
 .then(response => response.json())
 .then(response => console.log(response));

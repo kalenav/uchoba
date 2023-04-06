@@ -1,11 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const QueryEngine = require('@comunica/query-sparql').QueryEngine;
+const n3 = require('n3');
+const fs = require('fs');
 
 const server = express();
 server.use(cors());
 
 const queryEngine = new QueryEngine();
+const store = new n3.Store();
 
 const ontologyIRI = 'http://www.semanticweb.org/konst/ontologies/2023/1/lab2';
 const PREFIX = `PREFIX lab2: <${ontologyIRI}#>`;
@@ -65,16 +68,30 @@ function getSelectLine(extractedFields) {
     return `SELECT ${extractedFields.map(field => `?${field}`).join(' ')}`;
 }
 
+async function loadOntologyIntoStore(store, ontologyURL) {
+    await queryEngine.queryVoid(`
+    INSERT
+    {
+        ?s ?p ?o 
+    }
+    WHERE {
+        ?s ?p ?o
+    }
+    `, {
+        sources: [ontologyURL],
+        destination: store
+    })
+}
+
 //////////////////////////////////////
 /// get firearms list with filters ///
 //////////////////////////////////////
 
 function getEntryValue(entries, key) {
-    const raw = entries.get(key).id;
-    const defaultValue = raw.split('"')[1];
+    const raw = entries.get(key).value;
     switch (key) {
         default:
-            return isNaN(defaultValue) ? defaultValue : Number(defaultValue);
+            return isNaN(raw) ? raw : Number(raw);
     }
 }
 
@@ -116,7 +133,7 @@ async function firearmRequest(params) {
     `;
 
     const bindingsStream = await queryEngine.queryBindings(query, {
-        sources: [{ type: 'sparql', value: ontologyURL }],
+        sources: [store],
     });
 
     bindingsStream.on('data', (binding) => {
@@ -128,10 +145,9 @@ async function firearmRequest(params) {
     });
 
     bindingsStream.on('end', () => {
-        params.res.send(response);
-        // params.res.send(response.map(entries => Object.fromEntries(
-        //     params.extractedFields.map(field => [field, getEntryValue(entries, field)])
-        // )));
+        params.res.send(response.map(entries => Object.fromEntries(
+            params.extractedFields.map(field => [field, getEntryValue(entries, field)])
+        )));
     })
 }
 
@@ -174,33 +190,65 @@ function classAlreadyExists(className) {
     return !!labelToIRIMap[className];
 }
 
+function illegalClassName(className) {
+    return false;
+}
+
 async function createNewClass(params) {
     if (!params.subClassOf) params.subClassOf = 'Firearm';
-    if (params.className.includes(' ') || classAlreadyExists(params.className)) {
+    if (illegalClassName(params.className) || classAlreadyExists(params.className)) {
         params.res.send(false);
         return;
     }
     else {
         const query = `
-        INSERT DATA {
-            <${ontologyIRI}/${params.className}> rdf:type owl:Class .
+        ${PREFIX}
+
+        INSERT {
+            lab2:${params.className} rdf:type owl:Class ;
+                rdfs:subClassOf ?superclass ;
+                rdfs:label "${params.className}"@en .
+        }
+        WHERE {
+            ?superclass rdfs:label "${params.subClassOf}"@en .
         }
         `;
 
-        fetch('http://localhost:3000/sparql', {
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/sparql-update',
-            },
-            body: {
-                update: query
-            }
+        queryEngine.queryVoid(query, {
+            sources: [store],
+            destination: store
         })
-        .then(response => {
-            console.log(response);
+        .then(async (response) => {
+            // const classes = [];
+            // const bindingsStream = await queryEngine.queryBindings(`
+            // ${PREFIX}
+
+            // SELECT ?className
+            // WHERE {
+            //     ?class rdfs:subClassOf lab2:${labelToIRIMap['Firearm']} .
+            //     ?class rdfs:label ?className .
+            // }
+            // `, {
+            //     sources: [store]
+            // });
+        
+            // bindingsStream.on('data', (binding) => {
+            //     classes.push(binding.entries);
+            // });
+        
+            // bindingsStream.on('error', (error) => {
+            //     console.error(error);
+            // });
+        
+            // bindingsStream.on('end', () => {
+            //     console.log(classes.map(cl => cl.get('className').value));
+            // });
             params.res.send(true);
         })
-        .catch(err => console.error(err));
+        .catch(err => {
+            console.error(err);
+            params.res.send(false);
+        });
     }
 }
 
@@ -212,6 +260,30 @@ server.put('/newClass(&className=:className)((&subClassOf=:subClassOf)?)', (req,
     });
 });
 
-server.listen(4000, () => {
-    console.log(`Server listening on port 4000`)
+loadOntologyIntoStore(store, ontologyURL)
+.then(() => {
+    const connection = server.listen(4000, () => {
+        console.log(`Server listening on port 4000`)
+    });
+    process.on('SIGINT', () => {
+        connection.close(async () => {
+            console.log('saving store into local ontology...');
+            await saveStoreIntoOntology(store);
+            console.log('saved successfully');
+        });
+    });
 });
+
+//////////////////////////////////////
+
+async function saveStoreIntoOntology(store) {
+    const writer = new n3.Writer({ format: 'RDF/XML' });
+    writer.addQuads(store.getQuads(null, null, null, null));
+    writer.end((error, result) => {
+        if (error) {
+            console.error(error);
+        } else {
+            fs.writeFileSync('../../lab2/ontology.rdf', result);
+        }
+    });
+}
