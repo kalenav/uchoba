@@ -41,17 +41,17 @@ async function setLabelToIRIMap() {
         const bindingsStream = await queryEngine.queryBindings(`
         ${PREFIX}
     
-        SELECT ?classLabel (URI(?class) as ?iri)
+        SELECT ?entityLabel (URI(?entity) as ?iri)
         WHERE {
-            ?class rdf:type owl:Class ;
-                rdfs:label ?classLabel .
+            { ?entity rdf:type owl:Class } UNION { ?entity rdf:type owl:DatatypeProperty }
+            ?entity rdfs:label ?entityLabel .
         }
         `, {
             sources: [store]
         });
     
         bindingsStream.on('data', (binding) => {
-            const label = getEntryValue(binding.entries, 'classLabel');
+            const label = getEntryValue(binding.entries, 'entityLabel');
             const IRI = getEntryValue(binding.entries, 'iri').split(`${ontologyIRI}#`)[1];
             labelToIRIMap[label] = IRI;
         });
@@ -228,7 +228,6 @@ loadOntologyIntoStore(store, ontologyURL)
 .then(setLabelToIRIMap)
 .then(() => {
     const connection = server.listen(4000, () => {
-        console.log(labelToIRIMap);
         console.log(`Server listening on port 4000`);
     });
     process.on('SIGINT', () => {
