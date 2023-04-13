@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Document</title>
+</head>
+<body>
+    <label for="sentence-input">Выберите файл с предложением:</label>
+    <input id="sentence-input" type="file">
+    <hr>
+    <div class="main-content">
+        <h3>Предложение</h3>
+        <p id="input-sentence"></p>
+        <h3>Разобранное предложение</h3>
+        <p id="decomposed-sentence"></p>
+    </div>
+    <hr>
+    <div id="button-block">
+        <button id="save">Сохранить</button>
+        <button id="edit">Редактировать</button>
+    </div>
+
+    <div id="edit-window">
+        <div class="edit-container">
+            <h3 class="edit-title">Редактирование</h5>
+            <div class="edit-textarea-container">
+                <textarea id="edit-textarea"></textarea>
+            </div>
+            <div class="edit-button-block">
+                <button id="edit-confirm">Подтвердить</button>
+                <button id="edit-cancel">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <button id="help-button">?</button>
+
+    <div id="help-window">
+        <div class="help-container">
+            <p>Нажмите кнопку <b>"Выберите файл"</b>, чтобы выбрать файл, содержащий анализируемое предложение. Синтаксический анализ предложения начнётся автоматически.</p>
+            <p>По завершению синтаксического анализа прочитанное из файла предложение будет отображено в разделе <b>"Предложение"</b>, а результат его синтаксического анализа согласно грамматике - в разделе <b>"Разобранное предложение"</b>. Также по завершению синтаксического анализа станут доступны кнопки <b>"Сохранить"</b> и <b>"Редактировать"</b>.</p>
+            <p>Нажатие на кнопку <b>"Сохранить"</b> сохранит текущее содержимое раздела <b>"Разобранное предложение"</b> в файл с названием <b>decomposition.txt</b>.</p>
+            <p>Нажатие на кнопку <b>"Редактировать"</b> откроет окно редактирования содержимого раздела <b>"Разобранное предложение"</b>. После внесения желаемых изменений нажмите кнопку <b>"Подтвердить"</b>, чтобы перезаписать содержимое раздела <b>"Разобранное предложение"</b>. Нажмите кнопку <b>"Отмена"</b>, чтобы отменить редактирование.</p>
+            <button id="close-help">ОК</button>
+        </div>
+    </div>
+</body>
+<script src="./script.js"></script>
+</html>
