@@ -40,7 +40,11 @@ export function analyzeSyntaxAndSemantics(parser) {
         return false;
     }
 
-    return tree;
+
+    return {
+        tree,
+        semanticsAnalyzer
+    };
 }
 
 function tests() {
@@ -74,4 +78,4 @@ function tests() {
     });
 }
 
-tests();
+// tests();
