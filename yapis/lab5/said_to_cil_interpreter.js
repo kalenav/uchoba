@@ -804,7 +804,7 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 }),
             ]
         });
-        const mutiplyCharByNumber =  new Method({
+        const multiplyCharByNumber =  new Method({
             name: 'multiplyCharByNumber',
             maxStackSize: 3,
             arguments: [
@@ -836,7 +836,7 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 CodeUtils.getVarValue('resultStr')
             ]
         });
-        const mutiplyStringByNumber =  new Method({
+        const multiplyStringByNumber =  new Method({
             name: 'multiplyStringByNumber',
             maxStackSize: 3,
             arguments: [
@@ -868,7 +868,7 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 CodeUtils.getVarValue('resultStr')
             ]
         });
-        const mutiplyStrarrayByNumber =  new Method({
+        const multiplyStrarrayByNumber =  new Method({
             name: 'multiplyStrarrayByNumber',
             maxStackSize: 3,
             arguments: [
@@ -1209,9 +1209,9 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
             strarraySlice,
             strarrayConcat,
             subtractStrFromStrarray,
-            mutiplyCharByNumber,
-            mutiplyStringByNumber,
-            mutiplyStrarrayByNumber,
+            multiplyCharByNumber,
+            multiplyStringByNumber,
+            multiplyStrarrayByNumber,
             divideStrByChar,
             divideStrarrayByStr,
             slice,
@@ -1227,6 +1227,26 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 'printChar': [TYPES.char],
                 'printString': [TYPES.string],
                 'printStrarray': [TYPES.strarray]
+            },
+            '+': {
+                'addChars': [TYPES.char, TYPES.char],
+                'addStringAndChar': [TYPES.string, TYPES.char],
+                'addCharAndString': [TYPES.char, TYPES.string],
+                'addStrings': [TYPES.string, TYPES.string],
+                'strarrayConcat': [TYPES.strarray, TYPES.strarray]
+            },
+            '-': {
+                'subtractCharFromStr': [TYPES.string, TYPES.char],
+                'subtractStrFromStrarray': [TYPES.strarray, TYPES.string]
+            },
+            '*': {
+                'multiplyCharByNumber': [TYPES.char, TYPES.int],
+                'multiplyStringByNumber': [TYPES.string, TYPES.int],
+                'multiplyStrarrayByNumber': [TYPES.strarray, TYPES.int]
+            },
+            '/': {
+                'divideStrByChar': [TYPES.string, TYPES.char],
+                'divideStrarrayByStr': [TYPES.strarray, TYPES.string]
             }
         }
     }
@@ -1285,6 +1305,79 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                     ? this.methods.getStringAtIndex
                     : this.methods.getCharAtIndex 
                 )
+            ]
+        }
+        if (!!ctx.ADD()) {
+            const firstSummand = ctx.expr()[0];
+            const secondSummand = ctx.expr()[1];
+            const types = [firstSummand, secondSummand].map(expr => this.semanticsAnalyzer.deriveExprType(expr));
+            const sumMethods = this.overloadedMethods['+'];
+            for (const methodName in sumMethods) {
+                if (types.every((type, index) => type === sumMethods[methodName][index])) {
+                    return [
+                        ...this.loadExprValueIntoStack(firstSummand),
+                        ...this.loadExprValueIntoStack(secondSummand),
+                        CodeUtils.methodCall(this.methods[methodName])
+                    ]
+                }
+            }
+        }
+
+        if (!!ctx.SUB()) {
+            const minuend = ctx.expr()[0];
+            const subtrahend = ctx.expr()[1];
+            const types = [minuend, subtrahend].map(expr => this.semanticsAnalyzer.deriveExprType(expr));
+            const diffMethods = this.overloadedMethods['-'];
+            for (const methodName in diffMethods) {
+                if (types.every((type, index) => type === diffMethods[methodName][index])) {
+                    return [
+                        ...this.loadExprValueIntoStack(subtrahend),
+                        ...this.loadExprValueIntoStack(minuend),
+                        CodeUtils.methodCall(this.methods[methodName])
+                    ]
+                }
+            }
+        }
+
+        if (!!ctx.MUL()) {
+            const multiplied = ctx.expr()[0];
+            const multiplier = ctx.expr()[1];
+            const types = [multiplied, multiplier].map(expr => this.semanticsAnalyzer.deriveExprType(expr));
+            const mulMethods = this.overloadedMethods['*'];
+            for (const methodName in mulMethods) {
+                if (types.every((type, index) => type === mulMethods[methodName][index])) {
+                    return [
+                        ...this.loadExprValueIntoStack(multiplied),
+                        ...this.loadExprValueIntoStack(multiplier),
+                        CodeUtils.methodCall(this.methods[methodName])
+                    ]
+                }
+            }
+        }
+
+        if (!!ctx.DIV()) {
+            const divided = ctx.expr()[0];
+            const divisor = ctx.expr()[1];
+            const types = [divided, divisor].map(expr => this.semanticsAnalyzer.deriveExprType(expr));
+            const divMethods = this.overloadedMethods['/'];
+            for (const methodName in divMethods) {
+                if (types.every((type, index) => type === divMethods[methodName][index])) {
+                    return [
+                        ...this.loadExprValueIntoStack(divided),
+                        ...this.loadExprValueIntoStack(divisor),
+                        CodeUtils.methodCall(this.methods[methodName])
+                    ]
+                }
+            }
+        }
+
+        if (!!ctx.NOT()) {
+            const negated = ctx.expr();
+            return [
+                ...this.loadExprValueIntoStack(negated),
+                CodeUtils.condition({
+                    
+                })
             ]
         }
     }
