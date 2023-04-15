@@ -19,7 +19,7 @@ const conditionToInstructionMap = {
     firstLessThanSecond: 'blt',
     firstGreaterThanSecond: 'bgt',
     areEqual_strings: 'ceq brtrue',
-}
+};
 
 class Variable {
     name = "";
@@ -29,7 +29,7 @@ class Variable {
         this.name = name;
         this.type = type;
     }
-}
+};
 
 class Method {
     name = "";
@@ -102,7 +102,7 @@ class Method {
     addLocalVariable(name, type) {
         this.localVariables.push(new Variable(name, type));
     }
-}
+};
 
 class CodeUtils {
     static loadArgIntoStack(identifier) {
@@ -289,12 +289,12 @@ class CodeUtils {
     static deriveValueType(value) {
 
     }
-}
+};
 
 export class Interpreter extends ExprParserListener {
     methods = {};
     overloadedMethods = {};
-    currBranchID = 0;
+    currBranchID = 31;
     defaultAssemblyName = 'Program';
     semanticsAnalyzer;
     currMethod;
@@ -1372,11 +1372,19 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         }
 
         if (!!ctx.NOT()) {
-            const negated = ctx.expr();
+            const negated = ctx.expr()[0];
             return [
                 ...this.loadExprValueIntoStack(negated),
-                CodeUtils.condition({
-                    
+                CodeUtils.loadNumericConstantIntoStack(0),
+                ...CodeUtils.condition({
+                    branchIDs: [++this.currBranchID, ++this.currBranchID],
+                    condition: 'areEqual',
+                    linesOfCodeOnTrue: [
+                        CodeUtils.loadNumericConstantIntoStack(1),
+                    ],
+                    linesOfCodeOnFalse: [
+                        CodeUtils.loadNumericConstantIntoStack(0)
+                    ]
                 })
             ]
         }
