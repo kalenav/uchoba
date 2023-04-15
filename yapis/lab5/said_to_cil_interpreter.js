@@ -19,6 +19,7 @@ const conditionToInstructionMap = {
     firstLessThanSecond: 'blt',
     firstGreaterThanSecond: 'bgt',
     areEqual_strings: 'ceq brtrue',
+    notEqual: 'bne.un'
 };
 
 class Variable {
@@ -101,6 +102,14 @@ class Method {
 
     addLocalVariable(name, type) {
         this.localVariables.push(new Variable(name, type));
+    }
+
+    getArgIndex(name) {
+        return this.arguments.findIndex(arg => arg.name === name);
+    }
+
+    getLocalVariableType(name) {
+        return this.localVariables.find(variable => variable.name === name).type;
     }
 };
 
@@ -1264,8 +1273,105 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         return substrings.slice(1, substrings.length - 1).join(' ')
     }
 
+    getConditionType(conditionCtx) {
+        if (!!conditionCtx.EQ()) {
+            if (this.deriveExprType(conditionCtx.expr()[0]) === TYPES.string) {
+                return 'areEqual_string';
+            }
+            else return 'areEqual';
+        }
+        if (!!conditionCtx.GREATER()) {
+            return 'firstGreaterThanSecond';
+        }
+        if (!!conditionCtx.LESS()) {
+            return 'firstLessThanSecond';
+        }
+        if (!!conditionCtx.NOEQ()) {
+            return 'notEqual'
+        }
+    }
+
+    getVarType(name) {
+        return [
+            ...this.currMethod.localVariables,
+            ...this.currMethod.arguments
+        ].find(variable => variable.name === name).type;
+    }
+
+    getElAndIndexAliases(cycleCtx) {
+        const ctx = cycleCtx;
+        const trackingEL = !!ctx.EL();
+        const trackingINDEX = !!ctx.INDEX();
+        const indexAliasIDIndex = (trackingEL && trackingINDEX) ? 2 : 1;
+
+        const elAlias = trackingEL ? ctx.ID()[1].getText() : 'el';
+        const indexAlias = trackingINDEX ? ctx.ID()[indexAliasIDIndex].getText() : 'index';
+        return [elAlias, indexAlias];
+    }
+
+    getStatementLinesOfCode(statementCtx) {
+        if (!!statementCtx.expr()) {
+            return [
+                ...this.loadExprValueIntoStack(statementCtx.expr())
+            ];
+        }
+        if (!!statementCtx.assignment()) {
+            const ctx = statementCtx.assignment();
+            const variableNames = ctx.ID().map(IDctx => IDctx.getText());
+            const variableValues = ctx.expr();
+            let linesOfCode = [];
+            variableNames.forEach((name, index) => {
+                const expr = variableValues[index];
+                linesOfCode = linesOfCode.concat([
+                    ...this.loadExprValueIntoStack(expr),
+                    CodeUtils.setVarValue(name)
+                ]);
+                if (!this.currMethod.hasLocalVariable(name)) {
+                    const rawType = this.deriveExprType(expr);
+                    const type = dotnetCILtypes[typeIDToStringMap[rawType]];
+                    this.currMethod.addLocalVariable(name, type);
+                }
+            });
+            return linesOfCode;
+        }
+        let ctx = statementCtx.control();
+        if (!!ctx.cycle()) {
+            ctx = ctx.cycle();
+
+            const iteratedObjIsStr = this.getVarType(ctx.ID()[0].getText()) === dotnetCILtypes.string;
+            
+            const branchID = ++this.currBranchID;
+            const iteratedObjInArgsIndex = this.currMethod.getArgIndex(ctx.ID()[0]);
+            const iteratedObjName = ctx.ID()[0];
+            const [elAlias, indexAlias] = this.getElAndIndexAliases(ctx);
+            const indexAccessorMethod = this.methods[iteratedObjIsStr ? 'getCharAtIndex' : 'getStringAtIndex'];
+            const getLengthMethod = this.methods[iteratedObjIsStr ? 'getStringLength' : 'getStrarrayLength'];
+            let linesOfCode = []
+            ctx.statement().forEach(statement => {
+                linesOfCode = linesOfCode.concat(this.getStatementLinesOfCode(statement));
+            });
+
+            return CodeUtils.iterate({
+                branchID,
+                iteratedObjInArgsIndex,
+                iteratedObjName,
+                indexAlias,
+                elAlias,
+                indexAccessorMethod,
+                getLengthMethod,
+                linesOfCode
+            });
+        }
+    }
+
     loadExprValueIntoStack(ctx) {
         if (!!ctx.operand()?.ID()) {
+            const argIndex = this.currMethod.getArgIndex(ctx.getText());
+            if (argIndex > -1) {
+                return [
+                    CodeUtils.loadArgIntoStack(argIndex)
+                ];
+            }
             return [
                 CodeUtils.getVarValue(ctx.getText())
             ];
@@ -1294,10 +1400,36 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 )
             ]
         }
+        if (!!ctx.call()) {
+            ctx = ctx.call();
+            const args = ctx.expr();
+            let linesOfCode = [];
+            args.forEach(arg => {
+                linesOfCode = linesOfCode.concat(this.loadExprValueIntoStack(arg));
+            });
+            const argTypes = args.map(arg => {
+                return this.deriveExprType(arg);
+            });
+            const calledFunctionName = ctx.ID().getText();
+            if (!calledFunctionName in this.overloadedMethods) {
+                return linesOfCode.concat([
+                    CodeUtils.methodCall(this.methods[calledFunctionName])
+                ]);
+            }
+    
+            const overloadedMethodObj = this.overloadedMethods[calledFunctionName];
+            for (const methodName in overloadedMethodObj) {
+                if (overloadedMethodObj[methodName].every((type, index) => type === argTypes[index])) {
+                    return linesOfCode.concat([
+                        CodeUtils.methodCall(this.methods[methodName])
+                    ]);
+                }
+            }
+        }
         if (!!ctx.LSQUARE()) {
             const arr = ctx.expr()[0];
             const index = ctx.expr()[1];
-            const arrType = this.semanticsAnalyzer.deriveExprType(arr);
+            const arrType = this.deriveExprType(arr);
             return [
                 ...this.loadExprValueIntoStack(arr),
                 ...this.loadExprValueIntoStack(index),
@@ -1310,7 +1442,7 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         if (!!ctx.ADD()) {
             const firstSummand = ctx.expr()[0];
             const secondSummand = ctx.expr()[1];
-            const types = [firstSummand, secondSummand].map(expr => this.semanticsAnalyzer.deriveExprType(expr));
+            const types = [firstSummand, secondSummand].map(expr => this.deriveExprType(expr));
             const sumMethods = this.overloadedMethods['+'];
             for (const methodName in sumMethods) {
                 if (types.every((type, index) => type === sumMethods[methodName][index])) {
@@ -1326,7 +1458,7 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         if (!!ctx.SUB()) {
             const minuend = ctx.expr()[0];
             const subtrahend = ctx.expr()[1];
-            const types = [minuend, subtrahend].map(expr => this.semanticsAnalyzer.deriveExprType(expr));
+            const types = [minuend, subtrahend].map(expr => this.deriveExprType(expr));
             const diffMethods = this.overloadedMethods['-'];
             for (const methodName in diffMethods) {
                 if (types.every((type, index) => type === diffMethods[methodName][index])) {
@@ -1342,7 +1474,7 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         if (!!ctx.MUL()) {
             const multiplied = ctx.expr()[0];
             const multiplier = ctx.expr()[1];
-            const types = [multiplied, multiplier].map(expr => this.semanticsAnalyzer.deriveExprType(expr));
+            const types = [multiplied, multiplier].map(expr => this.deriveExprType(expr));
             const mulMethods = this.overloadedMethods['*'];
             for (const methodName in mulMethods) {
                 if (types.every((type, index) => type === mulMethods[methodName][index])) {
@@ -1358,7 +1490,7 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         if (!!ctx.DIV()) {
             const divided = ctx.expr()[0];
             const divisor = ctx.expr()[1];
-            const types = [divided, divisor].map(expr => this.semanticsAnalyzer.deriveExprType(expr));
+            const types = [divided, divisor].map(expr => this.deriveExprType(expr));
             const divMethods = this.overloadedMethods['/'];
             for (const methodName in divMethods) {
                 if (types.every((type, index) => type === divMethods[methodName][index])) {
@@ -1390,45 +1522,26 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         }
     }
 
-    exitCall(ctx) {
-        const args = ctx.expr();
-        args.forEach(arg => {
-            this.currMethod.addLinesOfCode(this.loadExprValueIntoStack(arg));
-        });
-        const argTypes = args.map(arg => this.semanticsAnalyzer.deriveExprType(arg));
-        const calledFunctionName = ctx.ID().getText();
-        if (!calledFunctionName in this.overloadedMethods) {
-            this.currMethod.addLineOfCode(
-                CodeUtils.methodCall(this.methods[calledFunctionName])
-            );
-            return;
-        }
-
-        const overloadedMethodObj = this.overloadedMethods[calledFunctionName];
-        for (const methodName in overloadedMethodObj) {
-            if (overloadedMethodObj[methodName].every((type, index) => type === argTypes[index])) {
-                this.currMethod.addLineOfCode(
-                    CodeUtils.methodCall(this.methods[methodName])
-                );
-                return;
-            }
-        }
+    deriveExprType(ctx) {
+        
     }
 
-    exitAssignment(ctx) {
-        const variableNames = ctx.ID().map(IDctx => IDctx.getText());
-        const variableValues = ctx.expr();
-        variableNames.forEach((name, index) => {
-            const expr = variableValues[index];
-            this.currMethod.addLinesOfCode([
-                ...this.loadExprValueIntoStack(expr),
-                CodeUtils.setVarValue(name)
-            ]);
-            if (!this.currMethod.hasLocalVariable(name)) {
-                const rawType = this.semanticsAnalyzer.deriveExprType(expr);
-                const type = dotnetCILtypes[typeIDToStringMap[rawType]];
-                this.currMethod.addLocalVariable(name, type);
-            }
-        });
+    exitStatement(ctx) {
+        if (ctx.parentCtx.constructor.name === 'CycleContext' || ctx.parentCtx.constructor.name === 'IfContext') return;
+        this.currMethod.addLinesOfCode(this.getStatementLinesOfCode(ctx));
+    }
+
+    enterCycle(ctx) {
+        const iteratedObjName = ctx.ID()[0].getText();
+        const iteratedObjIsStr = this.getVarType(iteratedObjName) === dotnetCILtypes.string;
+
+        const [elAlias, indexAlias] = this.getElAndIndexAliases(ctx);
+
+        if (!this.currMethod.hasLocalVariable(elAlias)) {
+            this.currMethod.addLocalVariable(elAlias, iteratedObjIsStr ? dotnetCILtypes.char : dotnetCILtypes.string);
+        }
+        if (!this.currMethod.hasLocalVariable(indexAlias)) {
+            this.currMethod.addLocalVariable(indexAlias, dotnetCILtypes.int32);
+        }
     }
 }
