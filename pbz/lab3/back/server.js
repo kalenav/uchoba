@@ -139,7 +139,7 @@ async function firearmRequest(params) {
         params.res.send(response.map(entries => Object.fromEntries(
             params.extractedFields.map(field => [field, getEntryValue(entries, field)])
         )));
-    })
+    });
 }
 
 const firearmsRequest = '/firearms';
@@ -229,14 +229,34 @@ server.put('/newClass(&className=:className)((&subClassOf=:subClassOf)?)', (req,
 ///////////////////////////////////////////
 
 async function individualAlreadyExists(name) {
-    return false;
+    return new Promise(async (resolve, reject) => {
+        const query = `
+        SELECT *
+        WHERE {
+            ?individual rdfs:label "${name}"@en .
+        }
+        `;
+
+        const bindingsStream = await queryEngine.queryBindings(query, {
+            sources: [store],
+        });
+    
+        bindingsStream.on('data', (binding) => {
+            resolve(false);
+        });
+    
+        bindingsStream.on('error', (error) => {
+            console.error(error);
+            reject();
+        });
+    
+        bindingsStream.on('end', () => {
+            resolve(true);
+        })
+    });
 }
 
 async function createNewIndividual(params) {
-    if (await individualAlreadyExists(params.name)) {
-        params.res.send(false);
-        return;
-    }
     if (!params.className) params.className = 'Firearm';
     params.className = plusToSpaceMapper(params.className);
     params.name = plusToSpaceMapper(params.name);
