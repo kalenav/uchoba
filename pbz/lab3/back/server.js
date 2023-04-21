@@ -196,7 +196,7 @@ async function createNewClass(params) {
 
         INSERT DATA {
             <${ontologyIRI}#${params.className.split(' ').join('')}> rdf:type owl:Class ;
-                rdfs:subClassOf <${labelToIRIMap[params.subClassOf]}> ;
+                rdfs:subClassOf <${ontologyIRI}#${labelToIRIMap[params.subClassOf]}> ;
                 rdfs:label "${params.className}"@en .
         }
         `;
@@ -228,21 +228,24 @@ loadOntologyIntoStore(store, ontologyURL)
 .then(setLabelToIRIMap)
 .then(() => {
     const connection = server.listen(4000, () => {
+        console.log(labelToIRIMap);
         console.log(`Server listening on port 4000`);
     });
     process.on('SIGINT', () => {
         connection.close(async () => {
-            console.log('saving store into local ontology...');
+            console.log('saving ontology...');
             await saveStoreIntoOntology(store);
             console.log('saved successfully');
         });
     });
 });
 
-//////////////////////////////////////
-
 async function saveStoreIntoOntology(store) {
-    const writer = new n3.Writer({ format: 'application/rdf+xml' });
+    const writer = new n3.Writer({ format: 'text/turtle' });
     const serializedData = writer.quadsToString(store.getQuads());
-    fs.writeFileSync('../../lab2/ontology.rdf', serializedData);
+    fs.writeFileSync('E:/Important/uchoba_rep/uchoba/pbz/lab2/ontology.ttl', serializedData);
+
+    ////////////////////////////////////////
+    //  !!! MUST RELOAD BOTH SERVERS !!!  //
+    ////////////////////////////////////////
 }
