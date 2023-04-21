@@ -1,6 +1,6 @@
 import ExprParserListener from "../lab3/compiled_grammar/ExprParserListener.js";
 
-const typeIDToStringMap = {
+export const typeIDToStringMap = {
     '1': 'char',
     '2': 'string',
     '3': 'strarray',
@@ -9,7 +9,7 @@ const typeIDToStringMap = {
     '6': 'any'
 }
 
-const TYPES = {
+export const TYPES = {
     [typeIDToStringMap[1]]: 1,
     [typeIDToStringMap[2]]: 2,
     [typeIDToStringMap[3]]: 3,
@@ -83,12 +83,21 @@ class VariableDefinition {
     getType() {
         return this._type;
     }
+
+    setValue(val) {
+        this._val = val;
+    }
+
+    getValue() {
+        return this._val;
+    }
 }
 
 class FunctionDefinition {
-    constructor(name, argc, returnedType) {
+    constructor(name, acceptedTypes, returnedType) {
         this._name = name;
-        this._argsQuantity = argc;
+        this._argsQuantity = acceptedTypes.length;
+        this._acceptedTypes = acceptedTypes;
         this._returnedType = returnedType;
     }
 
@@ -109,14 +118,17 @@ export class TreeListener extends ExprParserListener {
     mainScope = new Scope();
     currScope = this.mainScope;
     definedFunctions = [
-        new FunctionDefinition('char', 1, TYPES.char),
-        new FunctionDefinition('string', 1, TYPES.string),
-        new FunctionDefinition('print', 1),
-        new FunctionDefinition('substr', 2, TYPES.int),
-        new FunctionDefinition('slice', 3, TYPES.string),
-        new FunctionDefinition('split', 2, TYPES.strarray),
-        new FunctionDefinition('replace', 3, TYPES.string),
-        new FunctionDefinition('join', 2, TYPES.string),
+        new FunctionDefinition('char', [TYPES.string], TYPES.char),
+        new FunctionDefinition('string', [TYPES.char], TYPES.string),
+        new FunctionDefinition('print', [TYPES.int], TYPES.undefined),
+        new FunctionDefinition('print', [TYPES.char], TYPES.undefined),
+        new FunctionDefinition('print', [TYPES.string], TYPES.undefined),
+        new FunctionDefinition('print', [TYPES.strarray], TYPES.undefined),
+        new FunctionDefinition('substr', [TYPES.string, TYPES.string], TYPES.int),
+        new FunctionDefinition('slice', [TYPES.string, TYPES.int, TYPES.int], TYPES.string),
+        new FunctionDefinition('split', [TYPES.string, TYPES.int], TYPES.strarray),
+        new FunctionDefinition('replace', [TYPES.string, TYPES.string, TYPES.string], TYPES.string),
+        new FunctionDefinition('join', [TYPES.strarray, TYPES.string], TYPES.string),
     ];
     errors = [];
 
@@ -178,7 +190,8 @@ export class TreeListener extends ExprParserListener {
                 );
             }
             const iteratedObjectType = this.deriveVariableType(cycleHeaderIDs[0]);
-            const elType = iteratedObjectType === TYPES.strarray ? TYPES.string : TYPES.char;
+            const elType = iteratedObjectType === TYPES.any ? TYPES.any
+                : iteratedObjectType === TYPES.strarray ? TYPES.string : TYPES.char;
             const idsQuantity = cycleHeaderIDs.length;
             if (idsQuantity === 3) {
                 this.addVariablesToCurrScope([
@@ -230,10 +243,9 @@ export class TreeListener extends ExprParserListener {
         this.checkAllExprVariables(exprs);
         const leftSideExprType = this.deriveExprType(exprs[0]);
         const rightSideExprType = this.deriveExprType(exprs[1]);
-        if ((leftSideExprType !== TYPES.int && leftSideExprType !== TYPES.any)
-        || (rightSideExprType !== TYPES.int && rightSideExprType !== TYPES.any)) {
+        if (leftSideExprType !== rightSideExprType && leftSideExprType !== TYPES.any && rightSideExprType !== TYPES.any) {
             this.addError(
-                `Both sides of a condition must be integers`,
+                `Cannot compare values of different types`,
                 ctx
             );
         }
@@ -337,8 +349,8 @@ export class TreeListener extends ExprParserListener {
 
         if (!!expr.call()) {
             return this.definedFunctions
-                .find(functionDef => functionDef._name === this.getFunctionName(expr.call()))
-                .getReturnedType();
+                .find(functionDef => functionDef.getName() === this.getFunctionName(expr.call()))?.getReturnedType()
+                || TYPES.undefined;
         }
 
         if (!!expr.NOT()) {
