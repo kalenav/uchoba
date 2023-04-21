@@ -298,6 +298,64 @@ server.put('/newIndividual(&name=:individualName)(&caliber=:caliber)(&range=:ran
     });
 });
 
+/////////////////////////////////////
+////      update class name      ////
+/////////////////////////////////////
+
+async function changeClassName(params) {
+    if (!classAlreadyExists(params.currName)) {
+        params.res.send(false);
+        return;
+    }
+
+    const classIRI = labelToIRIMap[params.currName];
+
+    let query = `
+    ${PREFIX}
+
+    DELETE { lab2:${classIRI} rdfs:label ?name . }
+    WHERE { lab2:${classIRI} rdfs:label ?name . }
+    `;
+
+    queryEngine.queryVoid(query, {
+        sources: [store],
+        destination: store
+    })
+    .then(async () => {
+        query = `
+        ${PREFIX}
+
+        INSERT DATA { lab2:${classIRI} rdfs:label "${params.newName}"@en . }
+        `;
+
+        queryEngine.queryVoid(query, {
+            sources: [store],
+            destination: store
+        })
+        .then(async() => {
+            labelToIRIMap[params.newName] = labelToIRIMap[params.currName];
+            delete labelToIRIMap[params.currName];
+            params.res.send(true);
+        })
+        .catch(err => {
+            console.error(err);
+            params.res.send(false);
+        })
+    })
+    .catch(err => {
+        console.error(err);
+        params.res.send(false);
+    });
+}
+
+server.put('/updateClass(&currName=:currName)(&newName=:newName)', (req, res) => {
+    changeClassName({
+        res,
+        currName: req.params.currName,
+        newName: req.params.newName
+    })
+});
+
 loadOntologyIntoStore(store, ontologyURL)
 .then(setLabelToIRIMap)
 .then(() => {
