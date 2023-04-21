@@ -224,6 +224,60 @@ server.put('/newClass(&className=:className)((&subClassOf=:subClassOf)?)', (req,
     });
 });
 
+///////////////////////////////////////////
+///  create new individual in ontology  ///
+///////////////////////////////////////////
+
+async function individualAlreadyExists(name) {
+    return false;
+}
+
+async function createNewIndividual(params) {
+    if (await individualAlreadyExists(params.name)) {
+        params.res.send(false);
+        return;
+    }
+    if (!params.className) params.className = 'Firearm';
+    params.className = plusToSpaceMapper(params.className);
+    params.name = plusToSpaceMapper(params.name);
+
+    const caliberIRI = labelToIRIMap['caliber_mm'];
+    const effectiveRangeIRI = labelToIRIMap['effectiveRange_m'];
+
+    const query = `
+    ${PREFIX}
+
+    INSERT DATA {
+        <${ontologyIRI}#${params.name}> rdf:type lab2:${labelToIRIMap[params.className]} ;
+            rdfs:label "${params.name}"@en ;
+            lab2:${caliberIRI} ${params.caliber} ;
+            lab2:${effectiveRangeIRI} ${params.range} .
+    }
+    `;
+
+    queryEngine.queryVoid(query, {
+        sources: [store],
+        destination: store
+    })
+    .then(async () => {
+        params.res.send(true);
+    })
+    .catch(err => {
+        console.error(err);
+        params.res.send(false);
+    });
+}
+
+server.put('/newIndividual(&name=:individualName)(&caliber=:caliber)(&range=:range)((&elementOf=:className)?)', (req, res) => {
+    createNewIndividual({
+        res,
+        name: req.params.individualName,
+        caliber: req.params.caliber,
+        range: req.params.range,
+        className: req.params.className
+    });
+});
+
 loadOntologyIntoStore(store, ontologyURL)
 .then(setLabelToIRIMap)
 .then(() => {
@@ -245,7 +299,5 @@ async function saveStoreIntoOntology(store) {
     const serializedData = writer.quadsToString(store.getQuads());
     fs.writeFileSync('E:/Important/uchoba_rep/uchoba/pbz/lab2/ontology.ttl', serializedData);
 
-    ////////////////////////////////////////
-    //  !!! MUST RELOAD BOTH SERVERS !!!  //
-    ////////////////////////////////////////
+    //  !!! must reload both servers if refreshing page !!!
 }
