@@ -65,7 +65,7 @@ body {
 }
 
 .individual-table th, .individual-table td {
-    border: solid black 1px;
+    border: solid black 2px;
     padding: 0.25rem;
 }
 

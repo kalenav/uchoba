@@ -99,6 +99,9 @@ const filterModule = (function() {
             const option = document.createElement('option');
             option.setAttribute('value', name);
             option.append(name);
+            if (name === 'Firearm') {
+                option.setAttribute('selected', '');
+            }
             classSelect.appendChild(option);
         })
     }
@@ -178,8 +181,8 @@ const mainModule = (function() {
     let debounceTimeoutID;
 
     function init() {
-        displayIndividuals();
         filterModule.setClassSelectOptions();
+        displayIndividuals();
 
         document.addEventListener('input', () => {
             if (!!debounceTimeoutID) {
