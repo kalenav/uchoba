@@ -360,39 +360,6 @@ server.put('/updateClass(&currName=:currName)(&newName=:newName)', (req, res) =>
 ////      change individual      ////
 /////////////////////////////////////
 
-// async function updateIndividual(individualName, predicate, newObject) {
-//     return await queryEngine.queryVoid(`
-//         ${PREFIX}
-
-//         DELETE { ?s ${predicate} ?o . }
-//         WHERE {
-//             ?s ${predicate} ?o .
-//             ?s rdfs:label "${individualName}"@en .
-//         }
-//     `, {
-//         sources: [store],
-//         destination: store
-//     })
-//     .then(async () => {
-//         const newObjectString = predicate === `rdfs:label` ? `"${newObject}"@en` : `${newObject}`;
-
-//         await queryEngine.queryVoid(`
-//             ${PREFIX}
-
-//             INSERT { ?s ${predicate} ${newObjectString} . }
-//             WHERE { ?s rdfs:label "${individualName}"@en . }
-//         `, {
-//             sources: [store],
-//             destination: store
-//         });
-//         return true;
-//     })
-//     .catch(err => {
-//         console.log(err);
-//         return false;
-//     });
-// }
-
 async function updateIndividual(individualName, predicate, newObject) {
     const newObjectString = predicate === `rdfs:label`
         ? `"${newObject}"@en`
@@ -474,6 +441,46 @@ server.put('/updateIndividual(&currName=:currName)(&newName=:newName)?(&newCalib
         newCaliber: req.params.newCaliber,
         newRange: req.params.newRange
     })
+});
+
+/////////////////////////////////////
+////        delete entity        ////
+/////////////////////////////////////
+
+async function deleteEntity(params) {
+    return await queryEngine.queryVoid(`
+    ${PREFIX}
+
+    DELETE {
+        ?ent ?p ?o .
+        ?s ?p ?ent .
+        ?subent ?p ?o .
+        ?s ?p ?subent .
+    }
+    WHERE {
+        ?s ?p ?o .
+
+        ?ent rdfs:label "${plusToSpaceMapper(params.name)}"@en .
+        { ?subent rdf:type/rdfs:subClassOf* ?ent } UNION { ?subent rdfs:subClassOf ?ent }
+    }
+    `, {
+        sources: [store],
+        destination: store
+    })
+    .then(() => {
+        params.res.send(true);
+    })
+    .catch(err => {
+        console.log(err);
+        params.res.send(false);
+    });
+}
+
+server.put('/deleteEntity&name=:name', (req, res) => {
+    deleteEntity({
+        res,
+        name: req.params.name
+    });
 });
 
 ///////////////////////////////////////
