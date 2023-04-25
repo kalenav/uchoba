@@ -233,7 +233,7 @@ async function individualAlreadyExists(name) {
         const query = `
         SELECT *
         WHERE {
-            ?individual rdfs:label "${name}"@en .
+            ?s rdfs:label "${name}"@en .
         }
         `;
 
@@ -242,7 +242,7 @@ async function individualAlreadyExists(name) {
         });
     
         bindingsStream.on('data', (binding) => {
-            resolve(false);
+            resolve(true);
         });
     
         bindingsStream.on('error', (error) => {
@@ -251,7 +251,7 @@ async function individualAlreadyExists(name) {
         });
     
         bindingsStream.on('end', () => {
-            resolve(true);
+            resolve(false);
         })
     });
 }
@@ -356,11 +356,134 @@ server.put('/updateClass(&currName=:currName)(&newName=:newName)', (req, res) =>
     })
 });
 
+/////////////////////////////////////
+////      change individual      ////
+/////////////////////////////////////
+
+// async function updateIndividual(individualName, predicate, newObject) {
+//     return await queryEngine.queryVoid(`
+//         ${PREFIX}
+
+//         DELETE { ?s ${predicate} ?o . }
+//         WHERE {
+//             ?s ${predicate} ?o .
+//             ?s rdfs:label "${individualName}"@en .
+//         }
+//     `, {
+//         sources: [store],
+//         destination: store
+//     })
+//     .then(async () => {
+//         const newObjectString = predicate === `rdfs:label` ? `"${newObject}"@en` : `${newObject}`;
+
+//         await queryEngine.queryVoid(`
+//             ${PREFIX}
+
+//             INSERT { ?s ${predicate} ${newObjectString} . }
+//             WHERE { ?s rdfs:label "${individualName}"@en . }
+//         `, {
+//             sources: [store],
+//             destination: store
+//         });
+//         return true;
+//     })
+//     .catch(err => {
+//         console.log(err);
+//         return false;
+//     });
+// }
+
+async function updateIndividual(individualName, predicate, newObject) {
+    const newObjectString = predicate === `rdfs:label`
+        ? `"${newObject}"@en`
+        : `${newObject}`;
+    return await queryEngine.queryVoid(`
+        ${PREFIX}
+
+        DELETE { ?s ${predicate} ?o . }
+        INSERT { ?s ${predicate} ${newObjectString} . }
+        WHERE {
+            ?s ${predicate} ?o .
+            ?s rdfs:label "${individualName}"@en .
+        }
+    `, {
+        sources: [store],
+        destination: store
+    })
+    .then(async () => {
+        return true;
+    })
+    .catch(err => {
+        console.log(err);
+        return false;
+    });
+}
+
+async function changeIndividual(params) {
+    params.currName = plusToSpaceMapper(params.currName);
+    if (!(await individualAlreadyExists(params.currName))) {
+        params.res.send(false);
+        return;
+    }
+
+    if (!!params.newCaliber) {
+        const result = await updateIndividual(
+            params.currName,
+            `lab2:${labelToIRIMap['caliber_mm']}`,
+            params.newCaliber
+        );
+        if (!result) {
+            params.res.send(false);
+            return;
+        }
+    }
+
+    if (!!params.newRange) {
+        const result = await updateIndividual(
+            params.currName,
+            `lab2:${labelToIRIMap['effectiveRange_m']}`,
+            params.newRange
+        );
+        if (!result) {
+            params.res.send(false);
+            return;
+        }
+    }
+
+    if (!!params.newName) {
+        params.newName = plusToSpaceMapper(params.newName);
+        const result = await updateIndividual(
+            params.currName,
+            `rdfs:label`,
+            params.newName
+        );
+        if (!result) {
+            params.res.send(false);
+            return;
+        }
+    }
+
+    params.res.send(true);
+}
+
+server.put('/updateIndividual(&currName=:currName)(&newName=:newName)?(&newCaliber=:newCaliber)?(&newRange=:newRange)?', (req, res) => {
+    changeIndividual({
+        res,
+        currName: req.params.currName,
+        newName: req.params.newName,
+        newCaliber: req.params.newCaliber,
+        newRange: req.params.newRange
+    })
+});
+
+///////////////////////////////////////
+///////////////////////////////////////
+///////////////////////////////////////
+
 loadOntologyIntoStore(store, ontologyURL)
 .then(setLabelToIRIMap)
 .then(() => {
     const connection = server.listen(4000, () => {
-        console.log(labelToIRIMap);
         console.log(`Server listening on port 4000`);
     });
     process.on('SIGINT', () => {
