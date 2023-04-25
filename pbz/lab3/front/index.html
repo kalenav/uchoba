@@ -8,7 +8,43 @@
     <title>Document</title>
 </head>
 <body>
-    
+    <nav class="navbar">
+        <button class="navbar-item" id="view-ontology">View ontology</button>
+        <button class="navbar-item" id="new-class">New class</button>
+        <button class="navbar-item" id="new-individual">New individual</button>
+        <button class="navbar-item" id="edit-class">Edit class</button>
+        <button class="navbar-item" id="edit-individual">Edit individual</button>
+        <button class="navbar-item" id="delete-entity">Delete entity</button>
+    </nav>
+    <main class="main" id="main">
+        <section id="view-section">
+            <div class="filter-block-container">
+                <form class="filter-block" id="filter-block">
+
+                    <select id="firearm-class-select">
+                        <option value="" disabled selected>Class</option>
+                    </select>
+                    
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="caliber-toggle-checkbox">
+                        <label for="caliber-toggle-filter-checkbox" class="checkbox-label">Set min and max caliber</label>
+                    </div>
+                    <input type="text" id="caliber" placeholder="caliber">
+                    <input type="text" id="caliber-min" placeholder="min caliber" disabled>
+                    <input type="text" id="caliber-max" placeholder="max caliber" disabled>
+
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="range-toggle-checkbox">
+                        <label for="range-toggle-filter-checkbox" class="checkbox-label">Set min and max effective range</label>
+                    </div>
+                    <input type="text" id="range" placeholder="effective range">
+                    <input type="text" id="range-min" placeholder="min effective range" disabled>
+                    <input type="text" id="range-max" placeholder="max effective range" disabled>
+                </form>
+            </div>
+            <table class="individual-table" id="individual-table"></table>
+        </section>
+    </main>
 </body>
 <script src="./script.js"></script>
 </html>
