@@ -69,6 +69,10 @@ async function setLabelToIRIMap() {
     return mapSet;
 }
 
+//////////////////////////////////////
+///      get class label list      ///
+//////////////////////////////////////
+
 server.get('/classes', (req, res) => {
     const labels = Object.keys(labelToIRIMap);
     const caliberLabelIndex = labels.findIndex(label => label === 'caliber_mm');
@@ -120,7 +124,7 @@ async function firearmRequest(params) {
 
     ${getSelectLine(params.extractedFields)}
     WHERE {
-        { ?firearm rdf:type/rdfs:subClassOf* lab2:${classIRI} }
+        { ?firearm rdf:type lab2:${classIRI} } UNION { ?firearm rdf:type/rdfs:subClassOf* lab2:${classIRI} }
 
         ?firearm rdfs:label ?name .
 
