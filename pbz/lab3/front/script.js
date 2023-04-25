@@ -18,9 +18,19 @@ const apiServiceModule = (function() {
         .then(response => response.json())
     }
 
+    async function newClass(params) {
+        const searchString = new URLSearchParams(params).toString();
+
+        return fetch(`${serverAddress}/newClass&${searchString}`, {
+            method: 'put'
+        })
+        .then(response => response.json());
+    }
+
     return {
         requestClasses,
-        requestFirearms
+        requestFirearms,
+        newClass
     }
 })();
 
@@ -94,7 +104,7 @@ const filterModule = (function() {
     rangeToggleCheckbox.addEventListener('click', toggleRangeFilters);
 
     async function setClassSelectOptions() {
-        const classNames = await apiServiceModule.requestClasses();
+        const classNames = (await apiServiceModule.requestClasses()).sort();
         classNames.forEach(name => {
             const option = document.createElement('option');
             option.setAttribute('value', name);
@@ -174,16 +184,78 @@ const filterModule = (function() {
         setClassSelectOptions,
         getFilterValues
     }
-})()
+})();
+
+const modalModule = (function() {
+    const modal = document.getElementById('modal');
+    const modalHeader = document.getElementById('modal-header');
+    const modalContent = document.getElementById('modal-content');
+
+    const modalAssemblerMap = {
+        'new-class': assembleNewClassModal,
+        'new-individual': assembleNewIndividualModal,
+        'edit-class': assembleEditClassModal,
+        'edit-individual': assembleEditIndividualModal,
+        'delete': assembleDeleteModal
+    }
+
+    function assembleNewClassModal(params) {
+        modalHeader.innerHTML = 'New class';
+        modalContent.innerHTML = '';
+        
+        const nameInput = document.createElement('input');
+        nameInput.setAttribute('type', 'text');
+        nameInput.setAttribute('placeholder', 'new class name');
+        modalContent.appendChild(nameInput);
+
+        const superclassSelect = document.createElement('select');
+        params.existingClasses.sort().forEach(name => {
+            const option = document.createElement('option');
+            option.setAttribute('value', name);
+            option.append(name);
+            if (name === 'Firearm') {
+                option.setAttribute('selected', '');
+            }
+            superclassSelect.appendChild(option);
+        });
+        modalContent.appendChild(superclassSelect);
+    }
+
+    function assembleNewIndividualModal(params) {
+        modalHeader.innerHTML = 'New individual';
+    }
+
+    function assembleEditClassModal(params) {
+        modalHeader.innerHTML = 'Edit class';
+    }
+
+    function assembleEditIndividualModal(params) {
+        modalHeader.innerHTML = 'Edit individual';
+    }
+
+    function assembleDeleteModal(params) {
+        modalHeader.innerHTML = 'Delete entry';
+    }
+
+    function displayModal(params) {
+        modalAssemblerMap[params.type](params);
+        toggleModalVisibility();
+    }
+
+    function toggleModalVisibility() {
+        modal.classList.toggle('visible');
+    }
+
+    return {
+        displayModal
+    }
+})();
 
 const mainModule = (function() {
     const debounceTime = 200;
     let debounceTimeoutID;
 
-    function init() {
-        filterModule.setClassSelectOptions();
-        displayIndividuals();
-
+    async function init() {
         document.addEventListener('input', () => {
             if (!!debounceTimeoutID) {
                 clearTimeout(debounceTimeoutID);
@@ -193,11 +265,54 @@ const mainModule = (function() {
                 debounceTimeoutID = 0;
             }, debounceTime);
         });
+
+        const existingClasses = await apiServiceModule.requestClasses();
+        
+        document.getElementById('new-class').addEventListener('click', () => {
+            modalModule.displayModal({
+                type: 'new-class',
+                existingClasses
+            });
+        });
+    
+        document.getElementById('new-individual').addEventListener('click', () => {
+            modalModule.displayModal({
+                type: 'new-individual',
+                existingClasses
+            });
+        });
+    
+        document.getElementById('edit-class').addEventListener('click', () => {
+            modalModule.displayModal({
+                type: 'edit-class',
+                existingClasses
+            });
+        });
+    
+        document.getElementById('edit-individual').addEventListener('click', () => {
+            modalModule.displayModal({
+                type: 'edit-individual',
+                existingClasses
+            });
+        });
+    
+        document.getElementById('delete-entity').addEventListener('click', () => {
+            modalModule.displayModal({
+                type: 'delete',
+                existingClasses
+            });
+        });
+
+        resetMain();
+    }
+
+    function resetMain() {
+        filterModule.setClassSelectOptions();
+        displayIndividuals();
     }
 
     async function displayIndividuals() {
         const filterValues = filterModule.getFilterValues();
-        console.log(filterValues);
         const individuals = await apiServiceModule.requestFirearms(filterValues);
         tableModule.redrawTable(individuals);
     }

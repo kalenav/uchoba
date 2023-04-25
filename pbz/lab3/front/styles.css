@@ -1,7 +1,7 @@
 * {
     box-sizing: border-box;
     font-family: sans-serif;
-    transition-duration: 0.5s;
+    transition-duration: 0.25s;
     
     /* outline: solid red 1px; */
 }
@@ -22,7 +22,7 @@ body {
 }
 
 .navbar-item {
-    width: 16.66%;
+    width: 20%;
     height: 2rem;
     display: flex;
     justify-content: center;
@@ -71,4 +71,36 @@ body {
 
 .individual-table th:first-of-type {
     width: 60%;
+}
+
+.modal {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: -5;
+    background-color: rgba(0, 0, 0, 0.25);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+}
+
+.modal.visible {
+    z-index: 5;
+    opacity: 1;
+}
+
+.modal-header {
+    margin: 0 0 1rem 0;
+}
+
+.modal-container {
+    width: 30rem;
+    height: 20rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 1rem;
 }
