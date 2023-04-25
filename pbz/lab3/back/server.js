@@ -69,6 +69,15 @@ async function setLabelToIRIMap() {
     return mapSet;
 }
 
+server.get('/classes', (req, res) => {
+    const labels = Object.keys(labelToIRIMap);
+    const caliberLabelIndex = labels.findIndex(label => label === 'caliber_mm');
+    const rangeLabelIndex = labels.findIndex(label => label === 'effectiveRange_m');
+    if (caliberLabelIndex > -1) labels.splice(caliberLabelIndex, 1);
+    if (rangeLabelIndex > -1) labels.splice(rangeLabelIndex, 1);
+    res.send(labels);
+});
+
 //////////////////////////////////////
 /// get firearms list with filters ///
 //////////////////////////////////////
