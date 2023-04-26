@@ -27,10 +27,50 @@ const apiServiceModule = (function() {
         .then(response => response.json());
     }
 
+    async function newIndividual(params) {
+        const searchString = new URLSearchParams(params).toString();
+
+        return fetch(`${serverAddress}/newIndividual&${searchString}`, {
+            method: 'put'
+        })
+        .then(response => response.json());
+    }
+
+    async function changeClass(params) {
+        const searchString = new URLSearchParams(params).toString();
+
+        return fetch(`${serverAddress}/updateClass&${searchString}`, {
+            method: 'put'
+        })
+        .then(response => response.json());
+    }
+
+    async function changeIndividual(params) {
+        const searchString = new URLSearchParams(params).toString();
+
+        return fetch(`${serverAddress}/updateIndividual&${searchString}`, {
+            method: 'put'
+        })
+        .then(response => response.json());
+    }
+
+    async function deleteEntity(params) {
+        const searchString = new URLSearchParams(params).toString();
+
+        return fetch(`${serverAddress}/deleteEntity&${searchString}`, {
+            method: 'put'
+        })
+        .then(response => response.json());
+    }
+
     return {
         requestClasses,
         requestFirearms,
-        newClass
+        newClass,
+        newIndividual,
+        changeClass,
+        changeIndividual,
+        deleteEntity
     }
 })();
 
@@ -204,19 +244,43 @@ const modalModule = (function() {
     document.getElementById('modal-confirm').addEventListener('click', async () => {
         switch (currModalType) {
             case 'new-class':
-                const params = {
-                    className: document.getElementById('new-class-name').value,
-                    subClassOf: document.getElementById('new-class-subclass-of').value
-                };
-                await apiServiceModule.newClass(params);
+                await apiServiceModule.newClass({
+                    className: getInputValue('new-class-name'),
+                    subClassOf: getInputValue('new-class-subclass-of')
+                });
                 break;
             case 'new-individual':
+                await apiServiceModule.newIndividual({
+                    name: getInputValue('new-individual-name'),
+                    caliber: getInputValue('new-individual-caliber'),
+                    range: getInputValue('new-individual-range'),
+                    elementOf: getInputValue('new-individual-element-of')
+                });
                 break;
             case 'edit-class':
+                await apiServiceModule.changeClass({
+                    currName: getInputValue('edited-class'),
+                    newName: getInputValue('new-class-name')
+                });
                 break;
             case 'edit-individual':
+                const params = {};
+
+                const currName = getInputValue('edited-individual');
+                const newName = getInputValue('new-individual-name');
+                const newCaliber = getInputValue('new-caliber');
+                const newRange = getInputValue('new-range');
+
+                params.currName = currName;
+                if (!!newName) params.newName = newName;
+                if (!!newCaliber) params.newCaliber = newCaliber;
+                if (!!newRange) params.newRange = newRange;
+                await apiServiceModule.changeIndividual(params);
                 break;
             case 'delete':
+                await apiServiceModule.deleteEntity({
+                    name: getInputValue('deleted-entity-name')
+                });
                 break;
             default:
                 break;
@@ -286,15 +350,34 @@ const modalModule = (function() {
         modalContent.appendChild(newName);
     }
 
-    function assembleDeleteModal() {
+    async function assembleDeleteModal() {
         modalHeader.innerHTML = 'Delete entity';
 
-        const nameInput = getTextInput('deleted-entity-name', 'deleted entity name');
-        nameInput.setAttribute('type', 'text');
-        nameInput.setAttribute('placeholder', 'deleted entity name');
-        nameInput.setAttribute('id', 'deleted-entity-name');
+        const selectLabel = getSelectLabel('deleted-entity-name', 'Deleted entity:');
+        
+        const select = document.createElement('select');
+        select.setAttribute('id', 'deleted-entity-name');
 
-        modalContent.appendChild(nameInput);
+        (await apiServiceModule.requestFirearms())
+            .sort((ind1, ind2) => ind1.name > ind2.name ? 1 : -1)
+            .map(ind => ind.name)
+            .forEach(name => {
+                const option = document.createElement('option');
+                option.setAttribute('value', name);
+                option.append(name);
+                select.appendChild(option);
+            });
+
+        (await apiServiceModule.requestClasses())
+            .sort()
+            .forEach(name => {
+                const option = document.createElement('option');
+                option.setAttribute('value', name);
+                option.append(name);
+                select.appendChild(option);
+            });
+
+        modalContent.appendChild(select);
     }
 
     async function getClassSelect(id) {
@@ -340,6 +423,10 @@ const modalModule = (function() {
         input.setAttribute('id', id);
         input.setAttribute('placeholder', placeholder);
         return input;
+    }
+
+    function getInputValue(id) {
+        return document.getElementById(id).value;
     }
 
     async function displayModal(params) {

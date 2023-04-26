@@ -335,6 +335,7 @@ async function changeClassName(params) {
         destination: store
     })
     .then(async () => {
+        params.newName = plusToSpaceMapper(params.newName);
         query = `
         ${PREFIX}
 
