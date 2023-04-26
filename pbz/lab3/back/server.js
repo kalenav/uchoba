@@ -462,6 +462,7 @@ server.put('/updateIndividual(&currName=:currName)(&newName=:newName)?(&newCalib
 /////////////////////////////////////
 
 async function deleteEntity(params) {
+    const name = plusToSpaceMapper(params.name);
     return await queryEngine.queryVoid(`
     ${PREFIX}
 
@@ -474,7 +475,7 @@ async function deleteEntity(params) {
     WHERE {
         ?s ?p ?o .
 
-        ?ent rdfs:label "${plusToSpaceMapper(params.name)}"@en .
+        ?ent rdfs:label "${name}"@en .
         { ?subent rdf:type/rdfs:subClassOf* ?ent } UNION { ?subent rdfs:subClassOf ?ent }
     }
     `, {
