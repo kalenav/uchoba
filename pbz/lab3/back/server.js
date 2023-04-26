@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const QueryEngine = require('@comunica/query-sparql').QueryEngine;
 const n3 = require('n3');
+const { DataFactory } = n3;
+const { namedNode, literal } = DataFactory;
 const fs = require('fs');
 
 const server = express();
@@ -37,6 +39,8 @@ async function loadOntologyIntoStore(store, ontologyURL) {
 }
 
 async function setLabelToIRIMap() {
+    for (key in labelToIRIMap) delete labelToIRIMap[key];
+
     const mapSet = new Promise(async (resolve, reject) => {
         const bindingsStream = await queryEngine.queryBindings(`
         ${PREFIX}
@@ -461,34 +465,60 @@ server.put('/updateIndividual(&currName=:currName)(&newName=:newName)?(&newCalib
 ////        delete entity        ////
 /////////////////////////////////////
 
+function hasNoSubclasses(entity) {
+    return getAllSubclasses(entity).length === 0;
+}
+
+function getImmediateSubclasses(entity) {
+    return store.getQuads(
+        null,
+        namedNode('http://www.w3.org/2000/01/rdf-schema#subClassOf'),
+        entity
+    ).map(quad => quad._subject);
+}
+
+function getAllSubclasses(entity) {
+    let subclasses = getImmediateSubclasses(entity);
+    if (!subclasses.every(hasNoSubclasses)) {
+        for (let index = 0; index < subclasses.length; index++) {
+            subclasses = subclasses.concat(getImmediateSubclasses(subclasses[index]));
+        }
+    };
+    return subclasses;
+}
+
+function getAllIndividuals(entity) {
+    const subclasses = getAllSubclasses(entity);
+    return [entity, ...subclasses]
+        .map(classEntity => store.getQuads(
+            null,
+            namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+            classEntity
+        ))
+        .flat()
+        .map(quad => quad._subject);
+}
+
 async function deleteEntity(params) {
     const name = plusToSpaceMapper(params.name);
-    return await queryEngine.queryVoid(`
-    ${PREFIX}
 
-    DELETE {
-        ?ent ?p ?o .
-        ?s ?p ?ent .
-        ?subent ?p ?o .
-        ?s ?p ?subent .
-    }
-    WHERE {
-        ?s ?p ?o .
+    const entity = store.getQuads(
+        null,
+        namedNode('http://www.w3.org/2000/01/rdf-schema#label'),
+        literal(name, 'en')
+    )[0]._subject;
+    const subclasses = getAllSubclasses(entity);
+    const individuals = getAllIndividuals(entity);
 
-        ?ent rdfs:label "${name}"@en .
-        { ?subent rdf:type/rdfs:subClassOf* ?ent } UNION { ?subent rdfs:subClassOf ?ent }
-    }
-    `, {
-        sources: [store],
-        destination: store
-    })
-    .then(() => {
-        params.res.send(true);
-    })
-    .catch(err => {
-        console.log(err);
-        params.res.send(false);
+    [entity, ...subclasses, ...individuals].forEach(ent => {
+        store.removeQuads([
+            ...store.getQuads(ent, null, null),
+            ...store.getQuads(null, null, ent)
+        ]);
     });
+    
+    await setLabelToIRIMap();
+    params.res.send(true);
 }
 
 server.put('/deleteEntity&name=:name', (req, res) => {
