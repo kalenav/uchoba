@@ -187,6 +187,8 @@ const filterModule = (function() {
 })();
 
 const modalModule = (function() {
+    let currModalType;
+
     const modal = document.getElementById('modal');
     const modalHeader = document.getElementById('modal-header');
     const modalContent = document.getElementById('modal-content');
@@ -199,9 +201,29 @@ const modalModule = (function() {
         'delete': assembleDeleteModal
     }
 
-    document.getElementById('modal-confirm').addEventListener('click', () => {
-        // handle confirm
+    document.getElementById('modal-confirm').addEventListener('click', async () => {
+        switch (currModalType) {
+            case 'new-class':
+                const params = {
+                    className: document.getElementById('new-class-name').value,
+                    subClassOf: document.getElementById('new-class-subclass-of').value
+                };
+                await apiServiceModule.newClass(params);
+                break;
+            case 'new-individual':
+                break;
+            case 'edit-class':
+                break;
+            case 'edit-individual':
+                break;
+            case 'delete':
+                break;
+            default:
+                break;
+        }
+        
         toggleModalVisibility();
+        window.location.reload();
     });
 
     document.getElementById('modal-cancel').addEventListener('click', () => {
@@ -322,6 +344,7 @@ const modalModule = (function() {
 
     async function displayModal(params) {
         modalContent.innerHTML = '';
+        currModalType = params.type;
         await modalAssemblerMap[params.type](params);
         toggleModalVisibility();
     }
@@ -394,7 +417,8 @@ const mainModule = (function() {
     }
 
     return {
-        init
+        init,
+        resetMain
     }
 })();
 
