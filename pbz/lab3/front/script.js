@@ -199,46 +199,130 @@ const modalModule = (function() {
         'delete': assembleDeleteModal
     }
 
-    function assembleNewClassModal(params) {
-        modalHeader.innerHTML = 'New class';
-        modalContent.innerHTML = '';
-        
-        const nameInput = document.createElement('input');
-        nameInput.setAttribute('type', 'text');
-        nameInput.setAttribute('placeholder', 'new class name');
-        modalContent.appendChild(nameInput);
+    document.getElementById('modal-confirm').addEventListener('click', () => {
+        // handle confirm
+        toggleModalVisibility();
+    });
 
-        const superclassSelect = document.createElement('select');
-        params.existingClasses.sort().forEach(name => {
+    document.getElementById('modal-cancel').addEventListener('click', () => {
+        toggleModalVisibility();
+    });
+
+    async function assembleNewClassModal() {
+        modalHeader.innerHTML = 'New class';
+        
+        const nameInput = getTextInput('new-class-name', 'new class name');
+        const selectLabel = getSelectLabel('new-class-subclass-of', 'Immediate superclass:');
+        const superclassSelect = await getClassSelect('new-class-subclass-of');
+
+        modalContent.appendChild(selectLabel);
+        modalContent.appendChild(superclassSelect);
+        modalContent.appendChild(nameInput);
+    }
+
+    async function assembleNewIndividualModal() {
+        modalHeader.innerHTML = 'New individual';
+
+        const nameInput = getTextInput('new-individual-name', 'new individual name');
+        const caliberInput = getTextInput('new-individual-caliber', 'caliber (in mm)');
+        const rangeInput = getTextInput('new-individual-range', 'effective range (in m)');
+        const selectLabel = getSelectLabel('new-individual-element-of', 'Element of:');
+        const classSelect = await getClassSelect('new-individual-element-of');
+
+        modalContent.appendChild(selectLabel);
+        modalContent.appendChild(classSelect);
+        modalContent.appendChild(nameInput);
+        modalContent.appendChild(caliberInput);
+        modalContent.appendChild(rangeInput);
+    }
+
+    async function assembleEditClassModal() {
+        modalHeader.innerHTML = 'Edit class';
+
+        const selectLabel = getSelectLabel('edited-class', 'Edited class:');
+        const editedClassSelect = await getClassSelect('edited-class');
+        const nameInput = getTextInput('new-class-name', 'new class name');
+
+        modalContent.appendChild(selectLabel);
+        modalContent.appendChild(editedClassSelect);
+        modalContent.appendChild(nameInput);
+    }
+
+    async function assembleEditIndividualModal() {
+        modalHeader.innerHTML = 'Edit individual';
+
+        const selectLabel = getSelectLabel('edited-individual', 'Edited individual:');
+        const individualSelect = await getIndividualSelect('edited-individual');
+        const newCaliber = getTextInput('new-caliber', 'new caliber (leave empty to keep)');
+        const newRange = getTextInput('new-range', 'new range (leave empty to keep)');
+        const newName = getTextInput('new-individual-name', 'new name (leave empty to keep)');
+
+        modalContent.appendChild(selectLabel);
+        modalContent.appendChild(individualSelect);
+        modalContent.appendChild(newCaliber);
+        modalContent.appendChild(newRange);
+        modalContent.appendChild(newName);
+    }
+
+    function assembleDeleteModal() {
+        modalHeader.innerHTML = 'Delete entity';
+
+        const nameInput = getTextInput('deleted-entity-name', 'deleted entity name');
+        nameInput.setAttribute('type', 'text');
+        nameInput.setAttribute('placeholder', 'deleted entity name');
+        nameInput.setAttribute('id', 'deleted-entity-name');
+
+        modalContent.appendChild(nameInput);
+    }
+
+    async function getClassSelect(id) {
+        const classSelect = document.createElement('select');
+        classSelect.setAttribute('id', id);
+        (await apiServiceModule.requestClasses()).sort().forEach(name => {
             const option = document.createElement('option');
             option.setAttribute('value', name);
             option.append(name);
             if (name === 'Firearm') {
                 option.setAttribute('selected', '');
             }
-            superclassSelect.appendChild(option);
+            classSelect.appendChild(option);
         });
-        modalContent.appendChild(superclassSelect);
+        return classSelect;
     }
 
-    function assembleNewIndividualModal(params) {
-        modalHeader.innerHTML = 'New individual';
+    function getSelectLabel(id, label) {
+        const selectLabel = document.createElement('label');
+        selectLabel.setAttribute('for', id);
+        selectLabel.append(label);
+        return selectLabel;
     }
 
-    function assembleEditClassModal(params) {
-        modalHeader.innerHTML = 'Edit class';
+    async function getIndividualSelect(id) {
+        const select = document.createElement('select');
+        select.setAttribute('id', id);
+        (await apiServiceModule.requestFirearms())
+            .sort((ind1, ind2) => ind1.name > ind2.name ? 1 : -1)
+            .map(ind => ind.name)
+            .forEach(name => {
+                const option = document.createElement('option');
+                option.setAttribute('value', name);
+                option.append(name);
+                select.appendChild(option);
+            });
+        return select;
     }
 
-    function assembleEditIndividualModal(params) {
-        modalHeader.innerHTML = 'Edit individual';
+    function getTextInput(id, placeholder = '') {
+        const input = document.createElement('input');
+        input.setAttribute('type', 'text');
+        input.setAttribute('id', id);
+        input.setAttribute('placeholder', placeholder);
+        return input;
     }
 
-    function assembleDeleteModal(params) {
-        modalHeader.innerHTML = 'Delete entry';
-    }
-
-    function displayModal(params) {
-        modalAssemblerMap[params.type](params);
+    async function displayModal(params) {
+        modalContent.innerHTML = '';
+        await modalAssemblerMap[params.type](params);
         toggleModalVisibility();
     }
 
@@ -256,7 +340,7 @@ const mainModule = (function() {
     let debounceTimeoutID;
 
     async function init() {
-        document.addEventListener('input', () => {
+        document.getElementById('filter-block').addEventListener('input', () => {
             if (!!debounceTimeoutID) {
                 clearTimeout(debounceTimeoutID);
             }
@@ -265,45 +349,36 @@ const mainModule = (function() {
                 debounceTimeoutID = 0;
             }, debounceTime);
         });
-
-        const existingClasses = await apiServiceModule.requestClasses();
         
         document.getElementById('new-class').addEventListener('click', () => {
-            modalModule.displayModal({
-                type: 'new-class',
-                existingClasses
-            });
+            displayModal('new-class');
         });
     
         document.getElementById('new-individual').addEventListener('click', () => {
-            modalModule.displayModal({
-                type: 'new-individual',
-                existingClasses
-            });
+            displayModal('new-individual')
         });
     
         document.getElementById('edit-class').addEventListener('click', () => {
-            modalModule.displayModal({
-                type: 'edit-class',
-                existingClasses
-            });
+            displayModal('edit-class');
         });
     
         document.getElementById('edit-individual').addEventListener('click', () => {
-            modalModule.displayModal({
-                type: 'edit-individual',
-                existingClasses
-            });
+            displayModal('edit-individual');
         });
     
         document.getElementById('delete-entity').addEventListener('click', () => {
-            modalModule.displayModal({
-                type: 'delete',
-                existingClasses
-            });
+            displayModal('delete');
         });
 
         resetMain();
+    }
+
+    async function displayModal(type) {
+        const existingClasses = await apiServiceModule.requestClasses();
+        modalModule.displayModal({
+            type,
+            existingClasses
+        });
     }
 
     function resetMain() {
@@ -313,7 +388,8 @@ const mainModule = (function() {
 
     async function displayIndividuals() {
         const filterValues = filterModule.getFilterValues();
-        const individuals = await apiServiceModule.requestFirearms(filterValues);
+        const individuals = (await apiServiceModule.requestFirearms(filterValues))
+            .sort((ind1, ind2) => ind1.name > ind2.name ? 1 : -1);
         tableModule.redrawTable(individuals);
     }
 

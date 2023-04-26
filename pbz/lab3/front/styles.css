@@ -99,8 +99,29 @@ body {
 
 .modal-container {
     width: 30rem;
-    height: 20rem;
     background-color: white;
     border-radius: 0.5rem;
     padding: 1rem;
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-content input, .modal-content select {
+    width: 50%;
+    margin-bottom: 1rem;
+}
+
+.modal-footer {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.modal-footer button {
+    margin-right: 0.5rem;
 }
