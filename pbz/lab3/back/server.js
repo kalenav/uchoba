@@ -165,12 +165,12 @@ const classQuery = 'class=:class';
 const caliberQuery = 'caliber=:caliber';
 const minCaliberQuery = 'caliberMin=:caliberMin';
 const maxCaliberQuery = 'caliberMax=:caliberMax';
-const fullCaliberQuery = `(${caliberQuery})|(${minCaliberQuery})|(${maxCaliberQuery})|(${minCaliberQuery}&${maxCaliberQuery})`;
+const fullCaliberQuery = `(${caliberQuery})|((${minCaliberQuery})&(${maxCaliberQuery}))|(${minCaliberQuery})|(${maxCaliberQuery})`;
 
 const effectiveRangeQuery = 'effectiveRange=:effectiveRange';
 const minEffectiveRangeQuery = 'effectiveRangeMin=:effectiveRangeMin';
 const maxEffectiveRangeQuery = 'effectiveRangeMax=:effectiveRangeMax';
-const fullEffectiveRangeQuery = `(${effectiveRangeQuery})|(${minEffectiveRangeQuery})|(${maxEffectiveRangeQuery})|(${minEffectiveRangeQuery}&${maxEffectiveRangeQuery})`;
+const fullEffectiveRangeQuery = `(${effectiveRangeQuery})|((${minEffectiveRangeQuery})&(${maxEffectiveRangeQuery}))|(${minEffectiveRangeQuery})|(${maxEffectiveRangeQuery})`;
 
 const optionalQueries = [classQuery, fullCaliberQuery, fullEffectiveRangeQuery];
 
@@ -516,7 +516,7 @@ async function deleteEntity(params) {
             ...store.getQuads(null, null, ent)
         ]);
     });
-    
+
     await setLabelToIRIMap();
     params.res.send(true);
 }
