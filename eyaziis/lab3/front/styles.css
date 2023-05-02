@@ -1,0 +1,65 @@
+* {
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+button {
+    cursor: pointer;
+}
+
+#save-button {
+    display: none;
+}
+
+#save-button.visible {
+    display: block;
+}
+
+#help-button {
+    position: fixed;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-weight: bold;
+    color: white;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 0.75rem;
+    background-color: red;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#help-window {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    z-index: -5;
+}
+
+.help-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    width: 30rem;
+    background-color: white;
+    border-radius: 5px;
+    padding: 1rem 2rem;
+}
+
+#decomposition-result {
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+th, td {
+    border: solid black 1px;
+    padding: 0.5rem;
+}
