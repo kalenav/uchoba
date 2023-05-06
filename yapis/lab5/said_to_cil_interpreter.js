@@ -401,6 +401,20 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 `callvirt instance string class [mscorlib]System.Object::ToString()`
             ]
         });
+        const addNumbers = new Method({
+            name: 'addNumbers',
+            maxStackSize: 2,
+            arguments: [
+                new Variable('num1', dotnetCILtypes.int32),
+                new Variable('num2', dotnetCILtypes.int32)
+            ],
+            returnType: dotnetCILtypes.int32,
+            linesOfCode: [
+                CodeUtils.loadArgIntoStack(0),
+                CodeUtils.loadArgIntoStack(1),
+                `add`
+            ]
+        });
         const addChars = new Method({
             name: 'addChars',
             maxStackSize: 2,
@@ -1221,6 +1235,7 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
             printStrarray,
             strToChar,
             charToStr,
+            addNumbers,
             addChars,
             addStringAndChar,
             addCharAndString,
@@ -1253,6 +1268,7 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 'printStrarray': [dotnetCILtypes.strarray]
             },
             '+': {
+                'addNumbers': [dotnetCILtypes.int32, dotnetCILtypes.int32],
                 'addChars': [dotnetCILtypes.char, dotnetCILtypes.char],
                 'addStringAndChar': [dotnetCILtypes.string, dotnetCILtypes.char],
                 'addCharAndString': [dotnetCILtypes.char, dotnetCILtypes.string],
@@ -1472,13 +1488,14 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         if (!!ctx.call()) {
             ctx = ctx.call();
             const args = ctx.expr();
+            const calledFunctionName = ctx.ID().getText();
+            const overloaded = calledFunctionName in this.overloadedMethods;
             let linesOfCode = [];
             args.forEach(arg => {
                 linesOfCode = linesOfCode.concat(this.loadExprValueIntoStack(arg));
             });
             const argTypes = args.map(arg => this.deriveExprType(arg));
-            const calledFunctionName = ctx.ID().getText();
-            if (!calledFunctionName in this.overloadedMethods) {
+            if (!overloaded) {
                 return linesOfCode.concat([
                     CodeUtils.methodCall(this.methods[calledFunctionName])
                 ]);
@@ -1658,5 +1675,17 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         if (!this.currMethod.hasLocalVariable(indexAlias)) {
             this.currMethod.addLocalVariable(indexAlias, dotnetCILtypes.int32);
         }
+    }
+
+    enterFunction(ctx) {
+        this.currMethod = new Method({
+            name: ctx.ID().getText(),
+            returnType: dotnetCILtypes.void
+        });
+    }
+
+    exitFunction(ctx) {
+        this.methods[this.currMethod.name] = this.currMethod;
+        this.currMethod = this.methods.main;
     }
 }

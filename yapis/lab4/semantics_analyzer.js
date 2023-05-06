@@ -215,7 +215,8 @@ export class TreeListener extends ExprParserListener {
     exitFunction(ctx) {
         this.definedFunctions.push(new FunctionDefinition(
             this.getFunctionName(ctx),
-            this.getFunctionArgs(ctx).length
+            new Array(this.getFunctionArgs(ctx).length).fill(TYPES.any),
+            TYPES.any
         ));
 
         this.checkAllExprVariables(ctx.expr());
