@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Document</title>
+</head>
+<body>
+    <label for="sentence-input">Выберите файл с предложением:</label>
+    <input id="sentence-input" type="file">
+    <hr>
+    <div class="main-content">
+        <h3>Предложение</h3>
+        <p id="input-sentence"></p>
+        <h3>Результаты семантико-синтаксического анализа</h3>
+        <table id="decomposition-result"></table>
+        <button id="save-button">Сохранить</button>
+    </div>
+    <hr>
+
+    <button id="help-button">?</button>
+
+    <div id="help-window">
+        <div class="help-container">
+            <p>Используйте кнопку <b>"Выберите файл"</b>, чтобы выбрать файл, содержащий анализируемое предложение. После выбора файла семантико-синтаксический анализ начнётся автоматически.</p>
+            <p>По завершению анализа в разделе <b>"Результаты семантико-синтаксического анализа"</b> отобразится таблица, в которой будут зафиксированы все лексемы проанализированного предложения, и все возможные значения семантико-синтаксических функций для этих лексем.</p>
+            <p>Нажатие левой кнопкой мыши по любой ячейке таблицы (кроме заголовочных) откроет окно редактирования значения ячейки.</p>
+            <p>После успешного завершения семантико-синтаксического анализа отобразится кнопка <b>"Сохранить"</b>. Нажатие на кнопку <b>"Сохранить"</b> сохранит таблицу в её текущем виде (с учётом Ваших изменений) в JSON-формате в файл с названием <b>"decomposition.txt"</b>.</p>
+            <button id="close-help">ОК</button>
+        </div>
+    </div>
+</body>
+<script src="./script.js"></script>
+</html>
