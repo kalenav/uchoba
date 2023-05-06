@@ -1407,7 +1407,7 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 condition = 'notEqual';
             }
 
-            const elseIndex = ctx.ELSE()?.tokenIndex || Infinity;
+            const elseIndex = ctx.ELSE()?.symbol.tokenIndex || Infinity;
             const statements = ctx.statement();
             const statementsOnTrue = statements
                 .filter(statementCtx => statementCtx.stop.tokenIndex < elseIndex);
