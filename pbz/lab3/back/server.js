@@ -550,7 +550,5 @@ loadOntologyIntoStore(store, ontologyURL)
 async function saveStoreIntoOntology(store) {
     const writer = new n3.Writer({ format: 'text/turtle' });
     const serializedData = writer.quadsToString(store.getQuads());
-    fs.writeFileSync('E:/Important/uchoba_rep/uchoba/pbz/lab2/ontology.ttl', serializedData);
-
-    //  !!! must reload both servers if refreshing page !!!
+    fs.writeFileSync('D:/uchoba/pbz/lab2/ontology.ttl', serializedData);
 }
