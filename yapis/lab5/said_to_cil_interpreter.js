@@ -1323,8 +1323,8 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         const trackingINDEX = !!ctx.INDEX();
         const indexAliasIDIndex = (trackingEL && trackingINDEX) ? 2 : 1;
 
-        const elAlias = trackingEL ? ctx.ID()[1].getText() : 'el';
-        const indexAlias = trackingINDEX ? ctx.ID()[indexAliasIDIndex].getText() : 'index';
+        const elAlias = trackingEL ? ctx.ID()[1].getText() : `el`;
+        const indexAlias = trackingINDEX ? ctx.ID()[indexAliasIDIndex].getText() : `index`;
         return [elAlias, indexAlias];
     }
 
@@ -1433,7 +1433,6 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                     CodeUtils.methodCall(this.methods[calledFunctionName])
                 ]);
             }
-    
             const overloadedMethodObj = this.overloadedMethods[calledFunctionName];
             for (const methodName in overloadedMethodObj) {
                 if (overloadedMethodObj[methodName].every((type, index) => type === argTypes[index])) {
@@ -1542,10 +1541,54 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
     }
 
     deriveExprType(ctx) {
+        const patheticTry = typeMap[this.semanticsAnalyzer.deriveExprType(ctx)];
+        if (patheticTry) return patheticTry;
+
         if (!!ctx.operand()?.ID()) {
             return this.getVarType(ctx.operand().ID().getText());
         }
-        return typeMap[this.semanticsAnalyzer.deriveExprType(ctx)];
+
+        if (!!ctx.call()) {
+            const calledFunctionName = ctx.call().ID().getText();
+            return this.methods[calledFunctionName].returnType;
+        }
+
+        if (!!ctx.NOT()) {
+            return dotnetCILtypes.int32;
+        }
+
+        const leftExprType = this.deriveExprType(ctx.expr()[0]);
+        const rightExprType = this.deriveExprType(ctx.expr()[1]);
+
+        if (!!ctx.LSQUARE()) {
+            return leftExprType === dotnetCILtypes.string ? dotnetCILtypes.char : dotnetCILtypes.string;
+        }
+
+        let requiredMethods = [];
+
+        if (!!ctx.ADD()) {
+            requiredMethods = this.overloadedMethods['+'];
+        }
+
+        if (!!ctx.SUB()) {
+            requiredMethods = this.overloadedMethods['-'];
+        }
+
+        if (!!ctx.MUL()) {
+            requiredMethods = this.overloadedMethods['*'];
+        }
+
+        if (!!ctx.DIV()) {
+            requiredMethods = this.overloadedMethods['/'];
+        }
+
+        for (const methodName in requiredMethods) {
+            const method = this.methods[methodName];
+            const argumentTypes = method.arguments.map(arg => arg.type);
+            if (argumentTypes[0] === leftExprType && argumentTypes[1] === rightExprType) {
+                return method.returnType;
+            }
+        }
     }
 
     exitStatement(ctx) {
