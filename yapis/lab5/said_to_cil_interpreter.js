@@ -1381,6 +1381,56 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 linesOfCode
             });
         }
+        if (!!ctx.if_()) {
+            ctx = ctx.if_();
+            const conditionCtx = ctx.condition();
+            const conditionExprs = conditionCtx.expr();
+            let condition;
+
+            if (!!conditionCtx.EQ()) {
+                const conditionExprsAreStrings = conditionExprs
+                    .every(exprCtx => this.deriveExprType(exprCtx) === dotnetCILtypes.string);
+                if (conditionExprsAreStrings) {
+                    condition = 'areEqual_strings';
+                }
+                else {
+                    condition = 'areEqual';
+                }
+            }
+            if (!!conditionCtx.GREATER()) {
+                condition = 'firstGreaterThanSecond';
+            }
+            if (!!conditionCtx.LESS()) {
+                condition = 'firstLessThanSecond';
+            }
+            if (!!conditionCtx.NOEQ()) {
+                condition = 'notEqual';
+            }
+
+            const elseIndex = ctx.ELSE()?.tokenIndex || Infinity;
+            const statements = ctx.statement();
+            const statementsOnTrue = statements
+                .filter(statementCtx => statementCtx.stop.tokenIndex < elseIndex);
+            const statementsOnFalse = statements
+                .filter(statementCtx => statementCtx.start.tokenIndex > elseIndex);
+            
+            const linesOfCodeOnTrue = statementsOnTrue
+                .map(statementCtx => this.getStatementLinesOfCode(statementCtx))
+                .flat();
+            const linesOfCodeOnFalse = statementsOnFalse
+                .map(statementCtx => this.getStatementLinesOfCode(statementCtx))
+                .flat();
+            return [
+                ...this.loadExprValueIntoStack(conditionExprs[0]),
+                ...this.loadExprValueIntoStack(conditionExprs[1]),
+                ...CodeUtils.condition({
+                    branchIDs: [++this.currBranchID, ++this.currBranchID],
+                    condition,
+                    linesOfCodeOnTrue,
+                    linesOfCodeOnFalse
+                })
+            ];
+        }
     }
 
     loadExprValueIntoStack(ctx) {
@@ -1541,8 +1591,8 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
     }
 
     deriveExprType(ctx) {
-        const patheticTry = typeMap[this.semanticsAnalyzer.deriveExprType(ctx)];
-        if (patheticTry) return patheticTry;
+        const patheticAttempt = typeMap[this.semanticsAnalyzer.deriveExprType(ctx)];
+        if (patheticAttempt) return patheticAttempt;
 
         if (!!ctx.operand()?.ID()) {
             return this.getVarType(ctx.operand().ID().getText());
