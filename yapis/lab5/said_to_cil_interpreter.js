@@ -1,6 +1,6 @@
 import antlr4 from 'antlr4';
 import ExprParserListener from "../lab3/compiled_grammar/ExprParserListener.js";
-import { typeIDToStringMap, TYPES } from '../lab4/semantics_analyzer.js';
+import { TYPES } from '../lab4/semantics_analyzer.js';
 
 const dotnetCILtypes = {
     char: 'char',
@@ -13,6 +13,13 @@ const dotnetCILtypes = {
     void: 'void',
     object: 'object'
 };
+
+const typeMap = {
+    [TYPES.char]: dotnetCILtypes.char,
+    [TYPES.string]: dotnetCILtypes.string,
+    [TYPES.strarray]: dotnetCILtypes.strarray,
+    [TYPES.int]: dotnetCILtypes.int32
+}
 
 const conditionToInstructionMap = {
     areEqual: 'beq',
@@ -29,6 +36,10 @@ class Variable {
     constructor (name, type){
         this.name = name;
         this.type = type;
+    }
+
+    setType(newType) {
+        this.type = newType;
     }
 };
 
@@ -109,7 +120,11 @@ class Method {
     }
 
     getLocalVariableType(name) {
-        return this.localVariables.find(variable => variable.name === name).type;
+        return this.localVariables.find(variable => variable.name === name)?.type;
+    }
+
+    getArgumentType(name) {
+        return this.arguments.find(arg => arg.name === name)?.type;
     }
 };
 
@@ -1232,30 +1247,30 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
 
         this.overloadedMethods = {
             'print': {
-                'printNumber': [TYPES.int],
-                'printChar': [TYPES.char],
-                'printString': [TYPES.string],
-                'printStrarray': [TYPES.strarray]
+                'printNumber': [dotnetCILtypes.int32],
+                'printChar': [dotnetCILtypes.char],
+                'printString': [dotnetCILtypes.string],
+                'printStrarray': [dotnetCILtypes.strarray]
             },
             '+': {
-                'addChars': [TYPES.char, TYPES.char],
-                'addStringAndChar': [TYPES.string, TYPES.char],
-                'addCharAndString': [TYPES.char, TYPES.string],
-                'addStrings': [TYPES.string, TYPES.string],
-                'strarrayConcat': [TYPES.strarray, TYPES.strarray]
+                'addChars': [dotnetCILtypes.char, dotnetCILtypes.char],
+                'addStringAndChar': [dotnetCILtypes.string, dotnetCILtypes.char],
+                'addCharAndString': [dotnetCILtypes.char, dotnetCILtypes.string],
+                'addStrings': [dotnetCILtypes.string, dotnetCILtypes.string],
+                'strarrayConcat': [dotnetCILtypes.strarray, dotnetCILtypes.strarray]
             },
             '-': {
-                'subtractCharFromStr': [TYPES.string, TYPES.char],
-                'subtractStrFromStrarray': [TYPES.strarray, TYPES.string]
+                'subtractCharFromStr': [dotnetCILtypes.string, dotnetCILtypes.char],
+                'subtractStrFromStrarray': [dotnetCILtypes.strarray, dotnetCILtypes.string]
             },
             '*': {
-                'multiplyCharByNumber': [TYPES.char, TYPES.int],
-                'multiplyStringByNumber': [TYPES.string, TYPES.int],
-                'multiplyStrarrayByNumber': [TYPES.strarray, TYPES.int]
+                'multiplyCharByNumber': [dotnetCILtypes.char, dotnetCILtypes.int],
+                'multiplyStringByNumber': [dotnetCILtypes.string, dotnetCILtypes.int],
+                'multiplyStrarrayByNumber': [dotnetCILtypes.strarray, dotnetCILtypes.int]
             },
             '/': {
-                'divideStrByChar': [TYPES.string, TYPES.char],
-                'divideStrarrayByStr': [TYPES.strarray, TYPES.string]
+                'divideStrByChar': [dotnetCILtypes.string, dotnetCILtypes.char],
+                'divideStrarrayByStr': [dotnetCILtypes.strarray, dotnetCILtypes.string]
             }
         }
     }
@@ -1291,11 +1306,15 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
         }
     }
 
-    getVarType(name) {
+    findVar(name) {
         return [
             ...this.currMethod.localVariables,
             ...this.currMethod.arguments
-        ].find(variable => variable.name === name).type;
+        ].find(variable => variable.name === name);
+    }
+
+    getVarType(name) {
+        return this.findVar(name).type;
     }
 
     getElAndIndexAliases(cycleCtx) {
@@ -1322,15 +1341,15 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
             let linesOfCode = [];
             variableNames.forEach((name, index) => {
                 const expr = variableValues[index];
+                const type = this.deriveExprType(expr);
                 linesOfCode = linesOfCode.concat([
                     ...this.loadExprValueIntoStack(expr),
                     CodeUtils.setVarValue(name)
                 ]);
                 if (!this.currMethod.hasLocalVariable(name)) {
-                    const rawType = this.deriveExprType(expr);
-                    const type = dotnetCILtypes[typeIDToStringMap[rawType]];
                     this.currMethod.addLocalVariable(name, type);
                 }
+                else this.findVar(name).setType(type);
             });
             return linesOfCode;
         }
@@ -1407,9 +1426,7 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
             args.forEach(arg => {
                 linesOfCode = linesOfCode.concat(this.loadExprValueIntoStack(arg));
             });
-            const argTypes = args.map(arg => {
-                return this.deriveExprType(arg);
-            });
+            const argTypes = args.map(arg => this.deriveExprType(arg));
             const calledFunctionName = ctx.ID().getText();
             if (!calledFunctionName in this.overloadedMethods) {
                 return linesOfCode.concat([
@@ -1426,6 +1443,7 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 }
             }
         }
+
         if (!!ctx.LSQUARE()) {
             const arr = ctx.expr()[0];
             const index = ctx.expr()[1];
@@ -1439,6 +1457,7 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
                 )
             ]
         }
+
         if (!!ctx.ADD()) {
             const firstSummand = ctx.expr()[0];
             const secondSummand = ctx.expr()[1];
@@ -1523,7 +1542,10 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
     }
 
     deriveExprType(ctx) {
-        
+        if (!!ctx.operand()?.ID()) {
+            return this.getVarType(ctx.operand().ID().getText());
+        }
+        return typeMap[this.semanticsAnalyzer.deriveExprType(ctx)];
     }
 
     exitStatement(ctx) {
