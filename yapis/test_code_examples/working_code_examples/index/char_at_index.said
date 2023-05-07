@@ -1,0 +1,6 @@
+str = "abcdefghijklmnopqrstuvwxyz";
+index = 10;
+
+print(str[index]);
+print(str[8]);
+print("abcdef"[3]);

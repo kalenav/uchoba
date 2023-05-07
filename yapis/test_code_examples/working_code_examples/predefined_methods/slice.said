@@ -1,0 +1,5 @@
+str = "adsnuigasndgTARGETmaoisdm";
+start = 12;
+finish = 18;
+
+print(slice(str, start, finish));

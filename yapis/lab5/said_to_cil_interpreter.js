@@ -309,10 +309,6 @@ class CodeUtils {
             `blt ${params.branchID}`
         ]
     }
-
-    static deriveValueType(value) {
-
-    }
 };
 
 export class Interpreter extends ExprParserListener {
@@ -1517,7 +1513,7 @@ ${Object.values(this.methods).map(method => method.getCode()).join('\n')}`;
             return [
                 ...this.loadExprValueIntoStack(arr),
                 ...this.loadExprValueIntoStack(index),
-                CodeUtils.methodCall(arrType === TYPES.strarray
+                CodeUtils.methodCall(arrType === dotnetCILtypes.strarray
                     ? this.methods.getStringAtIndex
                     : this.methods.getCharAtIndex 
                 )

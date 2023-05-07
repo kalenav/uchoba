@@ -1,0 +1,6 @@
+str = "haealalaoa";
+chr = 'a';
+
+print(str / chr);
+print(str / 'l');
+print("bbbaaabbbbabab" / chr);

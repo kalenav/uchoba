@@ -1,0 +1,4 @@
+str = "asdasfnuadsgnsadfHIasdjasnd";
+substring = "HI";
+
+print(substr(str, substring));

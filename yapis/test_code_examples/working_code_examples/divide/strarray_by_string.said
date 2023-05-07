@@ -1,0 +1,6 @@
+arr = ["a", "this", "is", "a", "an", "array", "a", "a", "a"];
+str = "a";
+
+print(arr / str);
+print(arr / "this");
+print(["h", "h", "b"] / "h");

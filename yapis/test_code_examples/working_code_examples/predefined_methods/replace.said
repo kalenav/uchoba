@@ -1,0 +1,9 @@
+str = "i am not truckin. mornin";
+substr1 = "not";
+substr2 = "mornin";
+replacement1 = "";
+replacement2 = "good mornin";
+
+str = replace(str, substr1, replacement1);
+str = replace(str, substr2, replacement2);
+print(str);

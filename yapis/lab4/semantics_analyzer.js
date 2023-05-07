@@ -83,14 +83,6 @@ class VariableDefinition {
     getType() {
         return this._type;
     }
-
-    setValue(val) {
-        this._val = val;
-    }
-
-    getValue() {
-        return this._val;
-    }
 }
 
 class FunctionDefinition {

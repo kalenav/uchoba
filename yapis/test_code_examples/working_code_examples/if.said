@@ -1,0 +1,20 @@
+num1 = 5;
+num2 = 8;
+
+if (num2 > num1) then:
+    print("larger!");
+end;
+
+if (10 == num2) then:
+    print("what");
+else:
+    print("thought so");
+end;
+
+if ('b' == "aabbaa"[2]) then:
+    print("hi");
+end;
+
+if ("strstr" != ["str"][0]) then:
+    print("i knew");
+end;
