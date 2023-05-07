@@ -97,6 +97,8 @@ def response(query: str) -> str:
         if (len(solutions) == 0):
             return 'У этого уравнения нет корней.'
         return f'Решение(я) уравнения: {", ".join(str(s) for s in solutions)}.'
+    
+    return 'Извините, не понял Вашего запроса. Переформулируйте, пожалуйста.'
 
 print(response('найди корни уравнения x-3-5+8-1=2*x'))
 print(response('реши x**2 = 5*x - 6'))
