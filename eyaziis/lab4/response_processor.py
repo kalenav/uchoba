@@ -62,6 +62,9 @@ PRESET_SOLUTION_QUERIES = [
 def is_solution_query(query: str) -> bool:
     return get_max_degree_of_similarity(query, PRESET_SOLUTION_QUERIES) > QUERY_SIMILARITY_THRESHOLD
 
+def strip_spaces(string: str) -> str:
+    return ''.join(string.split(' '))
+
 def transform_equation_to_uniform_and_return_LHS(equation: str) -> str:
     index_of_eq_sign = equation.index('=')
     before_eq = equation[:index_of_eq_sign]
@@ -91,7 +94,7 @@ def response(query: str) -> str:
     if (is_solution_query(query)):
         pre_equation_query = get_most_similar(query, PRESET_SOLUTION_QUERIES)
         equation = query.split(pre_equation_query)[1]
-        equation = ''.join(equation.split(' '))
+        equation = strip_spaces(equation)
         equation = transform_equation_to_uniform_and_return_LHS(equation)
         solutions = solve(equation)
         if (len(solutions) == 0):
@@ -99,12 +102,3 @@ def response(query: str) -> str:
         return f'Решение(я) уравнения: {", ".join(str(s) for s in solutions)}.'
     
     return 'Извините, не понял Вашего запроса. Переформулируйте, пожалуйста.'
-
-print(response('найди корни уравнения x-3-5+8-1=2*x'))
-print(response('реши x**2 = 5*x - 6'))
-print(response('вычисли корни уравнения ln(x)=10'))
-print(response('найди корни x**2=-1'))
-print(response('каковы решения уравнения x+3 = x+5?'))
-
-
-
