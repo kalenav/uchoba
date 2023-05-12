@@ -1,0 +1,6 @@
+strarr = ["this", "is", "an", "array"];
+index = 2;
+
+print(strarr[index]);
+print(strarr[1]);
+print(["hi", "there"][0]);

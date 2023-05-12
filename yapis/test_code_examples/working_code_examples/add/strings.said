@@ -1,0 +1,10 @@
+chr1 = 'a';
+chr2 = 'd';
+
+print(chr1 + chr2);
+
+str = "ggg";
+
+print(chr1 + str);
+print(str + chr2);
+print(chr1 + str + chr2);

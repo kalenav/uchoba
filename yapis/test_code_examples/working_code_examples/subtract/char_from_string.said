@@ -1,0 +1,5 @@
+chr = 'a';
+str = "haeallo";
+
+print(str - chr);
+print(str - 'h');

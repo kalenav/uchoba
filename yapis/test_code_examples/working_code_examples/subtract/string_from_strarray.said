@@ -1,0 +1,5 @@
+str = "hi";
+arr = ["hello", "hi", "monin", "greetings"];
+
+print(arr - str);
+print(arr - "monin");

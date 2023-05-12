@@ -83,14 +83,6 @@ class VariableDefinition {
     getType() {
         return this._type;
     }
-
-    setValue(val) {
-        this._val = val;
-    }
-
-    getValue() {
-        return this._val;
-    }
 }
 
 class FunctionDefinition {
@@ -215,7 +207,8 @@ export class TreeListener extends ExprParserListener {
     exitFunction(ctx) {
         this.definedFunctions.push(new FunctionDefinition(
             this.getFunctionName(ctx),
-            this.getFunctionArgs(ctx).length
+            new Array(this.getFunctionArgs(ctx).length).fill(TYPES.any),
+            TYPES.any
         ));
 
         this.checkAllExprVariables(ctx.expr());

@@ -1,0 +1,22 @@
+str = "hi there";
+
+iterate str track EL as elem:
+    print(elem);
+    print(" ");
+end;
+
+print(" ");
+
+iterate str track INDEX as ind:
+    print(ind);
+end;
+
+print(" ");
+
+iterate str track EL, INDEX as elem, ind:
+    print("character:");
+    print(elem);
+    print(" ");
+    print("at index:");
+    print(ind);
+end;

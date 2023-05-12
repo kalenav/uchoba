@@ -1,0 +1,6 @@
+arr1 = ["hi", "there"];
+arr2 = ["this", "appears", "to", "be", "an", "array"];
+
+print(arr1 + arr2);
+print(arr1 + ["le", "array"]);
+print(["summ summ"] + arr2);

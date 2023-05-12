@@ -1,0 +1,6 @@
+arr = ["this", "is", "an", "array"];
+num = 3;
+
+print(arr * num);
+print(["le", "stuff"] * 2);
+print(arr * 2);

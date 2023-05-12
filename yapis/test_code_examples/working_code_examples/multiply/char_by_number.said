@@ -1,0 +1,6 @@
+chr = 'a';
+num = 5;
+
+print(chr * num);
+print(chr * 7);
+print('b' * num);

@@ -1,0 +1,6 @@
+arr = ["this", "is", "an", "array"];
+joiner = "AAA";
+
+print(join(arr, joiner));
+print(join(arr, "BBB"));
+print(join(["hi", "there"], "CCC"));

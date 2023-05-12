@@ -1,0 +1,9 @@
+a = 3;
+b = 5;
+print(a + b);
+
+c = a + b;
+print(c);
+
+print(a + 7);
+print(b + 8);

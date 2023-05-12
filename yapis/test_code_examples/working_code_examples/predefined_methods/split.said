@@ -1,0 +1,4 @@
+str = "helloShiSmoninSgreetings";
+chr = 'S';
+
+print(split(str, chr));

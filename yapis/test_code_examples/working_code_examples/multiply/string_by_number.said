@@ -1,0 +1,6 @@
+str = "abc";
+num = 3;
+
+print(str * 3);
+print("cfg" * 5);
+print(str * num);
