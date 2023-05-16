@@ -21,24 +21,24 @@ no_queens_beat_each_other([queen(XF, YF)|RemainingQueens], Queens):-
     no_queens_beat_each_other(RemainingQueens, Queens).
 
 move_queen_to_non_beaten_cell_and_update_state(queen(XF, YF), CurrState, NewState):-
-    (beaten(cell(XF, YF), CurrState) ->
-        RowsAndColumns = [1, 2, 3, 4, 5, 6, 7, 8],
-        member(X, RowsAndColumns),
-        member(Y, RowsAndColumns),
-        \+ beaten(cell(X, Y), CurrState, ignored_queen(XF, YF)),
-        \+ occupied(cell(X, Y), CurrState),
-        !,
-        select(queen(XF, YF), CurrState, queen(X, Y), NewState)
-    ;
-        NewState = CurrState
-    ).
+    \+ beaten(cell(XF, YF), CurrState),
+    NewState = CurrState.
+move_queen_to_non_beaten_cell_and_update_state(queen(XF, YF), CurrState, NewState):-
+    beaten(cell(XF, YF), CurrState),
+    RowsAndColumns = [1, 2, 3, 4, 5, 6, 7, 8],
+    member(X, RowsAndColumns),
+    member(Y, RowsAndColumns),
+    \+ beaten(cell(X, Y), CurrState, ignored_queen(XF, YF)),
+    \+ occupied(cell(X, Y), CurrState),
+    !,
+    select(queen(XF, YF), CurrState, queen(X, Y), NewState).
 
+solve(CurrState, _):-
+    no_queens_beat_each_other(CurrState, CurrState),
+    write(CurrState).
 solve(CurrState, QueensMoved):-
-    (no_queens_beat_each_other(CurrState, CurrState) ->
-        write(CurrState)
-    ;
-        NewQueensMoved is QueensMoved + 1,
-        nth1(NewQueensMoved, CurrState, Queen),
-        move_queen_to_non_beaten_cell_and_update_state(Queen, CurrState, NewState),
-        solve(NewState, NewQueensMoved)
-    ).
+    \+ no_queens_beat_each_other(CurrState, CurrState),
+    NewQueensMoved is QueensMoved + 1,
+    nth1(NewQueensMoved, CurrState, Queen),
+    move_queen_to_non_beaten_cell_and_update_state(Queen, CurrState, NewState),
+    solve(NewState, NewQueensMoved).
