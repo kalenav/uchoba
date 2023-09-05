@@ -62,13 +62,12 @@ const geometryModule = (function() {
         }
 
         get angleToXAxis() {
-            let angleOffset = 0;
-            const modulus = this.modulus;
-            if (this._x / modulus < 0) {
-                angleOffset = 180;
-            }
+            const offsetAngleByPi = (this._x / this.modulus) < 0;
 
-            return Math.round(GeometryUtils.radiansToDegrees(Math.asin(this._y / modulus))) + angleOffset;
+            const rawAngleInRadians = Math.asin(this._y / this.modulus);
+            const actualAngleInRadians = rawAngleInRadians + (offsetAngleByPi ? Math.PI : 0);
+
+            return Math.round((-1 * (GeometryUtils.radiansToDegrees(actualAngleInRadians)) + 360) % 360);
         }
 
         get octant() {
@@ -99,10 +98,6 @@ const geometryModule = (function() {
                 return 8;
             }
         }
-
-        // getAPerpendicularVector() {
-        //     return new Vector(new Point(0, 0), new Point(this._y, -this.x, this.z));
-        // }
     }
 
     return {
@@ -129,6 +124,7 @@ class CanvasController {
         gridLineSpacing_Y = 10,
         drawCoordinateSystem = true,
         singleSegmentSize = 50,
+        singleElementTickSize = 10,
         axisArrowLength = 10,
         axisArrowHeight = 5,
         labelAxes = true
@@ -141,6 +137,7 @@ class CanvasController {
         gridLineSpacing_Y: 10,
         drawCoordinateSystem: true,
         singleSegmentSize: 50,
+        singleElementTickSize: 10,
         axisArrowLength: 10,
         axisArrowHeight: 5,
         labelAxes: true
@@ -206,27 +203,33 @@ class CanvasController {
 
             // x axis single segments
             const singleSegmentXAxisVerticalOffset = 10;
-            const singleSegmentXAxisHorizontalOffset = 2;
             const singleSegmentXAxisBoundary = this._width / 2;
             for (let currSingleSegment = -1 * singleSegmentXAxisBoundary; currSingleSegment <= singleSegmentXAxisBoundary; currSingleSegment += singleSegmentSize) {
                 if (currSingleSegment === 0) continue;
+
+                const currSingleElementXCoordinate = this._origin.x + currSingleSegment
+                this._ctx.moveTo(currSingleElementXCoordinate, this._origin.y + singleElementTickSize / 2);
+                this._ctx.lineTo(currSingleElementXCoordinate, this._origin.y - singleElementTickSize / 2);
                 this._ctx.strokeText(
                     `${currSingleSegment}`,
-                    this._origin.x + currSingleSegment + singleSegmentXAxisHorizontalOffset,
+                    currSingleElementXCoordinate,
                     this._origin.y + singleSegmentXAxisVerticalOffset
                 );
             };
 
             // y axis single segments
-            const singleSegmentYAxisVerticalOffset = 10;
             const singleSegmentYAxisHorizontalOffset = 2;
             const singleSegmentYAxisBoundary = this._height / 2;
             for (let currSingleSegment = -1 * singleSegmentYAxisBoundary; currSingleSegment <= singleSegmentYAxisBoundary; currSingleSegment += singleSegmentSize) {
                 if (currSingleSegment === 0) continue;
+
+                const currSingleElementYCoordinate = this._origin.y - currSingleSegment
+                this._ctx.moveTo(this._origin.x + singleElementTickSize / 2, currSingleElementYCoordinate);
+                this._ctx.lineTo(this._origin.x - singleElementTickSize / 2, currSingleElementYCoordinate);
                 this._ctx.strokeText(
                     `${currSingleSegment}`,
                     this._origin.x + singleSegmentYAxisHorizontalOffset,
-                    this._origin.y - currSingleSegment - singleSegmentYAxisVerticalOffset
+                    currSingleElementYCoordinate
                 );
             };
 
@@ -260,6 +263,96 @@ class CanvasController {
     }
 }
 
+const lab1Module = (function() {
+    function mapEndpoints(endpoints) {
+        return [endpoints.start.x, endpoints.start.y, endpoints.end.x, endpoints.end.y].map(Math.round);
+    }
 
+    function ddaLine(endpoints, drawPointCallback, color = COLOR_BLACK) {
+        const [x_start, y_start, x_end, y_end] = mapEndpoints(endpoints);
+
+        const rasterizationSteps = Math.max(x_end - x_start, y_end - y_start) + 1;
+        const xGrowth = (x_end - x_start) / rasterizationSteps;
+        const yGrowth = (y_end - y_start) / rasterizationSteps;
+        
+        let currX = x_start;
+        let currY = y_start;
+        for (let stepsElapsed = 1; stepsElapsed <= rasterizationSteps; stepsElapsed++) {
+            drawPointCallback(Math.round(currX), Math.round(currY), color);
+
+            currX += xGrowth;
+            currY += yGrowth;
+        }
+    }
+
+    const octantToTransformationMap = {
+        '1': {},
+        '2': {
+            reflectX: true,
+            reflectY: true,
+            swapVariables: true
+        },
+        '3': {
+            reflectX: true,
+            swapVariables: true
+        },
+        '4': {
+            reflectY: true
+        },
+        '5': {
+            reflectX: true,
+            reflectY: true
+        },
+        '6': {
+            swapVariables: true,
+        },
+        '7': {
+            reflectY: true,
+            swapVariables: true
+        },
+        '8': {
+            reflectX: true
+        }
+    }
+    function bresenhamsLine(endpoints, drawPointCallback, color = COLOR_BLACK) {
+        const collinearVector = new Vector(endpoints.start, endpoints.end);
+        const transformations = octantToTransformationMap[`${collinearVector.octant}`];
+
+        const [x_start, y_start, x_end, y_end] = mapEndpoints(endpoints);
+
+        const deltaX = Math.abs(x_end - x_start);
+        const deltaY = Math.abs(y_end - y_start);
+
+        const deltaErr = deltaY / deltaX;
+        const xStep = transformations.reflectX ? -1 : 1;
+        const yStep = transformations.reflectY ? 1 : -1;
+
+        let currY = y_start;
+        let error = 0;
+        for (
+            let currX = transformations.reflectX ? x_end : x_start;
+            transformations.reflectX ? currX >= x_start : currX <= x_end;
+            currX += xStep
+        ) {
+            drawPointCallback(
+                transformations.swapVariables ? currY : currX,
+                transformations.swapVariables ? currX : currY,
+                color
+            );
+
+            error += deltaErr;
+            if (error >= 0.5) {
+                currY += yStep;
+                error -= 1;
+            }
+        }
+    }
+
+    return {
+        ddaLine,
+        bresenhamsLine
+    }
+})();
 
 const canvas = new CanvasController();
+lab1Module.bresenhamsLine({ start: new Point(100, 100), end: new Point(150, 0) }, canvas.drawPoint.bind(canvas));
