@@ -27,14 +27,8 @@ const geometryModule = (function() {
             return this._w;
         }
 
-        reflectAroundPoint(pointToReflectAround = new Point(0, 0)) {
-            const deltaX = this._x - pointToReflectAround.x;
-            const deltaY = this._y - pointToReflectAround.y;
-            const deltaZ = this._z - pointToReflectAround.z;
-            
-            this._x = pointToReflectAround.x - deltaX;
-            this._y = pointToReflectAround.y - deltaY;
-            this._z = pointToReflectAround.z - deltaZ;
+        distanceToPoint(point) {
+            return new Vector(this, point).modulus;
         }
     }
 
@@ -43,6 +37,7 @@ const geometryModule = (function() {
             this._x = endpoint.x - startpoint.x;
             this._y = endpoint.y - startpoint.y;
             this._z = endpoint.z - startpoint.z;
+            this._w = endpoint.w - startpoint.w;
         }
 
         get x() {
@@ -57,8 +52,12 @@ const geometryModule = (function() {
             return this._z;
         }
 
+        get w() {
+            return this._w;
+        }
+
         get modulus() {
-            return Math.sqrt(this._x * this._x + this._y * this._y + this._z * this._z);
+            return Math.sqrt(this._x * this._x + this._y * this._y + this._z * this._z + this._w * this._w);
         }
 
         get angleToXAxis() {
@@ -70,24 +69,49 @@ const geometryModule = (function() {
             return Math.round(GeometryUtils.radiansToDegrees(actualAngleInRadians) + 360) % 360;
         }
 
-        get octant() {
-            return Math.ceil(this.angleToXAxis / 45);
+        dotProduct(vector) {
+            return (this._x * vector.x + this._y * vector.y + this._z * vector._z + this._w * vector.w);
+        }
+
+        crossProduct(vector) {
+            return new Vector(
+                new Point(this._y * vector.z, this._z * vector.x, this._x * vector.y),
+                new Point(this._z * vector.y, this._z * vector.y, this._y * vector.x)
+            )
+        }
+    }
+
+    class Line {
+        constructor(point1, point2) {
+            this._point = new Point(point1.x, point1.y, point1.z, point1.w);
+            this._directionVector = new Vector(point1, point2);
+        }
+
+        get angleToXAxis() {
+            return this._directionVector.angleToXAxis;
+        }
+
+        distanceToPoint(point) {
+            const helperVector = new Vector(this._point, point);
+            return helperVector.crossProduct(this._directionVector).modulus / this._directionVector.modulus;
         }
     }
 
     return {
         Point,
-        Vector
+        Vector,
+        Line
     }
 })();
 const Point = geometryModule.Point;
 const Vector = geometryModule.Vector;
+const Line = geometryModule.Line;
 
 const COLOR_BLACK = {
     red: 0,
     green: 0,
     blue: 0,
-    opacity: 255
+    opacity: 1
 }
 class CanvasController {
     constructor({
@@ -231,7 +255,7 @@ class CanvasController {
             color.red,
             color.green,
             color.blue,
-            color.opacity
+            color.opacity * 255
         ];
 
         this._ctx.putImageData(this._singlePixelImageData, this._origin.x + x, this._origin.y - y);
@@ -314,8 +338,8 @@ const lab1Module = (function() {
         // а X - зависимой. возможность менять переменные местами позволяет алгоритму
         // рисовать отрезки, направляющие векторы которых проходят в 2 и 6 октантах.
         const swapVariables = Math.abs(deltaY_raw / deltaX_raw) > 1;
-
         const variableInfo = getDependentAndIndependentVariableInfo(endpoints, swapVariables);
+
         let currIndependentVariableValue = variableInfo.independentStart;
         let currDependentVariableValue = variableInfo.dependentStart;
         let error = 0;
@@ -337,18 +361,71 @@ const lab1Module = (function() {
         }
     }
 
-    function bresenhamsAntialiasedLine(endpoints, drawPointCallback, availableIntensityLevels = 5, color = COLOR_BLACK) {
+    function wuLine(endpoints, drawPointCallback, color = COLOR_BLACK) {
+        const idealLine = new Line(endpoints.start, endpoints.end);
+        if (idealLine.angleToXAxis % 45 === 0) {
+            // значит, линия горизонтальная, вертикальная или диагональная
+            ddaLine(endpoints, drawPointCallback, color);
+            return;
+        }
+
+        if (endpoints.start.x > endpoints.end.x) {
+            swapEndpoints(endpoints);
+        }
         const [x_start, y_start, x_end, y_end] = mapEndpoints(endpoints);
 
-        const deltaX = Math.abs(x_end - x_start);
-        const deltaY = Math.abs(y_end - y_start);
+        const deltaX_raw = Math.abs(x_end - x_start);
+        const deltaY_raw = Math.abs(y_end - y_start);
+
+        const swapVariables = Math.abs(deltaY_raw / deltaX_raw) > 1;
+        const variableInfo = getDependentAndIndependentVariableInfo(endpoints, swapVariables);
+
+        let currIndependentVariableValue = variableInfo.independentStart;
+        let currDependentVariableValue = variableInfo.dependentStart;
+        let error = 0;
+        const deltaErr = variableInfo.deltaDependent / variableInfo.deltaIndependent;
+        for (
+            ;
+            currIndependentVariableValue != variableInfo.independentEnd;
+            currIndependentVariableValue += variableInfo.independentStep
+        ) {
+            const x = swapVariables ? currDependentVariableValue : currIndependentVariableValue;
+            const y = swapVariables ? currIndependentVariableValue : currDependentVariableValue;
+            const firstPointToDraw = new Point(x, y);
+            const secondPointToDraw = new Point(
+                swapVariables ? x + 1 : x,
+                swapVariables ? y : y + 1
+            );
+            const distanceToFirstPoint = idealLine.distanceToPoint(firstPointToDraw);
+            const distanceToSecondPoint = idealLine.distanceToPoint(secondPointToDraw);
+            const intensity1 = distanceToFirstPoint / (distanceToFirstPoint + distanceToSecondPoint);
+            const intensity2 = distanceToSecondPoint / (distanceToFirstPoint + distanceToSecondPoint);
+            console.log(intensity1, intensity2);
+            drawPointCallback(firstPointToDraw.x, firstPointToDraw.y, {
+                ...color,
+                opacity: intensity1
+            });
+            drawPointCallback(secondPointToDraw.x, secondPointToDraw.y, {
+                ...color,
+                opacity: intensity2
+            })
+
+            error += deltaErr;
+            if (error >= 0.5) {
+                currDependentVariableValue += variableInfo.dependentStep;
+                error -= 1;
+            }
+        }
     }
 
     return {
         ddaLine,
-        bresenhamsLine
+        bresenhamsLine,
+        wuLine
     }
 })();
 
 const canvas = new CanvasController();
-lab1Module.bresenhamsLine({ start: new Point(0, 0), end: new Point(100, -300) }, canvas.drawPoint.bind(canvas));
+lab1Module.ddaLine({ start: new Point(-100, 0), end: new Point(200, -50) }, canvas.drawPoint.bind(canvas));
+lab1Module.bresenhamsLine({ start: new Point(0, 0), end: new Point(300, -50) }, canvas.drawPoint.bind(canvas));
+lab1Module.wuLine({ start: new Point(100, 0), end: new Point(400, -50) }, canvas.drawPoint.bind(canvas));
