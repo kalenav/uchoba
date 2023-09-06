@@ -270,7 +270,10 @@ const lab1Module = (function() {
     function ddaLine(endpoints, drawPointCallback, color = COLOR_BLACK) {
         const [x_start, y_start, x_end, y_end] = mapEndpoints(endpoints);
 
-        const rasterizationSteps = Math.max(x_end - x_start, y_end - y_start) + 1;
+        const rasterizationSteps = Math.max(
+            Math.abs(x_end - x_start),
+            Math.abs(y_end - y_start)
+        ) + 1;
         const xGrowth = (x_end - x_start) / rasterizationSteps;
         const yGrowth = (y_end - y_start) / rasterizationSteps;
         
