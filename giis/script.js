@@ -393,14 +393,11 @@ const lab1Module = (function() {
             const y = swapVariables ? currIndependentVariableValue : currDependentVariableValue;
             const firstPointToDraw = new Point(x, y);
             const secondPointToDraw = new Point(
-                swapVariables ? x + 1 : x,
-                swapVariables ? y : y + 1
+                swapVariables ? x + variableInfo.dependentStep : x,
+                swapVariables ? y : y + variableInfo.dependentStep
             );
-            const distanceToFirstPoint = idealLine.distanceToPoint(firstPointToDraw);
-            const distanceToSecondPoint = idealLine.distanceToPoint(secondPointToDraw);
-            const intensity1 = distanceToFirstPoint / (distanceToFirstPoint + distanceToSecondPoint);
-            const intensity2 = distanceToSecondPoint / (distanceToFirstPoint + distanceToSecondPoint);
-            console.log(intensity1, intensity2);
+            const intensity1 = Math.max(0, 1 - idealLine.distanceToPoint(firstPointToDraw));
+            const intensity2 = 1 - intensity1;
             drawPointCallback(firstPointToDraw.x, firstPointToDraw.y, {
                 ...color,
                 opacity: intensity1
@@ -411,7 +408,11 @@ const lab1Module = (function() {
             })
 
             error += deltaErr;
-            if (error >= 0.5) {
+            // порог значения ошибки 1 нужен, так как в этом случае переход к следующему значению
+            // зависимой переменной должен осуществляться после того, как значение выражения
+            // currDependentVariableValue + error выходит за пределы следующего значения зависимой
+            // переменной (т.к. алгоритм рисует блоками высотой 2 пикселя)
+            if (error >= 1) {
                 currDependentVariableValue += variableInfo.dependentStep;
                 error -= 1;
             }
@@ -426,6 +427,4 @@ const lab1Module = (function() {
 })();
 
 const canvas = new CanvasController();
-lab1Module.ddaLine({ start: new Point(-100, 0), end: new Point(200, -50) }, canvas.drawPoint.bind(canvas));
-lab1Module.bresenhamsLine({ start: new Point(0, 0), end: new Point(300, -50) }, canvas.drawPoint.bind(canvas));
-lab1Module.wuLine({ start: new Point(100, 0), end: new Point(400, -50) }, canvas.drawPoint.bind(canvas));
+lab1Module.ddaLine({ start: new Point(0, 0), end: new Point(-300, -300) }, canvas.drawPoint.bind(canvas));
