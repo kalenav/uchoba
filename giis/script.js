@@ -265,7 +265,7 @@ const lab1Module = (function() {
         endpoints.start = new Point(endpoints.end.x, endpoints.end.y);
         endpoints.end = startEndpointSnapshot;
     }
-    function getDependentAndIndependentVariableBoundaries(endpoints, swapVariables) {
+    function getDependentAndIndependentVariableInfo(endpoints, swapVariables) {
         const independentStart = swapVariables ? endpoints.start.y : endpoints.start.x;
         const independentEnd = swapVariables ? endpoints.end.y : endpoints.end.x;
         const deltaIndependent = Math.abs(independentEnd - independentStart);
@@ -278,24 +278,29 @@ const lab1Module = (function() {
         return {
             independentStart,
             independentEnd,
+            // возможность использовать положительный либо отрицательный шаг независимой переменной
+            // позволяет алгоритму Брезенхейма рисовать отрезки, направляющие векторы которых проходят
+            // в октантах, являющимися отражениями уже покрываемых алгоритмом октантов относительно
+            // оси зависимой переменной: для октанта 2 это октант 3, для октанта 6 это октант 7.
+            independentStep: (independentEnd - independentStart > 0) ? 1 : -1,
             deltaIndependent,
+            
             dependentStart,
             dependentEnd,
-            deltaDependent,
-            // возможность использовать положительный либо отрицательный шаг
-            // зависимой переменной позволяет алгоритму Брезенхейма рисовать отрезки,
-            // направляющие векторы которых проходят в октантах, являющимися
-            // отражениями уже покрываемых алгоритмом октантов относительно оси X:
-            // для 1 октанта это октант 2, для 5 октант это октант 4.
+            // возможность использовать положительный либо отрицательный шаг зависимой переменной
+            // позволяет алгоритму Брезенхейма рисовать отрезки, направляющие векторы которых проходят
+            // в октантах, являющимися отражениями уже покрываемых алгоритмом октантов относительно
+            // оси независимой переменной: для октанта 1 это октант 8, для октанта 5 это октант 4.
             dependentStep: (dependentEnd - dependentStart > 0) ? 1 : -1,
+            deltaDependent,
+
             deltaErr
         }
     }
-    // алгоритм Брезенхема по умолчанию успешно рисует отрезки,
-    // направляющие вектора которых проходят в 1 октанте.
     function bresenhamsLine(endpoints, drawPointCallback, color = COLOR_BLACK) {
-        // возможность перестановки точек начала и конца отрезка позволяет рисовать отрезки,
-        // направляющие вектора которых проходят в 5 октанте.
+        // алгоритм Брезенхема по умолчанию успешно рисует отрезки, направляющие вектора которых проходят в 1 октанте.
+        // возможность перестановки точек начала и конца отрезка позволяет рисовать отрезки, направляющие вектора
+        // которых проходят в 5 октанте.
         if (endpoints.start.x > endpoints.end.x) {
             swapEndpoints(endpoints);
         }
@@ -307,16 +312,19 @@ const lab1Module = (function() {
         // если абсолютное значение тангенса угла наклона прямой к оси X больше 1,
         // то следует поменять переменные местами: сделать Y независимой переменной,
         // а X - зависимой. возможность менять переменные местами позволяет алгоритму
-        // рисовать отрезки, направляющие векторы которых проходят в 2, 3, 6 и 7 октантах.
+        // рисовать отрезки, направляющие векторы которых проходят в 2 и 6 октантах.
         const swapVariables = Math.abs(deltaY_raw / deltaX_raw) > 1;
 
-        const variableInfo = getDependentAndIndependentVariableBoundaries(endpoints, swapVariables);
-
+        const variableInfo = getDependentAndIndependentVariableInfo(endpoints, swapVariables);
         let currIndependentVariableValue = variableInfo.independentStart;
         let currDependentVariableValue = variableInfo.dependentStart;
-        const deltaErr = variableInfo.deltaDependent / variableInfo.deltaIndependent;
         let error = 0;
-        for (currIndependentVariableValue; currIndependentVariableValue <= variableInfo.independentEnd; currIndependentVariableValue++) {
+        const deltaErr = variableInfo.deltaDependent / variableInfo.deltaIndependent;
+        for (
+            ;
+            currIndependentVariableValue != variableInfo.independentEnd;
+            currIndependentVariableValue += variableInfo.independentStep
+        ) {
             const x = swapVariables ? currDependentVariableValue : currIndependentVariableValue;
             const y = swapVariables ? currIndependentVariableValue : currDependentVariableValue;
             drawPointCallback(x, y, color);
@@ -343,4 +351,4 @@ const lab1Module = (function() {
 })();
 
 const canvas = new CanvasController();
-lab1Module.bresenhamsLine({ start: new Point(0, 0), end: new Point(500, -100) }, canvas.drawPoint.bind(canvas));
+lab1Module.bresenhamsLine({ start: new Point(0, 0), end: new Point(100, -300) }, canvas.drawPoint.bind(canvas));
