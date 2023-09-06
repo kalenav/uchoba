@@ -64,39 +64,14 @@ const geometryModule = (function() {
         get angleToXAxis() {
             const offsetAngleByPi = (this._x / this.modulus) < 0;
 
-            const rawAngleInRadians = Math.asin(this._y / this.modulus);
+            const rawAngleInRadians = Math.atan(this._y / this._x);
             const actualAngleInRadians = rawAngleInRadians + (offsetAngleByPi ? Math.PI : 0);
 
             return Math.round((-1 * (GeometryUtils.radiansToDegrees(actualAngleInRadians)) + 360) % 360);
         }
 
         get octant() {
-            const angle = this.angleToXAxis;
-
-            if (angle >= 0 && angle < 45) {
-                return 1;
-            }
-            if (angle >= 45 && angle < 90) {
-                return 2;
-            }
-            if (angle >= 90 && angle < 135) {
-                return 3;
-            }
-            if (angle >= 135 && angle < 180) {
-                return 4;
-            }
-            if (angle >= 180 && angle < 225) {
-                return 5;
-            }
-            if (angle >= 225 && angle < 270)  {
-                return 6;
-            }
-            if (angle >= 270 && angle < 315) {
-                return 7;
-            }
-            if (angle >= 315 && angle < 360) {
-                return 8;
-            }
+            return Math.ceil(this.angleToXAxis / 45);
         }
     }
 
@@ -285,67 +260,43 @@ const lab1Module = (function() {
         }
     }
 
-    const octantToTransformationMap = {
-        '1': {},
-        '2': {
-            reflectX: true,
-            reflectY: true,
-            swapVariables: true
-        },
-        '3': {
-            reflectX: true,
-            swapVariables: true
-        },
-        '4': {
-            reflectY: true
-        },
-        '5': {
-            reflectX: true,
-            reflectY: true
-        },
-        '6': {
-            swapVariables: true,
-        },
-        '7': {
-            reflectY: true,
-            swapVariables: true
-        },
-        '8': {
-            reflectX: true
-        }
+    function swapEndpoints(endpoints) {
+        const startEndpointSnapshot = new Point(endpoints.start.x, endpoints.start.y);
+        endpoints.start = new Point(endpoints.end.x, endpoints.end.y);
+        endpoints.end = startEndpointSnapshot;
     }
     function bresenhamsLine(endpoints, drawPointCallback, color = COLOR_BLACK) {
-        const collinearVector = new Vector(endpoints.start, endpoints.end);
-        const transformations = octantToTransformationMap[`${collinearVector.octant}`];
-
+        // позволяет рисовать линии, идущие "снизу влево"
+        if (endpoints.start.x > endpoints.end.x) {
+            swapEndpoints(endpoints);
+        }
         const [x_start, y_start, x_end, y_end] = mapEndpoints(endpoints);
 
         const deltaX = Math.abs(x_end - x_start);
         const deltaY = Math.abs(y_end - y_start);
-
         const deltaErr = deltaY / deltaX;
-        const xStep = transformations.reflectX ? -1 : 1;
-        const yStep = transformations.reflectY ? 1 : -1;
 
         let currY = y_start;
+        // позволяет рисовать линии, идущие "снизу вправо" и "сверху влево"
+        const yStep = (y_start < y_end) ? 1 : -1;
         let error = 0;
-        for (
-            let currX = transformations.reflectX ? x_end : x_start;
-            transformations.reflectX ? currX >= x_start : currX <= x_end;
-            currX += xStep
-        ) {
-            drawPointCallback(
-                transformations.swapVariables ? currY : currX,
-                transformations.swapVariables ? currX : currY,
-                color
-            );
-
+        for (let currX = x_start; currX <= x_end; currX += 1) {
             error += deltaErr;
-            if (error >= 0.5) {
+            
+            // позволяет рисовать линии, проходящие в 2, 3, 6 и 7 октантах
+            while (error >= 0.5) {
+                drawPointCallback(currX, currY, color);
                 currY += yStep;
                 error -= 1;
             }
         }
+    }
+
+    function bresenhamsAntialiasedLine(endpoints, drawPointCallback, availableIntensityLevels = 5, color = COLOR_BLACK) {
+        const [x_start, y_start, x_end, y_end] = mapEndpoints(endpoints);
+
+        const deltaX = Math.abs(x_end - x_start);
+        const deltaY = Math.abs(y_end - y_start);
     }
 
     return {
@@ -355,4 +306,4 @@ const lab1Module = (function() {
 })();
 
 const canvas = new CanvasController();
-lab1Module.bresenhamsLine({ start: new Point(100, 100), end: new Point(150, 0) }, canvas.drawPoint.bind(canvas));
+lab1Module.bresenhamsLine({ start: new Point(200, -50), end: new Point(150, 400) }, canvas.drawPoint.bind(canvas));
