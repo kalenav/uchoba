@@ -232,7 +232,7 @@ class CanvasController {
         // возможность перестановки точек начала и конца отрезка позволяет рисовать отрезки, направляющие вектора
         // которых проходят в 5 октанте.
         if (endpoints.start.x > endpoints.end.x) {
-            swapEndpoints(endpoints);
+            this._swapEndpoints(endpoints);
         }
         const [x_start, y_start, x_end, y_end] = this._mapEndpoints(endpoints);
 
