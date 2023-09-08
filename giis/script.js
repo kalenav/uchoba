@@ -1,118 +1,3 @@
-class GeometryUtils {
-    static radiansToDegrees(radians) {
-        return Math.round(radians * 180 / Math.PI);
-    }
-
-}
-
-const geometryModule = (function() {
-    class Point {
-        constructor(x, y, z = 0, w = 0) {
-            [this._x, this._y, this._z, this._w] = [x, y, z, w];
-        }
-
-        get x() {
-            return this._x;
-        }
-
-        get y() {
-            return this._y;
-        }
-
-        get z() {
-            return this._z;
-        }
-
-        get w() {
-            return this._w;
-        }
-
-        distanceToPoint(point) {
-            return new Vector(this, point).modulus;
-        }
-    }
-
-    class Vector {
-        constructor(startpoint, endpoint) {
-            this._x = endpoint.x - startpoint.x;
-            this._y = endpoint.y - startpoint.y;
-            this._z = endpoint.z - startpoint.z;
-            this._w = endpoint.w - startpoint.w;
-        }
-
-        get x() {
-            return this._x;
-        }
-
-        get y() {
-            return this._y;
-        }
-
-        get z() {
-            return this._z;
-        }
-
-        get w() {
-            return this._w;
-        }
-
-        get modulus() {
-            return Math.sqrt(this._x * this._x + this._y * this._y + this._z * this._z + this._w * this._w);
-        }
-
-        get angleToXAxis() {
-            const offsetAngleByPi = (this._x / this.modulus) < 0;
-
-            const rawAngleInRadians = Math.atan(this._y / this._x);
-            const actualAngleInRadians = rawAngleInRadians + (offsetAngleByPi ? Math.PI : 0);
-
-            return Math.round(GeometryUtils.radiansToDegrees(actualAngleInRadians) + 360) % 360;
-        }
-
-        dotProduct(vector) {
-            return (this._x * vector.x + this._y * vector.y + this._z * vector._z + this._w * vector.w);
-        }
-
-        crossProduct(vector) {
-            return new Vector(
-                new Point(this._y * vector.z, this._z * vector.x, this._x * vector.y),
-                new Point(this._z * vector.y, this._z * vector.y, this._y * vector.x)
-            )
-        }
-    }
-
-    class Line {
-        constructor(point1, point2) {
-            this._point = new Point(point1.x, point1.y, point1.z, point1.w);
-            this._directionVector = new Vector(point1, point2);
-        }
-
-        get angleToXAxis() {
-            return this._directionVector.angleToXAxis;
-        }
-
-        distanceToPoint(point) {
-            const helperVector = new Vector(this._point, point);
-            return helperVector.crossProduct(this._directionVector).modulus / this._directionVector.modulus;
-        }
-    }
-
-    return {
-        Point,
-        Vector,
-        Line
-    }
-})();
-const Point = geometryModule.Point;
-const Vector = geometryModule.Vector;
-const Line = geometryModule.Line;
-
-const COLOR_BLACK = {
-    red: 0,
-    green: 0,
-    blue: 0,
-    opacity: 1
-}
 class CanvasController {
     constructor({
         width = 1000,
@@ -245,7 +130,7 @@ class CanvasController {
         }
     }
 
-    drawPoint(x, y, color = COLOR_BLACK) {
+    drawPoint(x, y, color = { red: 0, green: 0, blue: 0, opacity: 1 }) {
         [
             this._singlePixelImageData.data[0],
             this._singlePixelImageData.data[1],
@@ -262,12 +147,164 @@ class CanvasController {
     }
 }
 
+const toolbarModule = (function () {
+    class Button {
+        constructor(label, callback) {
+            this._label = label;
+            this._callback = callback;
+        }
+
+        get label() {
+            return this._label;
+        }
+
+        get callback() {
+            return this._callback;
+        }
+    }
+
+    class ToolbarController {
+        constructor(controls, toolbarElemId = 'toolbar') {
+            this._toolbarRef = document.getElementById(toolbarElemId);
+            this._controls = [...controls];
+            this.render();
+        }
+
+        render() {
+            this._controls.forEach(control => {
+                const button = document.createElement('button');
+                button.innerHTML = control.label;
+                button.onclick = control.callback;
+                this._toolbarRef.appendChild(button);
+            });
+        }
+    }
+
+    return {
+        Button,
+        ToolbarController
+    }
+})();
+const Button = toolbarModule.Button;
+const ToolbarController = toolbarModule.ToolbarController;
+
+class GeometryUtils {
+    static radiansToDegrees(radians) {
+        return Math.round(radians * 180 / Math.PI);
+    }
+
+}
+
+const geometryModule = (function() {
+    class Point {
+        constructor(x, y, z = 0, w = 0) {
+            [this._x, this._y, this._z, this._w] = [x, y, z, w];
+        }
+
+        get x() {
+            return this._x;
+        }
+
+        get y() {
+            return this._y;
+        }
+
+        get z() {
+            return this._z;
+        }
+
+        get w() {
+            return this._w;
+        }
+
+        distanceToPoint(point) {
+            return new Vector(this, point).modulus;
+        }
+    }
+
+    class Vector {
+        constructor(startpoint, endpoint) {
+            this._x = endpoint.x - startpoint.x;
+            this._y = endpoint.y - startpoint.y;
+            this._z = endpoint.z - startpoint.z;
+            this._w = endpoint.w - startpoint.w;
+        }
+
+        get x() {
+            return this._x;
+        }
+
+        get y() {
+            return this._y;
+        }
+
+        get z() {
+            return this._z;
+        }
+
+        get w() {
+            return this._w;
+        }
+
+        get modulus() {
+            return Math.sqrt(this._x * this._x + this._y * this._y + this._z * this._z + this._w * this._w);
+        }
+
+        get angleToXAxis() {
+            const offsetAngleByPi = (this._x / this.modulus) < 0;
+
+            const rawAngleInRadians = Math.atan(this._y / this._x);
+            const actualAngleInRadians = rawAngleInRadians + (offsetAngleByPi ? Math.PI : 0);
+
+            return Math.round(GeometryUtils.radiansToDegrees(actualAngleInRadians) + 360) % 360;
+        }
+
+        dotProduct(vector) {
+            return (this._x * vector.x + this._y * vector.y + this._z * vector._z + this._w * vector.w);
+        }
+
+        crossProduct(vector) {
+            return new Vector(
+                new Point(this._y * vector.z, this._z * vector.x, this._x * vector.y),
+                new Point(this._z * vector.y, this._z * vector.y, this._y * vector.x)
+            )
+        }
+    }
+
+    class Line {
+        constructor(point1, point2) {
+            this._point = new Point(point1.x, point1.y, point1.z, point1.w);
+            this._directionVector = new Vector(point1, point2);
+        }
+
+        get angleToXAxis() {
+            return this._directionVector.angleToXAxis;
+        }
+
+        distanceToPoint(point) {
+            const helperVector = new Vector(this._point, point);
+            return helperVector.crossProduct(this._directionVector).modulus / this._directionVector.modulus;
+        }
+    }
+
+    return {
+        Point,
+        Vector,
+        Line
+    }
+})();
+const Point = geometryModule.Point;
+const Vector = geometryModule.Vector;
+const Line = geometryModule.Line;
+
+
+
 const lab1Module = (function() {
     function mapEndpoints(endpoints) {
         return [endpoints.start.x, endpoints.start.y, endpoints.end.x, endpoints.end.y].map(Math.round);
     }
 
-    function ddaLine(endpoints, drawPointCallback, color = COLOR_BLACK) {
+    function ddaLine(endpoints, drawPointCallback, color) {
         const [x_start, y_start, x_end, y_end] = mapEndpoints(endpoints);
 
         const rasterizationSteps = Math.max(
@@ -324,7 +361,7 @@ const lab1Module = (function() {
             deltaErr
         }
     }
-    function bresenhamsLine(endpoints, drawPointCallback, color = COLOR_BLACK) {
+    function bresenhamsLine(endpoints, drawPointCallback, color) {
         // алгоритм Брезенхема по умолчанию успешно рисует отрезки, направляющие вектора которых проходят в 1 октанте.
         // возможность перестановки точек начала и конца отрезка позволяет рисовать отрезки, направляющие вектора
         // которых проходят в 5 октанте.
@@ -364,7 +401,7 @@ const lab1Module = (function() {
         }
     }
 
-    function wuLine(endpoints, drawPointCallback, color = COLOR_BLACK) {
+    function wuLine(endpoints, drawPointCallback, color) {
         const idealLine = new Line(endpoints.start, endpoints.end);
         if (idealLine.angleToXAxis % 45 === 0) {
             // значит, линия горизонтальная, вертикальная или диагональная
@@ -430,4 +467,6 @@ const lab1Module = (function() {
 })();
 
 const canvas = new CanvasController();
-lab1Module.ddaLine({ start: new Point(0, 0), end: new Point(-300, -300) }, canvas.drawPoint.bind(canvas));
+const toolbar = new ToolbarController([
+    new Button('click me!', () => alert(3))
+]);
