@@ -1,4 +1,8 @@
 class CanvasController {
+    _drawing = false;
+    _selectedPoints = null;
+    _exitDrawingModeEvent = new CustomEvent('drawing-finished');
+
     constructor({
         width = 1000,
         height = 800,
@@ -145,6 +149,31 @@ class CanvasController {
 
         this._ctx.putImageData(this._singlePixelImageData, this._origin.x + x, this._origin.y - y);
     }
+
+    enterDrawingMode(pointsRequired) {
+        this._selectedPoints = [];
+
+        const clickListener = (event) => {
+            const x = event.offsetX - this._width / 2;
+            const y = -1 * event.offsetY + this._height / 2;
+            this._selectedPoints.push(new Point(x, y));
+            if (this._selectedPoints.length === pointsRequired) {
+                this._canvasHtmlElem.removeEventListener('click', clickListener);
+                this.exitDrawingMode();
+            }
+        };
+        this._canvasHtmlElem.addEventListener('click', clickListener);
+    }
+
+    exitDrawingMode() {
+        this._canvasHtmlElem.dispatchEvent(this._exitDrawingModeEvent);
+    }
+
+    getSelectedPoints() {
+        const snapshot = [...this._selectedPoints];
+        this._selectedPoints = null;
+        return snapshot;
+    }
 }
 
 const toolbarModule = (function () {
@@ -163,29 +192,58 @@ const toolbarModule = (function () {
         }
     }
 
-    class ToolbarController {
-        constructor(controls, toolbarElemId = 'toolbar') {
-            this._toolbarRef = document.getElementById(toolbarElemId);
-            this._controls = [...controls];
-            this.render();
+    class Section {
+        constructor(label, buttons) {
+            this._label = label;
+            this._buttons = [...buttons];
         }
 
-        render() {
-            this._controls.forEach(control => {
-                const button = document.createElement('button');
-                button.innerHTML = control.label;
-                button.onclick = control.callback;
-                this._toolbarRef.appendChild(button);
+        get label() { return this._label; }
+
+        get buttons() { return [...this._buttons]; }
+
+        getHtmlElem() {
+            const sectionElem = document.createElement('section');
+            sectionElem.classList.toggle('toolbar-section');
+
+            const sectionHeader = document.createElement('header');
+            sectionHeader.append(this._label);
+            sectionElem.appendChild(sectionHeader);
+
+            const sectionMain = document.createElement('main');
+            this._buttons.forEach(button => {
+                const buttonElem = document.createElement('button');
+                buttonElem.innerHTML = button.label;
+                buttonElem.onclick = button.callback;
+                sectionMain.appendChild(buttonElem);
             });
+            sectionElem.appendChild(sectionMain);
+
+            return sectionElem;
+        }
+    }
+
+    class ToolbarController {
+        constructor(sections, toolbarElemId = 'toolbar') {
+            this._toolbarRef = document.getElementById(toolbarElemId);
+            this._sections = [...sections];
+            this._render();
+        }
+
+        _render() {
+            this._toolbarRef.innerHTML = '';
+            this._sections.forEach(section => this._toolbarRef.appendChild(section.getHtmlElem()));
         }
     }
 
     return {
         Button,
+        Section,
         ToolbarController
     }
 })();
 const Button = toolbarModule.Button;
+const Section = toolbarModule.Section;
 const ToolbarController = toolbarModule.ToolbarController;
 
 class GeometryUtils {
@@ -197,7 +255,7 @@ class GeometryUtils {
 
 const geometryModule = (function() {
     class Point {
-        constructor(x, y, z = 0, w = 0) {
+        constructor(x, y, z = 0, w = 1) {
             [this._x, this._y, this._z, this._w] = [x, y, z, w];
         }
 
@@ -247,7 +305,7 @@ const geometryModule = (function() {
         }
 
         get modulus() {
-            return Math.sqrt(this._x * this._x + this._y * this._y + this._z * this._z + this._w * this._w);
+            return Math.sqrt(this._x * this._x + this._y * this._y + this._z * this._z);
         }
 
         get angleToXAxis() {
@@ -296,8 +354,6 @@ const geometryModule = (function() {
 const Point = geometryModule.Point;
 const Vector = geometryModule.Vector;
 const Line = geometryModule.Line;
-
-
 
 const lab1Module = (function() {
     function mapEndpoints(endpoints) {
@@ -466,7 +522,42 @@ const lab1Module = (function() {
     }
 })();
 
+///////////////////////////////////////////
+///////////////////////////////////////////
+///////////////////////////////////////////
+
 const canvas = new CanvasController();
+const drawPointCallback = canvas.drawPoint.bind(canvas);
+
+const ddaFinishedDrawingCallback = () => {
+    const endpoints = canvas.getSelectedPoints();
+    lab1Module.ddaLine({ start: endpoints[0], end: endpoints[1] }, drawPointCallback);
+    canvas._canvasHtmlElem.removeEventListener('drawing-finished', ddaFinishedDrawingCallback);
+}
+const bresenhamsFinishedDrawingCallback = () => {
+    const endpoints = canvas.getSelectedPoints();
+    lab1Module.bresenhamsLine({ start: endpoints[0], end: endpoints[1] }, drawPointCallback);
+    canvas._canvasHtmlElem.removeEventListener('drawing-finished', bresenhamsFinishedDrawingCallback);
+}
+const wuFinishedDrawingCallback = () => {
+    const endpoints = canvas.getSelectedPoints();
+    lab1Module.wuLine({ start: endpoints[0], end: endpoints[1] }, drawPointCallback);
+    canvas._canvasHtmlElem.removeEventListener('drawing-finished', wuFinishedDrawingCallback);
+}
+
 const toolbar = new ToolbarController([
-    new Button('click me!', () => alert(3))
+    new Section('Отрезки', [
+        new Button('ЦДА', () => {
+            canvas.enterDrawingMode(2);
+            canvas._canvasHtmlElem.addEventListener('drawing-finished', ddaFinishedDrawingCallback);
+        }),
+        new Button('Брезенхейм', () => {
+            canvas.enterDrawingMode(2);
+            canvas._canvasHtmlElem.addEventListener('drawing-finished', bresenhamsFinishedDrawingCallback);
+        }),
+        new Button('Ву', () => {
+            canvas.enterDrawingMode(2);
+            canvas._canvasHtmlElem.addEventListener('drawing-finished', wuFinishedDrawingCallback);
+        })
+    ])
 ]);
