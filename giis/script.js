@@ -1,4 +1,6 @@
 class CanvasController {
+    _drawingFinishedEvent = new Event('drawing-finished');
+
     constructor({
         width = 1000,
         height = 800,
@@ -156,6 +158,7 @@ class CanvasController {
             if (selectedPoints.length === pointsRequired) {
                 this._canvasHtmlElem.removeEventListener('click', clickListener);
                 exitDrawingModeCallback(selectedPoints);
+                document.dispatchEvent(this._drawingFinishedEvent);
             }
         };
         this._canvasHtmlElem.addEventListener('click', clickListener);
@@ -315,7 +318,7 @@ class CanvasController {
             // зависимой переменной должен осуществляться после того, как значение выражения
             // currDependentVariableValue + error выходит за пределы следующего значения зависимой
             // переменной (т.к. алгоритм рисует блоками высотой 2 пикселя)
-            if (error >= 1) {
+            if (error >= 1.5) {
                 currDependentVariableValue += variableInfo.dependentStep;
                 error -= 1;
             }
@@ -344,6 +347,23 @@ class CanvasController {
 
     _exitWuDrawingMode(endpoints) {
         this._wuLine({ start: endpoints[0], end: endpoints[1] });
+    }
+}
+
+class HintController {
+    _defaultHintText = 'Режим не выбран';
+
+    constructor(hintElemId = 'hint') {
+        this._hintElem = document.getElementById(hintElemId);
+        this.resetHint();
+    }
+
+    setHintText(text) {
+        this._hintElem.innerHTML = text;
+    }
+
+    resetHint() {
+        this.setHintText(this._defaultHintText);
     }
 }
 
@@ -531,10 +551,24 @@ const Line = geometryModule.Line;
 ///////////////////////////////////////////
 
 const canvas = new CanvasController();
+const hint = new HintController();
 const toolbar = new ToolbarController([
     new Section('Отрезки', [
-        new Button('ЦДА', canvas.enterDdaDrawingMode.bind(canvas)),
-        new Button('Брезенхейм', canvas.enterBresenhamDrawingMode.bind(canvas)),
-        new Button('Ву', canvas.enterWuDrawingMode.bind(canvas))
+        new Button('ЦДА', () => {
+            canvas.enterDdaDrawingMode();
+            hint.setHintText('Режим рисования отрезка (ЦДА)');
+        }),
+        new Button('Брезенхейм', () => {
+            canvas.enterBresenhamDrawingMode();
+            hint.setHintText('Режим рисования отрезка (алгоритм Брезенхейма)');
+        }),
+        new Button('Ву', () => {
+            canvas.enterWuDrawingMode();
+            hint.setHintText('Режим рисования отрезка (алгоритм Ву)');
+        })
     ])
 ]);
+
+document.addEventListener('drawing-finished', () => {
+    hint.resetHint();
+})
