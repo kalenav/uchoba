@@ -1,8 +1,4 @@
 class CanvasController {
-    _drawing = false;
-    _selectedPoints = null;
-    _exitDrawingModeEvent = new CustomEvent('drawing-finished');
-
     constructor({
         width = 1000,
         height = 800,
@@ -134,7 +130,7 @@ class CanvasController {
         }
     }
 
-    drawPoint(x, y, color = { red: 0, green: 0, blue: 0, opacity: 1 }) {
+    _drawPoint(x, y, color = { red: 0, green: 0, blue: 0, opacity: 1 }) {
         [
             this._singlePixelImageData.data[0],
             this._singlePixelImageData.data[1],
@@ -150,29 +146,204 @@ class CanvasController {
         this._ctx.putImageData(this._singlePixelImageData, this._origin.x + x, this._origin.y - y);
     }
 
-    enterDrawingMode(pointsRequired) {
-        this._selectedPoints = [];
+    _enterDrawingMode(pointsRequired, exitDrawingModeCallback) {
+        const selectedPoints = [];
 
         const clickListener = (event) => {
             const x = event.offsetX - this._width / 2;
             const y = -1 * event.offsetY + this._height / 2;
-            this._selectedPoints.push(new Point(x, y));
-            if (this._selectedPoints.length === pointsRequired) {
+            selectedPoints.push(new Point(x, y));
+            if (selectedPoints.length === pointsRequired) {
                 this._canvasHtmlElem.removeEventListener('click', clickListener);
-                this.exitDrawingMode();
+                exitDrawingModeCallback(selectedPoints);
             }
         };
         this._canvasHtmlElem.addEventListener('click', clickListener);
     }
 
-    exitDrawingMode() {
-        this._canvasHtmlElem.dispatchEvent(this._exitDrawingModeEvent);
+    _mapEndpoints(endpoints) {
+        return [endpoints.start.x, endpoints.start.y, endpoints.end.x, endpoints.end.y].map(Math.round);
     }
 
-    getSelectedPoints() {
-        const snapshot = [...this._selectedPoints];
-        this._selectedPoints = null;
-        return snapshot;
+    _ddaLine(endpoints, color) {
+        const [x_start, y_start, x_end, y_end] = this._mapEndpoints(endpoints);
+
+        const rasterizationSteps = Math.max(
+            Math.abs(x_end - x_start),
+            Math.abs(y_end - y_start)
+        ) + 1;
+        const xGrowth = (x_end - x_start) / rasterizationSteps;
+        const yGrowth = (y_end - y_start) / rasterizationSteps;
+        
+        let currX = x_start;
+        let currY = y_start;
+        for (let stepsElapsed = 1; stepsElapsed <= rasterizationSteps; stepsElapsed++) {
+            this._drawPoint(Math.round(currX), Math.round(currY), color);
+
+            currX += xGrowth;
+            currY += yGrowth;
+        }
+    }
+
+    _swapEndpoints(endpoints) {
+        const startEndpointSnapshot = new Point(endpoints.start.x, endpoints.start.y);
+        endpoints.start = new Point(endpoints.end.x, endpoints.end.y);
+        endpoints.end = startEndpointSnapshot;
+    }
+
+    _getDependentAndIndependentVariableInfo(endpoints, swapVariables) {
+        const independentStart = swapVariables ? endpoints.start.y : endpoints.start.x;
+        const independentEnd = swapVariables ? endpoints.end.y : endpoints.end.x;
+        const deltaIndependent = Math.abs(independentEnd - independentStart);
+
+        const dependentStart = swapVariables ? endpoints.start.x : endpoints.start.y;
+        const dependentEnd = swapVariables ? endpoints.end.x : endpoints.end.y;
+        const deltaDependent = Math.abs(dependentEnd - dependentStart);
+
+        const deltaErr = deltaDependent / deltaIndependent;
+        return {
+            independentStart,
+            independentEnd,
+            // возможность использовать положительный либо отрицательный шаг независимой переменной
+            // позволяет алгоритму Брезенхейма рисовать отрезки, направляющие векторы которых проходят
+            // в октантах, являющимися отражениями уже покрываемых алгоритмом октантов относительно
+            // оси зависимой переменной: для октанта 2 это октант 3, для октанта 6 это октант 7.
+            independentStep: (independentEnd - independentStart > 0) ? 1 : -1,
+            deltaIndependent,
+            
+            dependentStart,
+            dependentEnd,
+            // возможность использовать положительный либо отрицательный шаг зависимой переменной
+            // позволяет алгоритму Брезенхейма рисовать отрезки, направляющие векторы которых проходят
+            // в октантах, являющимися отражениями уже покрываемых алгоритмом октантов относительно
+            // оси независимой переменной: для октанта 1 это октант 8, для октанта 5 это октант 4.
+            dependentStep: (dependentEnd - dependentStart > 0) ? 1 : -1,
+            deltaDependent,
+
+            deltaErr
+        }
+    }
+
+    _bresenhamsLine(endpoints, color) {
+        // алгоритм Брезенхема по умолчанию успешно рисует отрезки, направляющие вектора которых проходят в 1 октанте.
+        // возможность перестановки точек начала и конца отрезка позволяет рисовать отрезки, направляющие вектора
+        // которых проходят в 5 октанте.
+        if (endpoints.start.x > endpoints.end.x) {
+            swapEndpoints(endpoints);
+        }
+        const [x_start, y_start, x_end, y_end] = this._mapEndpoints(endpoints);
+
+        const deltaX_raw = Math.abs(x_end - x_start);
+        const deltaY_raw = Math.abs(y_end - y_start);
+
+        // если абсолютное значение тангенса угла наклона прямой к оси X больше 1,
+        // то следует поменять переменные местами: сделать Y независимой переменной,
+        // а X - зависимой. возможность менять переменные местами позволяет алгоритму
+        // рисовать отрезки, направляющие векторы которых проходят в 2 и 6 октантах.
+        const swapVariables = Math.abs(deltaY_raw / deltaX_raw) > 1;
+        const variableInfo = this._getDependentAndIndependentVariableInfo(endpoints, swapVariables);
+
+        let currIndependentVariableValue = variableInfo.independentStart;
+        let currDependentVariableValue = variableInfo.dependentStart;
+        let error = 0;
+        const deltaErr = variableInfo.deltaDependent / variableInfo.deltaIndependent;
+        for (
+            ;
+            currIndependentVariableValue != variableInfo.independentEnd;
+            currIndependentVariableValue += variableInfo.independentStep
+        ) {
+            const x = swapVariables ? currDependentVariableValue : currIndependentVariableValue;
+            const y = swapVariables ? currIndependentVariableValue : currDependentVariableValue;
+            this._drawPoint(x, y, color);
+
+            error += deltaErr;
+            if (error >= 0.5) {
+                currDependentVariableValue += variableInfo.dependentStep;
+                error -= 1;
+            }
+        }
+    }
+
+    _wuLine(endpoints, color) {
+        const idealLine = new Line(endpoints.start, endpoints.end);
+        if (idealLine.angleToXAxis % 45 === 0) {
+            // значит, линия горизонтальная, вертикальная или диагональная
+            this._ddaLine(endpoints, drawPointCallback, color);
+            return;
+        }
+
+        if (endpoints.start.x > endpoints.end.x) {
+            this._swapEndpoints(endpoints);
+        }
+        const [x_start, y_start, x_end, y_end] = this._mapEndpoints(endpoints);
+
+        const deltaX_raw = Math.abs(x_end - x_start);
+        const deltaY_raw = Math.abs(y_end - y_start);
+
+        const swapVariables = Math.abs(deltaY_raw / deltaX_raw) > 1;
+        const variableInfo = this._getDependentAndIndependentVariableInfo(endpoints, swapVariables);
+
+        let currIndependentVariableValue = variableInfo.independentStart;
+        let currDependentVariableValue = variableInfo.dependentStart;
+        let error = 0;
+        const deltaErr = variableInfo.deltaDependent / variableInfo.deltaIndependent;
+        for (
+            ;
+            currIndependentVariableValue != variableInfo.independentEnd;
+            currIndependentVariableValue += variableInfo.independentStep
+        ) {
+            const x = swapVariables ? currDependentVariableValue : currIndependentVariableValue;
+            const y = swapVariables ? currIndependentVariableValue : currDependentVariableValue;
+            const firstPointToDraw = new Point(x, y);
+            const secondPointToDraw = new Point(
+                swapVariables ? x + variableInfo.dependentStep : x,
+                swapVariables ? y : y + variableInfo.dependentStep
+            );
+            const intensity1 = Math.max(0, 1 - idealLine.distanceToPoint(firstPointToDraw));
+            const intensity2 = 1 - intensity1;
+            this._drawPoint(firstPointToDraw.x, firstPointToDraw.y, {
+                ...color,
+                opacity: intensity1
+            });
+            this._drawPoint(secondPointToDraw.x, secondPointToDraw.y, {
+                ...color,
+                opacity: intensity2
+            })
+
+            error += deltaErr;
+            // порог значения ошибки 1 нужен, так как в этом случае переход к следующему значению
+            // зависимой переменной должен осуществляться после того, как значение выражения
+            // currDependentVariableValue + error выходит за пределы следующего значения зависимой
+            // переменной (т.к. алгоритм рисует блоками высотой 2 пикселя)
+            if (error >= 1) {
+                currDependentVariableValue += variableInfo.dependentStep;
+                error -= 1;
+            }
+        }
+    }
+
+    enterDdaDrawingMode() {
+        this._enterDrawingMode(2, this._exitDdaDrawingMode.bind(this));
+    }
+
+    _exitDdaDrawingMode(endpoints) {
+        this._ddaLine({ start: endpoints[0], end: endpoints[1] });
+    }
+
+    enterBresenhamDrawingMode() {
+        this._enterDrawingMode(2, this._exitBresenhamDrawingMode.bind(this));
+    }
+
+    _exitBresenhamDrawingMode(endpoints) {
+        this._bresenhamsLine({ start: endpoints[0], end: endpoints[1] });
+    }
+
+    enterWuDrawingMode() {
+        this._enterDrawingMode(2, this._exitWuDrawingMode.bind(this));
+    }
+
+    _exitWuDrawingMode(endpoints) {
+        this._wuLine({ start: endpoints[0], end: endpoints[1] });
     }
 }
 
@@ -355,209 +526,15 @@ const Point = geometryModule.Point;
 const Vector = geometryModule.Vector;
 const Line = geometryModule.Line;
 
-const lab1Module = (function() {
-    function mapEndpoints(endpoints) {
-        return [endpoints.start.x, endpoints.start.y, endpoints.end.x, endpoints.end.y].map(Math.round);
-    }
-
-    function ddaLine(endpoints, drawPointCallback, color) {
-        const [x_start, y_start, x_end, y_end] = mapEndpoints(endpoints);
-
-        const rasterizationSteps = Math.max(
-            Math.abs(x_end - x_start),
-            Math.abs(y_end - y_start)
-        ) + 1;
-        const xGrowth = (x_end - x_start) / rasterizationSteps;
-        const yGrowth = (y_end - y_start) / rasterizationSteps;
-        
-        let currX = x_start;
-        let currY = y_start;
-        for (let stepsElapsed = 1; stepsElapsed <= rasterizationSteps; stepsElapsed++) {
-            drawPointCallback(Math.round(currX), Math.round(currY), color);
-
-            currX += xGrowth;
-            currY += yGrowth;
-        }
-    }
-
-    function swapEndpoints(endpoints) {
-        const startEndpointSnapshot = new Point(endpoints.start.x, endpoints.start.y);
-        endpoints.start = new Point(endpoints.end.x, endpoints.end.y);
-        endpoints.end = startEndpointSnapshot;
-    }
-    function getDependentAndIndependentVariableInfo(endpoints, swapVariables) {
-        const independentStart = swapVariables ? endpoints.start.y : endpoints.start.x;
-        const independentEnd = swapVariables ? endpoints.end.y : endpoints.end.x;
-        const deltaIndependent = Math.abs(independentEnd - independentStart);
-
-        const dependentStart = swapVariables ? endpoints.start.x : endpoints.start.y;
-        const dependentEnd = swapVariables ? endpoints.end.x : endpoints.end.y;
-        const deltaDependent = Math.abs(dependentEnd - dependentStart);
-
-        const deltaErr = deltaDependent / deltaIndependent;
-        return {
-            independentStart,
-            independentEnd,
-            // возможность использовать положительный либо отрицательный шаг независимой переменной
-            // позволяет алгоритму Брезенхейма рисовать отрезки, направляющие векторы которых проходят
-            // в октантах, являющимися отражениями уже покрываемых алгоритмом октантов относительно
-            // оси зависимой переменной: для октанта 2 это октант 3, для октанта 6 это октант 7.
-            independentStep: (independentEnd - independentStart > 0) ? 1 : -1,
-            deltaIndependent,
-            
-            dependentStart,
-            dependentEnd,
-            // возможность использовать положительный либо отрицательный шаг зависимой переменной
-            // позволяет алгоритму Брезенхейма рисовать отрезки, направляющие векторы которых проходят
-            // в октантах, являющимися отражениями уже покрываемых алгоритмом октантов относительно
-            // оси независимой переменной: для октанта 1 это октант 8, для октанта 5 это октант 4.
-            dependentStep: (dependentEnd - dependentStart > 0) ? 1 : -1,
-            deltaDependent,
-
-            deltaErr
-        }
-    }
-    function bresenhamsLine(endpoints, drawPointCallback, color) {
-        // алгоритм Брезенхема по умолчанию успешно рисует отрезки, направляющие вектора которых проходят в 1 октанте.
-        // возможность перестановки точек начала и конца отрезка позволяет рисовать отрезки, направляющие вектора
-        // которых проходят в 5 октанте.
-        if (endpoints.start.x > endpoints.end.x) {
-            swapEndpoints(endpoints);
-        }
-        const [x_start, y_start, x_end, y_end] = mapEndpoints(endpoints);
-
-        const deltaX_raw = Math.abs(x_end - x_start);
-        const deltaY_raw = Math.abs(y_end - y_start);
-
-        // если абсолютное значение тангенса угла наклона прямой к оси X больше 1,
-        // то следует поменять переменные местами: сделать Y независимой переменной,
-        // а X - зависимой. возможность менять переменные местами позволяет алгоритму
-        // рисовать отрезки, направляющие векторы которых проходят в 2 и 6 октантах.
-        const swapVariables = Math.abs(deltaY_raw / deltaX_raw) > 1;
-        const variableInfo = getDependentAndIndependentVariableInfo(endpoints, swapVariables);
-
-        let currIndependentVariableValue = variableInfo.independentStart;
-        let currDependentVariableValue = variableInfo.dependentStart;
-        let error = 0;
-        const deltaErr = variableInfo.deltaDependent / variableInfo.deltaIndependent;
-        for (
-            ;
-            currIndependentVariableValue != variableInfo.independentEnd;
-            currIndependentVariableValue += variableInfo.independentStep
-        ) {
-            const x = swapVariables ? currDependentVariableValue : currIndependentVariableValue;
-            const y = swapVariables ? currIndependentVariableValue : currDependentVariableValue;
-            drawPointCallback(x, y, color);
-
-            error += deltaErr;
-            if (error >= 0.5) {
-                currDependentVariableValue += variableInfo.dependentStep;
-                error -= 1;
-            }
-        }
-    }
-
-    function wuLine(endpoints, drawPointCallback, color) {
-        const idealLine = new Line(endpoints.start, endpoints.end);
-        if (idealLine.angleToXAxis % 45 === 0) {
-            // значит, линия горизонтальная, вертикальная или диагональная
-            ddaLine(endpoints, drawPointCallback, color);
-            return;
-        }
-
-        if (endpoints.start.x > endpoints.end.x) {
-            swapEndpoints(endpoints);
-        }
-        const [x_start, y_start, x_end, y_end] = mapEndpoints(endpoints);
-
-        const deltaX_raw = Math.abs(x_end - x_start);
-        const deltaY_raw = Math.abs(y_end - y_start);
-
-        const swapVariables = Math.abs(deltaY_raw / deltaX_raw) > 1;
-        const variableInfo = getDependentAndIndependentVariableInfo(endpoints, swapVariables);
-
-        let currIndependentVariableValue = variableInfo.independentStart;
-        let currDependentVariableValue = variableInfo.dependentStart;
-        let error = 0;
-        const deltaErr = variableInfo.deltaDependent / variableInfo.deltaIndependent;
-        for (
-            ;
-            currIndependentVariableValue != variableInfo.independentEnd;
-            currIndependentVariableValue += variableInfo.independentStep
-        ) {
-            const x = swapVariables ? currDependentVariableValue : currIndependentVariableValue;
-            const y = swapVariables ? currIndependentVariableValue : currDependentVariableValue;
-            const firstPointToDraw = new Point(x, y);
-            const secondPointToDraw = new Point(
-                swapVariables ? x + variableInfo.dependentStep : x,
-                swapVariables ? y : y + variableInfo.dependentStep
-            );
-            const intensity1 = Math.max(0, 1 - idealLine.distanceToPoint(firstPointToDraw));
-            const intensity2 = 1 - intensity1;
-            drawPointCallback(firstPointToDraw.x, firstPointToDraw.y, {
-                ...color,
-                opacity: intensity1
-            });
-            drawPointCallback(secondPointToDraw.x, secondPointToDraw.y, {
-                ...color,
-                opacity: intensity2
-            })
-
-            error += deltaErr;
-            // порог значения ошибки 1 нужен, так как в этом случае переход к следующему значению
-            // зависимой переменной должен осуществляться после того, как значение выражения
-            // currDependentVariableValue + error выходит за пределы следующего значения зависимой
-            // переменной (т.к. алгоритм рисует блоками высотой 2 пикселя)
-            if (error >= 1) {
-                currDependentVariableValue += variableInfo.dependentStep;
-                error -= 1;
-            }
-        }
-    }
-
-    return {
-        ddaLine,
-        bresenhamsLine,
-        wuLine
-    }
-})();
-
 ///////////////////////////////////////////
 ///////////////////////////////////////////
 ///////////////////////////////////////////
 
 const canvas = new CanvasController();
-const drawPointCallback = canvas.drawPoint.bind(canvas);
-
-const ddaFinishedDrawingCallback = () => {
-    const endpoints = canvas.getSelectedPoints();
-    lab1Module.ddaLine({ start: endpoints[0], end: endpoints[1] }, drawPointCallback);
-    canvas._canvasHtmlElem.removeEventListener('drawing-finished', ddaFinishedDrawingCallback);
-}
-const bresenhamsFinishedDrawingCallback = () => {
-    const endpoints = canvas.getSelectedPoints();
-    lab1Module.bresenhamsLine({ start: endpoints[0], end: endpoints[1] }, drawPointCallback);
-    canvas._canvasHtmlElem.removeEventListener('drawing-finished', bresenhamsFinishedDrawingCallback);
-}
-const wuFinishedDrawingCallback = () => {
-    const endpoints = canvas.getSelectedPoints();
-    lab1Module.wuLine({ start: endpoints[0], end: endpoints[1] }, drawPointCallback);
-    canvas._canvasHtmlElem.removeEventListener('drawing-finished', wuFinishedDrawingCallback);
-}
-
 const toolbar = new ToolbarController([
     new Section('Отрезки', [
-        new Button('ЦДА', () => {
-            canvas.enterDrawingMode(2);
-            canvas._canvasHtmlElem.addEventListener('drawing-finished', ddaFinishedDrawingCallback);
-        }),
-        new Button('Брезенхейм', () => {
-            canvas.enterDrawingMode(2);
-            canvas._canvasHtmlElem.addEventListener('drawing-finished', bresenhamsFinishedDrawingCallback);
-        }),
-        new Button('Ву', () => {
-            canvas.enterDrawingMode(2);
-            canvas._canvasHtmlElem.addEventListener('drawing-finished', wuFinishedDrawingCallback);
-        })
+        new Button('ЦДА', canvas.enterDdaDrawingMode.bind(canvas)),
+        new Button('Брезенхейм', canvas.enterBresenhamDrawingMode.bind(canvas)),
+        new Button('Ву', canvas.enterWuDrawingMode.bind(canvas))
     ])
 ]);
