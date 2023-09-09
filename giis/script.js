@@ -2,6 +2,8 @@ const canvasModule = (function () {
     class CanvasModel {
         _lineSegments = [];
         _ellipses = [];
+        _parabolas = [];
+        _hyperbolas = [];
 
         addLineSegment(lineSegment) {
             this._lineSegments.push(new LineSegment(lineSegment.startpoint, lineSegment.endpoint));
@@ -17,6 +19,22 @@ const canvasModule = (function () {
         
         get ellipses() {
             return [...this._ellipses];
+        }
+
+        addParabola(parabola) {
+            this._parabolas.push(new Parabola(parabola.vertex, parabola.p, parabola.isHorizontal));
+        }
+
+        get parabolas() {
+            return [...this._parabolas];
+        }
+
+        addHyperbola(hyperbola) {
+            this._hyperbolas.push(new Hyperbola(hyperbola.origin, hyperbola.a, hyperbola.b, hyperbola.isHorizontal));
+        }
+
+        get hyperbolas() {
+            return [...this._hyperbolas];
         }
     }
 
@@ -358,37 +376,152 @@ const canvasModule = (function () {
         ///////////////// lab2 /////////////////
         ////////////////////////////////////////
 
+        _ellipsePointError(x, y, a, b) {
+            return Math.abs((x**2 / a**2) + (y**2 / b**2) - 1);
+        }
+
         ellipse(origin, a, b) {
             const points = [];
 
             let currX = 0;
             let currY = b;
-            const Ylimit = 0;
-            let currError = a**2 + b**2 - 2*(a**2)*b;
-            points.push(new Point(currX + origin.x, currY + origin.y));
             do {
-                const gamma = 2*currError + 2*currY*(a**2) - 1;
-                const gammaDot = 2*currError - 2*currX*(b**2) - 1;
-                const xError = (b**2)*(2*currX + 1);
-                const yError = (a**2)*(1 - 2*currY);
-
-                if (currError > 0 && gammaDot > 0) {
-                    // вертикальный шаг
-                    currY -= 1;
-                    currError += yError;
-                } else if (currError < 0 && gamma <= 0) {
-                    // горизонтальный шаг
-                    currX += 1;
-                    currError += xError;
-                } else {
-                    // диагональный шаг
-                    currX += 1;
-                    currY -= 1;
-                    currError += (xError + yError);
-                }
-
                 points.push(new Point(currX + origin.x, currY + origin.y));
-            } while (currY !== Ylimit);
+
+                const horizontalPixelError = this._ellipsePointError(currX + 1, currY, a, b);
+                const verticalPixelError = this._ellipsePointError(currX, currY - 1, a, b);
+                const diagonalPixelError = this._ellipsePointError(currX + 1, currY - 1, a, b);
+                const minimalError = Math.min(horizontalPixelError, verticalPixelError, diagonalPixelError);
+
+                if (minimalError === horizontalPixelError) {
+                    currX++;
+                } else if (minimalError === verticalPixelError) {
+                    currY--;
+                } else {
+                    currX++;
+                    currY--;
+                }
+            } while (currY > 0);
+
+            return points;
+        }
+
+        _horizontalParabolaPointError(x, y, p) {
+            return Math.abs((y**2 / x) - 2*p);
+        }
+
+        horizontalParabola(vertex, p, Xlimit, Ylimit) {
+            const points = [];
+
+            let currX = 0;
+            let currY = 0;
+            do {
+                points.push(new Point(currX + vertex.x, currY + vertex.y));
+
+                const horizontalPixelError = this._horizontalParabolaPointError(currX + 1, currY, p);
+                const verticalPixelError = this._horizontalParabolaPointError(currX, currY + 1, p);
+                const diagonalPixelError = this._horizontalParabolaPointError(currX + 1, currY + 1, p);
+                const minimalError = Math.min(horizontalPixelError, verticalPixelError, diagonalPixelError);
+
+                if (minimalError === horizontalPixelError) {
+                    currX++;
+                } else if (minimalError === verticalPixelError) {
+                    currY++;
+                } else {
+                    currX++;
+                    currY++;
+                }
+            } while(currX < Xlimit && currY < Ylimit);
+
+            return points;
+        }
+
+        _verticalParabolaPointError(x, y, p) {
+            return Math.abs((x**2 / y) - 2*p);
+        }
+
+        verticalParabola(vertex, p, Xlimit, Ylimit) {
+            const points = [];
+
+            let currX = 0;
+            let currY = 0;
+            do {
+                points.push(new Point(currX + vertex.x, currY + vertex.y));
+
+                const horizontalPixelError = this._verticalParabolaPointError(currX + 1, currY, p);
+                const verticalPixelError = this._verticalParabolaPointError(currX, currY + 1, p);
+                const diagonalPixelError = this._verticalParabolaPointError(currX + 1, currY + 1, p);
+                const minimalError = Math.min(horizontalPixelError, verticalPixelError, diagonalPixelError);
+
+                if (minimalError === horizontalPixelError) {
+                    currX++;
+                } else if (minimalError === verticalPixelError) {
+                    currY++;
+                } else {
+                    currX++;
+                    currY++;
+                }
+            } while(currX < Xlimit && currY < Ylimit);
+
+            return points;
+        }
+
+        _horizontalHyperbolaPointError(x, y, a, b) {
+            return Math.abs((x**2 / a**2) - (y**2 / b**2) - 1);
+        }
+
+        horizontalHyperbola(origin, a, b, Xlimit, Ylimit) {
+            const points = [];
+
+            let currX = a;
+            let currY = 0;
+            do {
+                points.push(new Point(currX + origin.x, currY + origin.y));
+
+                const horizontalPixelError = this._horizontalHyperbolaPointError(currX + 1, currY, a, b);
+                const verticalPixelError = this._horizontalHyperbolaPointError(currX, currY + 1, a, b);
+                const diagonalPixelError = this._horizontalHyperbolaPointError(currX + 1, currY + 1, a, b);
+                const minimalError = Math.min(horizontalPixelError, verticalPixelError, diagonalPixelError);
+
+                if (minimalError === horizontalPixelError) {
+                    currX++;
+                } else if (minimalError === verticalPixelError) {
+                    currY++;
+                } else {
+                    currX++;
+                    currY++;
+                }
+            } while(currX < Xlimit && currY < Ylimit);
+
+            return points;
+        }
+
+        _verticalHyperbolaPointError(x, y, a, b) {
+            return Math.abs((y**2 / b**2) - (x**2 / a**2) - 1);
+        }
+
+        verticalHyperbola(origin, a, b, Xlimit, Ylimit) {
+            const points = [];
+
+            let currX = 0;
+            let currY = b;
+            do {
+                points.push(new Point(currX + origin.x, currY + origin.y));
+
+                const horizontalPixelError = this._verticalHyperbolaPointError(currX + 1, currY, a, b);
+                const verticalPixelError = this._verticalHyperbolaPointError(currX, currY + 1, a, b);
+                const diagonalPixelError = this._verticalHyperbolaPointError(currX + 1, currY + 1, a, b);
+                const minimalError = Math.min(horizontalPixelError, verticalPixelError, diagonalPixelError);
+
+                if (minimalError === horizontalPixelError) {
+                    currX++;
+                } else if (minimalError === verticalPixelError) {
+                    currY++;
+                } else {
+                    currX++;
+                    currY++;
+                }
+            } while(currX < Xlimit && currY < Ylimit);
 
             return points;
         }
@@ -535,6 +668,104 @@ const canvasModule = (function () {
             ]);
 
             this._model.addEllipse(new Ellipse(origin, a, b));
+        }
+
+        enterHorizontalParabolaDrawingMode() {
+            this._enterPointSelection(1, this._exitHorizontalParabolaDrawingMode.bind(this));
+        }
+
+        _exitHorizontalParabolaDrawingMode(selectedPoints) {
+            const vertex = new Point(selectedPoints[0].x, selectedPoints[0].y);
+            const p = +prompt('Введите значение "p"');
+            const xLimit = this._view.width / 2 - vertex.x;
+            const yLimit = this._view.height / 2 - vertex.y;
+
+            const parabolaAxis = new Line(vertex, new Point(vertex.x + 1, vertex.y));
+            const parabolaUpperHalfPoints = this._controller.horizontalParabola(vertex, p, xLimit, yLimit);
+            const parabolaLowerHalfPoints = parabolaUpperHalfPoints.map(point => point.reflectAlongLine(parabolaAxis));
+            this._view.drawPoints([
+                ...parabolaUpperHalfPoints,
+                ...parabolaLowerHalfPoints
+            ]);
+
+            this._model.addParabola(new Parabola(vertex, p, true));
+        }
+
+        enterVerticalParabolaDrawingMode() {
+            this._enterPointSelection(1, this._exitVerticalParabolaDrawingMode.bind(this));
+        }
+
+        _exitVerticalParabolaDrawingMode(selectedPoints) {
+            const vertex = new Point(selectedPoints[0].x, selectedPoints[0].y);
+            const p = +prompt('Введите значение "p"');
+            const xLimit = this._view.width / 2 - vertex.x;
+            const yLimit = this._view.height / 2 - vertex.y;
+
+            const parabolaAxis = new Line(vertex, new Point(vertex.x, vertex.y + 1));
+            const parabolaRightHalfPoints = this._controller.verticalParabola(vertex, p, xLimit, yLimit);
+            const parabolaLeftHalfPoints = parabolaRightHalfPoints.map(point => point.reflectAlongLine(parabolaAxis));
+            this._view.drawPoints([
+                ...parabolaRightHalfPoints,
+                ...parabolaLeftHalfPoints
+            ]);
+
+            this._model.addParabola(new Parabola(vertex, p, false));
+        }
+
+        enterHorizontalHyperbolaDrawingMode() {
+            this._enterPointSelection(1, this._exitHorizontalHyperbolaDrawingMode.bind(this));
+        }
+
+        _exitHorizontalHyperbolaDrawingMode(selectedPoints) {
+            const origin = new Point(selectedPoints[0].x, selectedPoints[0].y);
+            const a = +prompt('Введите значение "a"');
+            const b = +prompt('Введите значение "b"');
+            const Xlimit = this._view.width;
+            const Ylimit = this._view.height;
+
+            const horizontalHyperbolaAxis = new Line(origin, new Point(origin.x + 1, origin.y));
+            const verticalHyperbolaAxis = new Line(origin, new Point(origin.x, origin.y + 1));
+            const hyperbolaPoints_quadrant1 = this._controller.horizontalHyperbola(origin, a, b, Xlimit, Ylimit);
+            const hyperbolaPoints_quadrant2 = hyperbolaPoints_quadrant1.map(point => point.reflectAlongLine(verticalHyperbolaAxis));
+            const hyperbolaPoints_quadrant3 = hyperbolaPoints_quadrant2.map(point => point.reflectAlongLine(horizontalHyperbolaAxis));
+            const hyperbolaPoints_quadrant4 = hyperbolaPoints_quadrant1.map(point => point.reflectAlongLine(horizontalHyperbolaAxis));
+
+            this._view.drawPoints([
+                ...hyperbolaPoints_quadrant1,
+                ...hyperbolaPoints_quadrant2,
+                ...hyperbolaPoints_quadrant3,
+                ...hyperbolaPoints_quadrant4
+            ]);
+
+            this._model.addHyperbola(new Hyperbola(origin, a, b, true));
+        }
+
+        enterVerticalHyperbolaDrawingMode() {
+            this._enterPointSelection(1, this._exitVerticalHyperbolaDrawingMode.bind(this));
+        }
+
+        _exitVerticalHyperbolaDrawingMode(selectedPoints) {
+            const origin = new Point(selectedPoints[0].x, selectedPoints[0].y);
+            const a = +prompt('Введите значение "a"');
+            const b = +prompt('Введите значение "b"');
+            const Xlimit = this._view.width;
+            const Ylimit = this._view.height;
+
+            const horizontalHyperbolaAxis = new Line(origin, new Point(origin.x + 1, origin.y));
+            const verticalHyperbolaAxis = new Line(origin, new Point(origin.x, origin.y + 1));
+            const hyperbolaPoints_quadrant1 = this._controller.verticalHyperbola(origin, a, b, Xlimit, Ylimit);
+            const hyperbolaPoints_quadrant2 = hyperbolaPoints_quadrant1.map(point => point.reflectAlongLine(verticalHyperbolaAxis));
+            const hyperbolaPoints_quadrant3 = hyperbolaPoints_quadrant2.map(point => point.reflectAlongLine(horizontalHyperbolaAxis));
+            const hyperbolaPoints_quadrant4 = hyperbolaPoints_quadrant1.map(point => point.reflectAlongLine(horizontalHyperbolaAxis));
+
+            this._view.drawPoints([
+                ...hyperbolaPoints_quadrant1,
+                ...hyperbolaPoints_quadrant2,
+                ...hyperbolaPoints_quadrant3,
+                ...hyperbolaPoints_quadrant4
+            ]);
+
+            this._model.addHyperbola(new Hyperbola(origin, a, b, false));
         }
     }
 
@@ -779,16 +1010,53 @@ const geometryModule = (function () {
     
     class Ellipse {
         constructor(origin, a, b) {
-            this._origin = new Point(origin.x, origin.y);
+            this._origin = new Point(origin.x, origin.y, origin.z);
             this._a = a;
             this._b = b;
         }
 
-        get origin() { return this._origin; }
+        get origin() {
+            return new Point(this._origin.x, this._origin.y, this._origin.z); 
+        }
 
         get a() { return this._a; }
 
         get b() { return this._b; }
+    }
+
+    class Parabola {
+        constructor(vertex, p, isHorizontal) {
+            this._vertex = new Point(vertex.x, vertex.y, vertex.z);
+            this._p = p;
+            this._isHorizontal = isHorizontal;
+        }
+
+        get vertex() {
+            return new Point(this._vertex.x, this._vertex.y, this._vertex.z);
+        }
+
+        get p() { return this._p; }
+
+        get isHorizontal() { return this._isHorizontal; }
+    }
+    
+    class Hyperbola {
+        constructor(origin, a, b, isHorizontal) {
+            this._origin = new Point(origin.x, origin.y, origin.z);
+            this._a = a;
+            this._b = b;
+            this._isHorizontal = isHorizontal;
+        }
+
+        get origin() {
+            return new Point(this._origin.x, this._origin.y, this._origin.z); 
+        }
+
+        get a() { return this._a; }
+
+        get b() { return this._b; }
+
+        get isHorizontal() { return this._isHorizontal; }
     }
 
     return {
@@ -797,9 +1065,8 @@ const geometryModule = (function () {
         Line,
         LineSegment,
         Ellipse,
-        xAxis: new Line(new Point(0, 0, 0), new Point(1, 0, 0)),
-        yAxis: new Line(new Point(0, 0, 0), new Point(0, 1, 0)),
-        zAxis: new Line(new Point(0, 0, 0), new Point(0, 0, 1))
+        Parabola,
+        Hyperbola
     }
 })();
 const Point = geometryModule.Point;
@@ -807,6 +1074,8 @@ const Vector = geometryModule.Vector;
 const Line = geometryModule.Line;
 const LineSegment = geometryModule.LineSegment;
 const Ellipse = geometryModule.Ellipse;
+const Parabola = geometryModule.Parabola;
+const Hyperbola = geometryModule.Hyperbola;
 
 /////////////////////////////////////////
 /////////////////////////////////////////
@@ -833,6 +1102,22 @@ const toolbar = new ToolbarController([
         new Button('Эллипс', () => {
             canvas.enterEllipseDrawingMode();
             hint.setHintText('Режим рисования эллипса');
+        }),
+        new Button('Парабола (горизонтальная)', () => {
+            canvas.enterHorizontalParabolaDrawingMode();
+            hint.setHintText('Режим рисования горизонтальной параболы');
+        }),
+        new Button('Парабола (вертикальная)', () => {
+            canvas.enterVerticalParabolaDrawingMode();
+            hint.setHintText('Режим рисования вертикальной параболы');
+        }),
+        new Button('Гипербола (горизонтальная)', () => {
+            canvas.enterHorizontalHyperbolaDrawingMode();
+            hint.setHintText('Режим рисования горизонтальной гиперболы');
+        }),
+        new Button('Гипербола (вертикальная)', () => {
+            canvas.enterVerticalHyperbolaDrawingMode();
+            hint.setHintText('Режим рисования вертикальной гиперболы');
         })
     ])
 ]);
