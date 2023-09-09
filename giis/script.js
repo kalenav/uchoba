@@ -1,13 +1,22 @@
 const canvasModule = (function () {
     class CanvasModel {
         _lineSegments = [];
+        _ellipses = [];
 
         addLineSegment(lineSegment) {
-            this._lineSegments.push(lineSegment);
+            this._lineSegments.push(new LineSegment(lineSegment.startpoint, lineSegment.endpoint));
         }
 
         get lineSegments() {
             return [...this._lineSegments];
+        }
+
+        addEllipse(ellipse) {
+            this._ellipses.push(new Ellipse(ellipse.origin, ellipse.a, ellipse.b));
+        }
+        
+        get ellipses() {
+            return [...this._ellipses];
         }
     }
 
@@ -143,7 +152,7 @@ const canvasModule = (function () {
                 opacity * 255
             ];
 
-            this._ctx.putImageData(this._singlePixelImageData, this._origin.x + x, this._origin.y - y);
+            this._ctx.putImageData(this._singlePixelImageData, Math.round(this._origin.x + x), Math.round(this._origin.y - y));
         }
 
         get width() { return this._width; }
@@ -152,6 +161,9 @@ const canvasModule = (function () {
     }
 
     class CanvasController {
+        ////////////////////////////////////////
+        ///////////////// lab1 /////////////////
+        ////////////////////////////////////////
         _mapEndpoints(endpoints) {
             return [endpoints.start.x, endpoints.start.y, endpoints.end.x, endpoints.end.y].map(Math.round);
         }
@@ -328,6 +340,45 @@ const canvasModule = (function () {
 
             return points;
         }
+
+        ////////////////////////////////////////
+        ///////////////// lab2 /////////////////
+        ////////////////////////////////////////
+
+        ellipse(origin, a, b) {
+            const points = [];
+
+            let currX = 0;
+            let currY = b;
+            const Ylimit = 0;
+            let currError = 2 - 2 * b;
+            points.push(new Point(currX + origin.x, currY + origin.y));
+            do {
+                const gamma = 2*currError + 2*currY*(a**2) - 1;
+                const gammaDot = 2*currError - 2*currX*(b**2) - 1;
+                const xError = (b**2)*(2*currX + 1);
+                const yError = (a**2)*(1 - 2*currY);
+
+                if (currError > 0 && gammaDot > 0) {
+                    // вертикальный шаг
+                    currY -= 1;
+                    currError += yError;
+                } else if (currError < 0 && gamma <= 0) {
+                    // горизонтальный шаг
+                    currX += 1;
+                    currError += xError;
+                } else {
+                    // диагональный шаг
+                    currX += 1;
+                    currY -= 1;
+                    currError += (xError + yError);
+                }
+
+                points.push(new Point(currX + origin.x, currY + origin.y));
+            } while (currY !== Ylimit);
+
+            return points;
+        }
     }
 
     class Canvas {
@@ -380,7 +431,7 @@ const canvasModule = (function () {
             this._canvasHtmlElem = document.getElementById(canvasHtmlElemId);
         }
 
-        _enterDrawingMode(pointsRequired, exitDrawingModeCallback) {
+        _enterPointSelection(pointsRequired, exitPointSelectionCallback) {
             const selectedPoints = [];
     
             const clickListener = (event) => {
@@ -389,7 +440,7 @@ const canvasModule = (function () {
                 selectedPoints.push(new Point(x, y));
                 if (selectedPoints.length === pointsRequired) {
                     this._canvasHtmlElem.removeEventListener('click', clickListener);
-                    exitDrawingModeCallback(selectedPoints);
+                    exitPointSelectionCallback(selectedPoints);
                     document.dispatchEvent(this._drawingFinishedEvent);
                 }
             };
@@ -397,7 +448,7 @@ const canvasModule = (function () {
         }
 
         enterDdaDrawingMode() {
-            this._enterDrawingMode(2, this._exitDdaDrawingMode.bind(this));
+            this._enterPointSelection(2, this._exitDdaDrawingMode.bind(this));
         }
 
         _exitDdaDrawingMode(selectedPoints) {
@@ -414,7 +465,7 @@ const canvasModule = (function () {
         }
 
         enterBresenhamDrawingMode() {
-            this._enterDrawingMode(2, this._exitBresenhamDrawingMode.bind(this));
+            this._enterPointSelection(2, this._exitBresenhamDrawingMode.bind(this));
         }
 
         _exitBresenhamDrawingMode(selectedPoints) {
@@ -431,7 +482,7 @@ const canvasModule = (function () {
         }
 
         enterWuDrawingMode() {
-            this._enterDrawingMode(2, this._exitWuDrawingMode.bind(this));
+            this._enterPointSelection(2, this._exitWuDrawingMode.bind(this));
         }
 
         _exitWuDrawingMode(selectedPoints) {
@@ -445,6 +496,32 @@ const canvasModule = (function () {
             pointsToDraw.forEach(point => this._view.drawPoint(point.x, point.y, point.opacity));
 
             this._model.addLineSegment(new LineSegment(startPoint, endPoint));
+        }
+
+        enterEllipseDrawingMode() {
+            this._enterPointSelection(1, this._exitEllipseDrawingMode.bind(this));
+        }
+
+        _exitEllipseDrawingMode(selectedPoints) {
+            const origin = new Point(selectedPoints[0].x, selectedPoints[0].y);
+            const a = +prompt('Введите значение "a"');
+            const b = +prompt('Введите значение "b"');
+
+            const horizontalEllipseAxis = new Line(origin, new Point(origin.x, origin.y + b));
+            const verticalEllipseAxis = new Line(origin, new Point(origin.x + a, origin.y));
+            const pointsToDraw_quadrant1 = this._controller.ellipse(origin, a, b);
+            const pointsToDraw_quadrant2 = pointsToDraw_quadrant1.map(point => point.reflectAlongLine(verticalEllipseAxis));
+            const pointsToDraw_quadrant3 = pointsToDraw_quadrant2.map(point => point.reflectAlongLine(horizontalEllipseAxis));
+            const pointsToDraw_quadrant4 = pointsToDraw_quadrant1.map(point => point.reflectAlongLine(horizontalEllipseAxis));
+
+            [
+                ...pointsToDraw_quadrant1,
+                ...pointsToDraw_quadrant2,
+                ...pointsToDraw_quadrant3,
+                ...pointsToDraw_quadrant4
+            ].forEach(point => this._view.drawPoint(point.x, point.y));
+
+            this._model.addEllipse(new Ellipse(origin, a, b));
         }
     }
 
@@ -572,6 +649,22 @@ const geometryModule = (function () {
         distanceToPoint(point) {
             return new Vector(this, point).modulus;
         }
+
+        moveAlongVector(vector, scale = 1) {
+            return new Point(
+                this._x + vector.x * scale,
+                this._y + vector.y * scale,
+                this._z + vector.z * scale
+            );
+        }
+
+        reflectAroundPoint(point) {
+            return this.moveAlongVector(new Vector(this, point), 2);
+        }
+
+        reflectAlongLine(line) {
+            return this.reflectAroundPoint(line.closestOwnPointToPoint(this));
+        }
     }
 
     class Vector {
@@ -579,7 +672,6 @@ const geometryModule = (function () {
             this._x = endpoint.x - startpoint.x;
             this._y = endpoint.y - startpoint.y;
             this._z = endpoint.z - startpoint.z;
-            this._w = endpoint.w - startpoint.w;
         }
 
         get x() {
@@ -612,7 +704,7 @@ const geometryModule = (function () {
         }
 
         dotProduct(vector) {
-            return (this._x * vector.x + this._y * vector.y + this._z * vector._z + this._w * vector.w);
+            return (this._x * vector.x + this._y * vector.y + this._z * vector._z);
         }
 
         crossProduct(vector) {
@@ -620,6 +712,17 @@ const geometryModule = (function () {
                 new Point(this._y * vector.z, this._z * vector.x, this._x * vector.y),
                 new Point(this._z * vector.y, this._z * vector.y, this._y * vector.x)
             )
+        }
+
+        toNormalized() {
+            return new Vector(
+                new Point(0, 0, 0),
+                new Point(
+                    this._x / this.modulus,
+                    this._y / this.modulus,
+                    this._z / this.modulus
+                )
+            );
         }
     }
 
@@ -637,6 +740,17 @@ const geometryModule = (function () {
             const helperVector = new Vector(this._point, point);
             return helperVector.crossProduct(this._directionVector).modulus / this._directionVector.modulus;
         }
+
+        closestOwnPointToPoint(point) {
+            const normalizedDirectionVector = this._directionVector.toNormalized();
+            const helperVector = new Vector(this._point, point);
+            const dotProduct = helperVector.dotProduct(normalizedDirectionVector);
+            return new Point(
+                this._point.x + normalizedDirectionVector.x * dotProduct,
+                this._point.y + normalizedDirectionVector.y * dotProduct,
+                this._point.z + normalizedDirectionVector.z * dotProduct
+            )
+        }
     }
 
     class LineSegment {
@@ -644,19 +758,42 @@ const geometryModule = (function () {
             this._startpoint = new Point(startpoint.x, startpoint.y, startpoint.z);
             this._endpoint = new Point(endpoint.x, endpoint.y, endpoint.z);
         }
+
+        get startpoint() { return this._startpoint; }
+
+        get endpoint() { return this._endpoint; }
+    }
+    
+    class Ellipse {
+        constructor(origin, a, b) {
+            this._origin = new Point(origin.x, origin.y);
+            this._a = a;
+            this._b = b;
+        }
+
+        get origin() { return this._origin; }
+
+        get a() { return this._a; }
+
+        get b() { return this._b; }
     }
 
     return {
         Point,
         Vector,
         Line,
-        LineSegment
+        LineSegment,
+        Ellipse,
+        xAxis: new Line(new Point(0, 0, 0), new Point(1, 0, 0)),
+        yAxis: new Line(new Point(0, 0, 0), new Point(0, 1, 0)),
+        zAxis: new Line(new Point(0, 0, 0), new Point(0, 0, 1))
     }
 })();
 const Point = geometryModule.Point;
 const Vector = geometryModule.Vector;
 const Line = geometryModule.Line;
 const LineSegment = geometryModule.LineSegment;
+const Ellipse = geometryModule.Ellipse;
 
 /////////////////////////////////////////
 /////////////////////////////////////////
@@ -678,9 +815,15 @@ const toolbar = new ToolbarController([
             canvas.enterWuDrawingMode();
             hint.setHintText('Режим рисования отрезка (алгоритм Ву)');
         })
+    ]),
+    new Section('Линии второго порядка', [
+        new Button('Окружность', () => {
+            canvas.enterEllipseDrawingMode();
+            hint.setHintText('Режим рисования окружности');
+        })
     ])
 ]);
 
 document.addEventListener('drawing-finished', () => {
     hint.resetHint();
-})
+});
