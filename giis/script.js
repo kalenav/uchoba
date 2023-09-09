@@ -164,6 +164,7 @@ const canvasModule = (function () {
         ////////////////////////////////////////
         ///////////////// lab1 /////////////////
         ////////////////////////////////////////
+
         _mapEndpoints(endpoints) {
             return [endpoints.start.x, endpoints.start.y, endpoints.end.x, endpoints.end.y].map(Math.round);
         }
@@ -351,7 +352,7 @@ const canvasModule = (function () {
             let currX = 0;
             let currY = b;
             const Ylimit = 0;
-            let currError = 2 - 2 * b;
+            let currError = a**2 + b**2 - 2*(a**2)*b;
             points.push(new Point(currX + origin.x, currY + origin.y));
             do {
                 const gamma = 2*currError + 2*currY*(a**2) - 1;
@@ -817,9 +818,9 @@ const toolbar = new ToolbarController([
         })
     ]),
     new Section('Линии второго порядка', [
-        new Button('Окружность', () => {
+        new Button('Эллипс', () => {
             canvas.enterEllipseDrawingMode();
-            hint.setHintText('Режим рисования окружности');
+            hint.setHintText('Режим рисования эллипса');
         })
     ])
 ]);
