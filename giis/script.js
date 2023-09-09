@@ -657,8 +657,8 @@ const canvasModule = (function () {
             const a = +prompt('Введите значение "a"');
             const b = +prompt('Введите значение "b"');
 
-            const horizontalEllipseAxis = new Line(origin, new Point(origin.x, origin.y + b));
-            const verticalEllipseAxis = new Line(origin, new Point(origin.x + a, origin.y));
+            const horizontalEllipseAxis = new Line(origin, new Point(origin.x + a, origin.y));
+            const verticalEllipseAxis = new Line(origin, new Point(origin.x, origin.y + b));
             const pointsToDraw_quadrant1 = this._controller.ellipse(origin, a, b);
             const pointsToDraw_quadrant2 = pointsToDraw_quadrant1.map(point => point.reflectAlongLine(verticalEllipseAxis));
             const pointsToDraw_quadrant3 = pointsToDraw_quadrant2.map(point => point.reflectAlongLine(horizontalEllipseAxis));
