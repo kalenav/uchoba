@@ -401,7 +401,7 @@ const canvasModule = (function () {
                     currX++;
                     currY--;
                 }
-            } while (currY > 0);
+            } while (currY >= 0);
 
             return points;
         }
@@ -529,6 +529,8 @@ const canvasModule = (function () {
 
     class Canvas {
         _drawingFinishedEvent = new Event('drawing-finished');
+        _debuggingModeEnabled = false;
+        _pointsToDrawQueue = [];
 
         constructor({
             width = 1000,
@@ -575,6 +577,8 @@ const canvasModule = (function () {
             this._controller = new CanvasController();
 
             this._canvasHtmlElem = document.getElementById(canvasHtmlElemId);
+
+            this._drawNextPointEventListener = this._drawNextPointEventListener.bind(this);
         }
 
         _enterPointSelection(pointsRequired, exitPointSelectionCallback) {
@@ -660,12 +664,13 @@ const canvasModule = (function () {
             const pointsToDraw_quadrant3 = pointsToDraw_quadrant2.map(point => point.reflectAlongLine(horizontalEllipseAxis));
             const pointsToDraw_quadrant4 = pointsToDraw_quadrant1.map(point => point.reflectAlongLine(horizontalEllipseAxis));
 
-            this._view.drawPoints([
+            const pointsToDraw = [
                 ...pointsToDraw_quadrant1,
                 ...pointsToDraw_quadrant2,
                 ...pointsToDraw_quadrant3,
                 ...pointsToDraw_quadrant4
-            ]);
+            ];
+            this._drawPointsOrStartDebugging(pointsToDraw);
 
             this._model.addEllipse(new Ellipse(origin, a, b));
         }
@@ -683,10 +688,11 @@ const canvasModule = (function () {
             const parabolaAxis = new Line(vertex, new Point(vertex.x + 1, vertex.y));
             const parabolaUpperHalfPoints = this._controller.horizontalParabola(vertex, p, xLimit, yLimit);
             const parabolaLowerHalfPoints = parabolaUpperHalfPoints.map(point => point.reflectAlongLine(parabolaAxis));
-            this._view.drawPoints([
+            const pointsToDraw = [
                 ...parabolaUpperHalfPoints,
                 ...parabolaLowerHalfPoints
-            ]);
+            ];
+            this._drawPointsOrStartDebugging(pointsToDraw);
 
             this._model.addParabola(new Parabola(vertex, p, true));
         }
@@ -704,10 +710,11 @@ const canvasModule = (function () {
             const parabolaAxis = new Line(vertex, new Point(vertex.x, vertex.y + 1));
             const parabolaRightHalfPoints = this._controller.verticalParabola(vertex, p, xLimit, yLimit);
             const parabolaLeftHalfPoints = parabolaRightHalfPoints.map(point => point.reflectAlongLine(parabolaAxis));
-            this._view.drawPoints([
+            const pointsToDraw = [
                 ...parabolaRightHalfPoints,
                 ...parabolaLeftHalfPoints
-            ]);
+            ];
+            this._drawPointsOrStartDebugging(pointsToDraw);
 
             this._model.addParabola(new Parabola(vertex, p, false));
         }
@@ -730,12 +737,13 @@ const canvasModule = (function () {
             const hyperbolaPoints_quadrant3 = hyperbolaPoints_quadrant2.map(point => point.reflectAlongLine(horizontalHyperbolaAxis));
             const hyperbolaPoints_quadrant4 = hyperbolaPoints_quadrant1.map(point => point.reflectAlongLine(horizontalHyperbolaAxis));
 
-            this._view.drawPoints([
+            const pointsToDraw = [
                 ...hyperbolaPoints_quadrant1,
                 ...hyperbolaPoints_quadrant2,
                 ...hyperbolaPoints_quadrant3,
                 ...hyperbolaPoints_quadrant4
-            ]);
+            ];
+            this._drawPointsOrStartDebugging(pointsToDraw);
 
             this._model.addHyperbola(new Hyperbola(origin, a, b, true));
         }
@@ -758,14 +766,60 @@ const canvasModule = (function () {
             const hyperbolaPoints_quadrant3 = hyperbolaPoints_quadrant2.map(point => point.reflectAlongLine(horizontalHyperbolaAxis));
             const hyperbolaPoints_quadrant4 = hyperbolaPoints_quadrant1.map(point => point.reflectAlongLine(horizontalHyperbolaAxis));
 
-            this._view.drawPoints([
+            const pointsToDraw = [
                 ...hyperbolaPoints_quadrant1,
                 ...hyperbolaPoints_quadrant2,
                 ...hyperbolaPoints_quadrant3,
                 ...hyperbolaPoints_quadrant4
-            ]);
+            ];
+            this._drawPointsOrStartDebugging(pointsToDraw);
 
             this._model.addHyperbola(new Hyperbola(origin, a, b, false));
+        }
+
+        toggleDebuggingMode() {
+            this._debuggingModeEnabled = !this._debuggingModeEnabled;
+            return this._debuggingModeEnabled;
+        }
+
+        _setPointsToDrawQueue(points) {
+            this._pointsToDrawQueue = [...points];
+        }
+
+        _addEnterPressEventListener() {
+            document.addEventListener('keydown', this._drawNextPointEventListener);
+        }
+
+        _drawNextPoint() {
+            const nextPoint = this._pointsToDrawQueue.shift();
+            this._view.drawPoint(nextPoint.x, nextPoint.y, nextPoint.opacity);
+        }
+
+        _drawAllRemainingPoints() {
+            while(this._pointsToDrawQueue.length > 0) {
+                this._drawNextPoint();
+            }
+        }
+
+        _drawNextPointEventListener(event) {
+            if (event.key !== 'Enter') return;
+            if (!event.shiftKey) {
+                this._drawNextPoint();
+            } else {
+                this._drawAllRemainingPoints();
+            }
+            if (this._pointsToDrawQueue.length === 0) {
+                document.removeEventListener('keydown', this._drawNextPointEventListener);
+            }
+        }
+
+        _drawPointsOrStartDebugging(pointsToDraw) {
+            if (this._debuggingModeEnabled) {
+                this._setPointsToDrawQueue(pointsToDraw);
+                this._addEnterPressEventListener();
+            } else {
+                this._view.drawPoints(pointsToDraw);
+            }
         }
     }
 
@@ -1099,6 +1153,10 @@ const toolbar = new ToolbarController([
         })
     ]),
     new Section('Линии второго порядка', [
+        new Button('*ОТЛАДОЧНЫЙ РЕЖИМ*', () => {
+            const debugging = canvas.toggleDebuggingMode();
+            alert(`Отладочный режим ${debugging ? 'включен' : 'отключен'}`);
+        }),
         new Button('Эллипс', () => {
             canvas.enterEllipseDrawingMode();
             hint.setHintText('Режим рисования эллипса');

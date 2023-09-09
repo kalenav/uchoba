@@ -27,12 +27,15 @@ body {
 }
 
 #toolbar {
+    /* bruh */
+    max-width: 1000px; 
     display: flex;
     flex-direction: row;
     margin: 0;
     padding: 0;
     background-color: lightgray;
     border: solid black 1px;
+    overflow-x: scroll;
 }
 
 .toolbar-section {
