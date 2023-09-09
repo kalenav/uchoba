@@ -15,10 +15,10 @@ body {
     align-items: center;
 }
 
-.canvas-container {
+/* .canvas-container {
     width: 1000px;
     height: 800px;
-}
+} */
 
 #canvas {
     width: 100%;
@@ -27,6 +27,8 @@ body {
 }
 
 #toolbar {
+    display: flex;
+    flex-direction: row;
     margin: 0;
     padding: 0;
     background-color: lightgray;
