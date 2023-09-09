@@ -21,6 +21,12 @@ const canvasModule = (function () {
     }
 
     class CanvasView {
+        _DEFAULT_COLOR = {
+            red: 0,
+            green: 0,
+            blue: 0
+        }
+
         constructor({
             width,
             height,
@@ -153,6 +159,12 @@ const canvasModule = (function () {
             ];
 
             this._ctx.putImageData(this._singlePixelImageData, Math.round(this._origin.x + x), Math.round(this._origin.y - y));
+        }
+
+        drawPoints(points) {
+            points.forEach(point => {
+                this.drawPoint(point.x, point.y, point.opacity ?? 1, point.color ?? this._DEFAULT_COLOR);
+            });
         }
 
         get width() { return this._width; }
@@ -460,7 +472,7 @@ const canvasModule = (function () {
                 start: startPoint,
                 end: endPoint
             });
-            pointsToDraw.forEach(point => this._view.drawPoint(point.x, point.y));
+            this._view.drawPoints(pointsToDraw);
 
             this._model.addLineSegment(new LineSegment(startPoint, endPoint));
         }
@@ -477,7 +489,7 @@ const canvasModule = (function () {
                 start: startPoint,
                 end: endPoint
             });
-            pointsToDraw.forEach(point => this._view.drawPoint(point.x, point.y));
+            this._view.drawPoints(pointsToDraw);
 
             this._model.addLineSegment(new LineSegment(startPoint, endPoint));
         }
@@ -494,7 +506,7 @@ const canvasModule = (function () {
                 start: startPoint,
                 end: endPoint
             });
-            pointsToDraw.forEach(point => this._view.drawPoint(point.x, point.y, point.opacity));
+            this._view.drawPoints(pointsToDraw);
 
             this._model.addLineSegment(new LineSegment(startPoint, endPoint));
         }
@@ -515,12 +527,12 @@ const canvasModule = (function () {
             const pointsToDraw_quadrant3 = pointsToDraw_quadrant2.map(point => point.reflectAlongLine(horizontalEllipseAxis));
             const pointsToDraw_quadrant4 = pointsToDraw_quadrant1.map(point => point.reflectAlongLine(horizontalEllipseAxis));
 
-            [
+            this._view.drawPoints([
                 ...pointsToDraw_quadrant1,
                 ...pointsToDraw_quadrant2,
                 ...pointsToDraw_quadrant3,
                 ...pointsToDraw_quadrant4
-            ].forEach(point => this._view.drawPoint(point.x, point.y));
+            ]);
 
             this._model.addEllipse(new Ellipse(origin, a, b));
         }
