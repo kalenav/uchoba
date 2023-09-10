@@ -12,10 +12,10 @@ const canvasModule = (function () {
 
         addPoints(points) {
             points.forEach(point => this.addPoint(point));
-            this._redrawCanvas();
+            this.redrawCanvas();
         }
 
-        _redrawCanvas() {
+        redrawCanvas() {
             this._view.redrawCanvas();
             this._view.drawPoints(this.points);
         }
@@ -57,7 +57,6 @@ const canvasModule = (function () {
             this._canvasHtmlElem.setAttribute('height', `${this._height}`);
 
             this._ctx = this._canvasHtmlElem.getContext('2d');
-            this._singlePixelImageData = this._ctx.createImageData(1, 1);
 
             this._drawGridlines_bool = drawGridlines;
             if (drawGridlines) {
@@ -75,24 +74,11 @@ const canvasModule = (function () {
             }
 
             this.redrawCanvas();
-            this._addScalingEventListener();
-            this._addTranslationEventListener();
         }
 
-        drawPoint(x, y, opacity = 1, color = { red: 0, green: 0, blue: 0 }) {
-            [
-                this._singlePixelImageData.data[0],
-                this._singlePixelImageData.data[1],
-                this._singlePixelImageData.data[2],
-                this._singlePixelImageData.data[3]
-            ] = [
-                color.red,
-                color.green,
-                color.blue,
-                opacity * 255
-            ];
-
-            this._ctx.putImageData(this._singlePixelImageData, Math.round(this._origin.x + x), Math.round(this._origin.y - y));
+        drawPoint(x, y, opacity = 1, color = this._DEFAULT_COLOR) {
+            this._ctx.fillStyle = `rgba(${color.red}, ${color.green}, ${color.blue}, ${opacity})`;
+            this._ctx.fillRect(this._origin.x + x, this._origin.y - y, 1, 1);
         }
 
         drawPoints(points) {
@@ -101,51 +87,26 @@ const canvasModule = (function () {
             });
         }
 
-        _addScalingEventListener() {
-            this._canvasHtmlElem.addEventListener('wheel', (event) => {
-                event.preventDefault();
-
-                const scaling = event.deltaY * -0.01;
-                if (scaling === 1 && this._currScale < this._maxScale) {
-                    this._currScale *= 2;
-                    this._scaleUp();
-                    this._updateTranslationStep();
-                }
-                if (scaling === -1 && this._currScale > this._minScale) {
-                    this._currScale /= 2;
-                    this._scaleDown();
-                    this._updateTranslationStep();
-                    if (this._currScale === 1) {
-                        this._resetTranslation();
-                    }
-                }
-            });
-        }
-
-        _addTranslationEventListener() {
-            document.addEventListener('keydown', (event) => {
-                if (event.key === 'ArrowUp') {
-                    this._shiftCanvas(0, this._currTranslationStep);
-                } else if (event.key === 'ArrowDown') {
-                    this._shiftCanvas(0, -this._currTranslationStep);
-                } else if (event.key === 'ArrowLeft') {
-                    this._shiftCanvas(this._currTranslationStep, 0);
-                } else if (event.key === 'ArrowRight') {
-                    this._shiftCanvas(-this._currTranslationStep, 0);
-                } else {
-                    return;
-                }
-            });
-        }
-
-        _scaleUp() {
+        scaleUp() {
+            if (this._currScale === this._minScale) {
+                this._ctx.save();
+            }
+            if (this._currScale === this._maxScale) {
+                return;
+            }
+            this._currScale *= 2;
             this._ctx.scale(2, 2);
-            this._redrawCanvas();
+            this._updateTranslationStep();
         }
 
-        _scaleDown() {
+        scaleDown() {
+            if (this._currScale === this._minScale) {
+                return;
+            }
+            this._currScale /= 2;
             this._ctx.scale(1/2, 1/2);
-            this._redrawCanvas();
+            this._updateTranslationStep();
+            this._resetTranslation();
         }
 
         _clearCanvas() {
@@ -256,7 +217,22 @@ const canvasModule = (function () {
 
         _shiftCanvas(x, y) {
             this._ctx.translate(x, y);
-            this._redrawCanvas();
+        }
+
+        shiftCanvasUp() {
+            this._shiftCanvas(0, this._currTranslationStep);
+        }
+
+        shiftCanvasDown() {
+            this._shiftCanvas(0, -this._currTranslationStep);
+        }
+
+        shiftCanvasLeft() {
+            this._shiftCanvas(this._currTranslationStep, 0);
+        }
+
+        shiftCanvasRight() {
+            this._shiftCanvas(-this._currTranslationStep, 0);
         }
 
         _updateTranslationStep() {
@@ -264,8 +240,8 @@ const canvasModule = (function () {
         }
 
         _resetTranslation() {
-            this._ctx.setTransform(1, 0, 0, 1, 0, 0);
-            this._redrawCanvas();
+            this._ctx.restore();
+            this.redrawCanvas();
         }
 
         get width() { return this._width; }
@@ -323,6 +299,42 @@ const canvasModule = (function () {
 
             this._canvasHtmlElem = document.getElementById(canvasHtmlElemId);
             this._drawNextPointEventListener = this._drawNextPointEventListener.bind(this);
+
+            this._addScalingEventListener();
+            this._addTranslationEventListener();
+        }
+
+        _addScalingEventListener() {
+            this._canvasHtmlElem.addEventListener('wheel', (event) => {
+                event.preventDefault();
+
+                const scaling = event.deltaY * -0.01;
+                if (scaling === 1) {
+                    this._view.scaleUp();
+                }
+                if (scaling === -1) {
+                    this._view.scaleDown();
+                }
+                this._model.redrawCanvas();
+            });
+        }
+
+        _addTranslationEventListener() {
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'ArrowUp') {
+                    this._view.shiftCanvasUp();
+                } else if (event.key === 'ArrowDown') {
+                    this._view.shiftCanvasDown();
+                } else if (event.key === 'ArrowLeft') {
+                    this._view.shiftCanvasLeft();
+                } else if (event.key === 'ArrowRight') {
+                    this._view.shiftCanvasRight();
+                } else {
+                    return;
+                }
+
+                this._model.redrawCanvas();
+            });
         }
 
         _enterPointSelection(pointsRequired, exitPointSelectionCallback) {
