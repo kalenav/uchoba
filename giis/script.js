@@ -44,6 +44,10 @@ const canvasModule = (function () {
             green: 0,
             blue: 0
         }
+        _minScale = 1;
+        _maxScale = 64;
+        _currScale = 1;
+        _currTranslationStep = 0;
 
         constructor({
             width,
@@ -70,97 +74,24 @@ const canvasModule = (function () {
             this._ctx = this._canvasHtmlElem.getContext('2d');
             this._singlePixelImageData = this._ctx.createImageData(1, 1);
 
+            this._drawGridlines_bool = drawGridlines;
             if (drawGridlines) {
-                this._ctx.lineWidth = 0.125;
-                this._ctx.beginPath();
-
-                const verticalGridLinesQuantity = Math.floor(this._width / gridLineSpacing_X);
-                for (let verticalGridlinesDrawn = 0; verticalGridlinesDrawn <= verticalGridLinesQuantity; verticalGridlinesDrawn++) {
-                    const x = verticalGridlinesDrawn * gridLineSpacing_X;
-                    this._ctx.moveTo(x, 0);
-                    this._ctx.lineTo(x, this._height);
-                }
-
-                const horizontalGridLinesQuantity = Math.floor(this._height / gridLineSpacing_Y);
-                for (let horizontalGridlinesDrawn = 0; horizontalGridlinesDrawn <= horizontalGridLinesQuantity; horizontalGridlinesDrawn++) {
-                    const y = horizontalGridlinesDrawn * gridLineSpacing_Y;
-                    this._ctx.moveTo(0, y);
-                    this._ctx.lineTo(this._width, y);
-                }
-
-                this._ctx.stroke();
+                this._gridLineSpacing_X = gridLineSpacing_X;
+                this._gridLineSpacing_Y = gridLineSpacing_Y;
             }
 
+            this._drawCoordinateSystem_bool = drawCoordinateSystem;
             if (drawCoordinateSystem) {
-                this._ctx.beginPath();
-                this._ctx.lineWidth = 0.5;
-
-                // x axis
-                this._ctx.moveTo(0, this._origin.y);
-                this._ctx.lineTo(this._width, this._origin.y);
-
-                // x axis arrow
-                this._ctx.lineTo(this._width - axisArrowLength, this._origin.y + axisArrowHeight);
-                this._ctx.moveTo(this._width, this._origin.y);
-                this._ctx.lineTo(this._width - axisArrowLength, this._origin.y - axisArrowHeight);
-
-                // y axis
-                this._ctx.moveTo(this._origin.x, this._height);
-                this._ctx.lineTo(this._origin.x, 0);
-
-                // y axis arrow
-                this._ctx.lineTo(this._origin.x - axisArrowHeight, axisArrowLength);
-                this._ctx.moveTo(this._origin.x, 0);
-                this._ctx.lineTo(this._origin.x + axisArrowHeight, axisArrowLength);
-
-                if (labelAxes) {
-                    this._ctx.strokeText('x', this._width - 15, this._origin.y + 15);
-                    this._ctx.strokeText('y', this._origin.x + 8, 15);
-                }
-
-                // x axis single segments
-                const singleSegmentXAxisVerticalOffset = 10;
-                const singleSegmentXAxisBoundary = this._width / 2;
-                for (let currSingleSegment = -1 * singleSegmentXAxisBoundary; currSingleSegment <= singleSegmentXAxisBoundary; currSingleSegment += singleSegmentSize) {
-                    if (currSingleSegment === 0) continue;
-
-                    const currSingleElementXCoordinate = this._origin.x + currSingleSegment
-                    this._ctx.moveTo(currSingleElementXCoordinate, this._origin.y + singleSegmentTickSize / 2);
-                    this._ctx.lineTo(currSingleElementXCoordinate, this._origin.y - singleSegmentTickSize / 2);
-                    this._ctx.strokeText(
-                        `${currSingleSegment}`,
-                        currSingleElementXCoordinate,
-                        this._origin.y + singleSegmentXAxisVerticalOffset
-                    );
-                };
-
-                // y axis single segments
-                const singleSegmentYAxisHorizontalOffset = 2;
-                const singleSegmentYAxisBoundary = this._height / 2;
-                for (let currSingleSegment = -1 * singleSegmentYAxisBoundary; currSingleSegment <= singleSegmentYAxisBoundary; currSingleSegment += singleSegmentSize) {
-                    if (currSingleSegment === 0) continue;
-
-                    const currSingleElementYCoordinate = this._origin.y - currSingleSegment
-                    this._ctx.moveTo(this._origin.x + singleSegmentTickSize / 2, currSingleElementYCoordinate);
-                    this._ctx.lineTo(this._origin.x - singleSegmentTickSize / 2, currSingleElementYCoordinate);
-                    this._ctx.strokeText(
-                        `${currSingleSegment}`,
-                        this._origin.x + singleSegmentYAxisHorizontalOffset,
-                        currSingleElementYCoordinate
-                    );
-                };
-
-                // zeroth single segment
-                const zerothSingleSegmentVerticalOffset = 10;
-                const zerothSingleSegmentHorizontalOffset = 3;
-                this._ctx.strokeText(
-                    `0`,
-                    this._origin.x + zerothSingleSegmentHorizontalOffset,
-                    this._origin.y + zerothSingleSegmentVerticalOffset
-                );
-
-                this._ctx.stroke();
+                this._singleSegmentSize = singleSegmentSize;
+                this._singleSegmentTickSize = singleSegmentTickSize;
+                this._axisArrowLength = axisArrowLength;
+                this._axisArrowHeight = axisArrowHeight;
+                this._labelAxes = labelAxes;
             }
+
+            this._redrawCanvas();
+            this._addScalingEventListener();
+            this._addTranslationEventListener();
         }
 
         drawPoint(x, y, opacity = 1, color = { red: 0, green: 0, blue: 0 }) {
@@ -183,6 +114,173 @@ const canvasModule = (function () {
             points.forEach(point => {
                 this.drawPoint(point.x, point.y, point.opacity ?? 1, point.color ?? this._DEFAULT_COLOR);
             });
+        }
+
+        _addScalingEventListener() {
+            this._canvasHtmlElem.addEventListener('wheel', (event) => {
+                event.preventDefault();
+
+                const scaling = event.deltaY * -0.01;
+                if (scaling === 1 && this._currScale < this._maxScale) {
+                    this._currScale *= 2;
+                    this._scaleUp();
+                    this._updateTranslationStep();
+                }
+                if (scaling === -1 && this._currScale > this._minScale) {
+                    this._currScale /= 2;
+                    this._scaleDown();
+                    this._updateTranslationStep();
+                    if (this._currScale === 1) {
+                        this._resetTranslation();
+                    }
+                }
+            });
+        }
+
+        _addTranslationEventListener() {
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'ArrowUp') {
+                    this._shiftCanvas(0, this._currTranslationStep);
+                } else if (event.key === 'ArrowDown') {
+                    this._shiftCanvas(0, -this._currTranslationStep);
+                } else if (event.key === 'ArrowLeft') {
+                    this._shiftCanvas(this._currTranslationStep, 0);
+                } else if (event.key === 'ArrowRight') {
+                    this._shiftCanvas(-this._currTranslationStep, 0);
+                } else {
+                    return;
+                }
+            });
+        }
+
+        _scaleUp() {
+            this._ctx.scale(2, 2);
+            this._redrawCanvas();
+        }
+
+        _scaleDown() {
+            this._ctx.scale(1/2, 1/2);
+            this._redrawCanvas();
+        }
+
+        _clearCanvas() {
+            this._canvasHtmlElem.getContext('2d').clearRect(0, 0, this._width, this._height);
+        }
+
+        _drawGridlines() {
+            this._ctx.lineWidth = 0.125;
+            this._ctx.beginPath();
+
+            const verticalGridLinesQuantity = Math.floor(this._width / this._gridLineSpacing_X);
+            for (let verticalGridlinesDrawn = 0; verticalGridlinesDrawn <= verticalGridLinesQuantity; verticalGridlinesDrawn++) {
+                const x = verticalGridlinesDrawn * this._gridLineSpacing_X;
+                this._ctx.moveTo(x, 0);
+                this._ctx.lineTo(x, this._height);
+            }
+
+            const horizontalGridLinesQuantity = Math.floor(this._height / this._gridLineSpacing_Y);
+            for (let horizontalGridlinesDrawn = 0; horizontalGridlinesDrawn <= horizontalGridLinesQuantity; horizontalGridlinesDrawn++) {
+                const y = horizontalGridlinesDrawn * this._gridLineSpacing_Y;
+                this._ctx.moveTo(0, y);
+                this._ctx.lineTo(this._width, y);
+            }
+
+            this._ctx.stroke();
+        }
+
+        _drawCoordinateSystem() {
+            this._ctx.beginPath();
+            this._ctx.lineWidth = 0.5;
+
+            // x axis
+            this._ctx.moveTo(0, this._origin.y);
+            this._ctx.lineTo(this._width, this._origin.y);
+
+            // x axis arrow
+            this._ctx.lineTo(this._width - this._axisArrowLength, this._origin.y + this._axisArrowHeight);
+            this._ctx.moveTo(this._width, this._origin.y);
+            this._ctx.lineTo(this._width - this._axisArrowLength, this._origin.y - this._axisArrowHeight);
+
+            // y axis
+            this._ctx.moveTo(this._origin.x, this._height);
+            this._ctx.lineTo(this._origin.x, 0);
+
+            // y axis arrow
+            this._ctx.lineTo(this._origin.x - this._axisArrowHeight, this._axisArrowLength);
+            this._ctx.moveTo(this._origin.x, 0);
+            this._ctx.lineTo(this._origin.x + this._axisArrowHeight, this._axisArrowLength);
+
+            if (this._labelAxes) {
+                this._ctx.strokeText('x', this._width - 15, this._origin.y + 15);
+                this._ctx.strokeText('y', this._origin.x + 8, 15);
+            }
+
+            // x axis single segments
+            const singleSegmentXAxisVerticalOffset = 10;
+            const singleSegmentXAxisBoundary = this._width / 2;
+            for (let currSingleSegment = -1 * singleSegmentXAxisBoundary; currSingleSegment <= singleSegmentXAxisBoundary; currSingleSegment += this._singleSegmentSize) {
+                if (currSingleSegment === 0) continue;
+
+                const currSingleElementXCoordinate = this._origin.x + currSingleSegment
+                this._ctx.moveTo(currSingleElementXCoordinate, this._origin.y + this._singleSegmentTickSize / 2);
+                this._ctx.lineTo(currSingleElementXCoordinate, this._origin.y - this._singleSegmentTickSize / 2);
+                this._ctx.strokeText(
+                    `${currSingleSegment}`,
+                    currSingleElementXCoordinate,
+                    this._origin.y + singleSegmentXAxisVerticalOffset
+                );
+            };
+
+            // y axis single segments
+            const singleSegmentYAxisHorizontalOffset = 2;
+            const singleSegmentYAxisBoundary = this._height / 2;
+            for (let currSingleSegment = -1 * singleSegmentYAxisBoundary; currSingleSegment <= singleSegmentYAxisBoundary; currSingleSegment += this._singleSegmentSize) {
+                if (currSingleSegment === 0) continue;
+
+                const currSingleElementYCoordinate = this._origin.y - currSingleSegment
+                this._ctx.moveTo(this._origin.x + this._singleSegmentTickSize / 2, currSingleElementYCoordinate);
+                this._ctx.lineTo(this._origin.x - this._singleSegmentTickSize / 2, currSingleElementYCoordinate);
+                this._ctx.strokeText(
+                    `${currSingleSegment}`,
+                    this._origin.x + singleSegmentYAxisHorizontalOffset,
+                    currSingleElementYCoordinate
+                );
+            };
+
+            // zeroth single segment
+            const zerothSingleSegmentVerticalOffset = 10;
+            const zerothSingleSegmentHorizontalOffset = 3;
+            this._ctx.strokeText(
+                `0`,
+                this._origin.x + zerothSingleSegmentHorizontalOffset,
+                this._origin.y + zerothSingleSegmentVerticalOffset
+            );
+
+            this._ctx.stroke();
+        }
+
+        _redrawCanvas() {
+            this._clearCanvas();
+            if (this._drawGridlines_bool) {
+                this._drawGridlines();
+            }
+            if (this._drawCoordinateSystem_bool) {
+                this._drawCoordinateSystem();
+            }
+        }
+
+        _shiftCanvas(x, y) {
+            this._ctx.translate(x, y);
+            this._redrawCanvas();
+        }
+
+        _updateTranslationStep() {
+            this._currTranslationStep = (50 / this._currScale**2) * (this._currScale - 1);
+        }
+
+        _resetTranslation() {
+            this._ctx.setTransform(1, 0, 0, 1, 0, 0);
+            this._redrawCanvas();
         }
 
         get width() { return this._width; }
@@ -522,6 +620,44 @@ const canvasModule = (function () {
                     currY++;
                 }
             } while(currX < Xlimit && currY < Ylimit);
+
+            return points;
+        }
+
+        ////////////////////////////////////////
+        ///////////////// lab3 /////////////////
+        ////////////////////////////////////////
+
+        _getHermiteFormParameterizedFunctions(coefficients) {
+            function x_t(t) {
+                return (t**3 * coefficients.getElementAt(1, 1))
+                    + (t**2 * coefficients.getElementAt(2, 1))
+                    + (t * coefficients.getElementAt(3, 1))
+                    + coefficients.getElementAt(4, 1);
+            }
+
+            function y_t(t) {
+                return (t**3 * coefficients.getElementAt(1, 1))
+                    + (t**2 * coefficients.getElementAt(1, 2))
+                    + (t * coefficients.getElementAt(1, 3))
+                    + coefficients.getElementAt(1, 4);
+            }
+
+            return [x_t, y_t];
+        }
+
+        hermiteForm(P1, P4, R1, R4) {
+            const points = [];
+
+            const coordinateMatrix = new Matrix(4, 2);
+            coordinateMatrix.setElements([
+                [P1.x, P1.y],
+                [P4.x, P4.y],
+                [R1.x, R1.y],
+                [R4.x, R4.y]
+            ]);
+            const coefficients = ReusableEntities.hermiteMatrix.multiply(coordinateMatrix);
+            const [x_t, y_t] = this._getHermiteFormParameterizedFunctions(coefficients);
 
             return points;
         }
@@ -913,13 +1049,11 @@ const toolbarModule = (function () {
 })();
 const Button = toolbarModule.Button;
 const Section = toolbarModule.Section;
-const ToolbarController = toolbarModule.ToolbarController;
 
 class GeometryUtils {
     static radiansToDegrees(radians) {
         return Math.round(radians * 180 / Math.PI);
     }
-
 }
 
 const geometryModule = (function () {
@@ -1131,13 +1265,117 @@ const Ellipse = geometryModule.Ellipse;
 const Parabola = geometryModule.Parabola;
 const Hyperbola = geometryModule.Hyperbola;
 
+const linearAlgebraModule = (function () {
+    class Vector {
+        constructor(array) {
+            this._vector = [...array];
+        }
+
+        dotProduct(vector) {
+            return this._vector
+                .map((el, index) => el + vector.getElementAt(index))
+                .reduce((acc, el) => acc + el, 0);
+        }
+
+        getElementAt(index) {
+            return this._vector[index];
+        }
+    }
+
+    class Matrix {
+        constructor(height, width, fillWith = 0) {
+            this._height = height;
+            this._width = width;
+            this._matrix = [];
+            for (let row = 0; row < height; row++) {
+                this._matrix.push(new Array(width).fill(fillWith));
+            }
+        }
+
+        getElementAt(i, j) {
+            return this._matrix[i - 1][j - 1];
+        }
+
+        setElementAt(i, j, value) {
+            this._matrix[i - 1][j - 1] = value;
+        }
+
+        setElements(arrayOfArrays) {
+            this._height = arrayOfArrays.length;
+            this._width = arrayOfArrays[0].length;
+            this._matrix = arrayOfArrays.map(row => row.slice());
+        }
+
+        getRowAt(i) {
+            return [...this._matrix[i - 1]];
+        }
+
+        getColumnAt(j) {
+            return this._matrix.map((row, rowIndex) => this.getElementAt(rowIndex + 1, j));
+        }
+
+        add(matrix) {
+            const sum = new Matrix(this._height, this._width, 0);
+
+            for (let i = 1; i <= this._height; i++) {
+                for (let j = 1; j <= this._width; j++) {
+                    sum.setElementAt(i, j, this.getElementAt(i, j) + matrix.getElementAt(i, j));
+                }
+            }
+
+            return sum;
+        }
+
+        multiply(secondMatrix) {
+            const product = new Matrix(this._height, secondMatrix.width);
+
+            for (let rowIndex = 1; rowIndex <= this._height; rowIndex++) {
+                for (let columnIndex = 1; columnIndex <= secondMatrix._width; columnIndex++) {
+                    const currFirstMatrixRow = this.getRowAt(rowIndex);
+                    const currSecondMatrixColumn = secondMatrix.getColumnAt(columnIndex);
+                    product.setElementAt(
+                        rowIndex,
+                        columnIndex,
+                        new Vector(currFirstMatrixRow).dotProduct(new Vector(currSecondMatrixColumn))
+                    );
+                }
+            }
+
+            return product;
+        }
+
+        get height() { return this._height; }
+
+        get width() { return this._width; }
+    }
+
+    return {
+        Matrix
+    }
+})();
+const Matrix = linearAlgebraModule.Matrix;
+
+const ReusableEntities = (function () {
+    const hermiteMatrix = new Matrix(4, 4);
+    hermiteMatrix.setElements([
+        [2, -2, 1, 1],
+        [-3, 3, -2, -1],
+        [0, 0, 1, 0],
+        [1, 0, 0, 0]
+    ]);
+
+    return {
+        hermiteMatrix
+    }
+})();
+
 /////////////////////////////////////////
 /////////////////////////////////////////
 /////////////////////////////////////////
 
 const canvas = new canvasModule.Canvas();
 const hint = new HintController();
-const toolbar = new ToolbarController([
+const toolbar = new toolbarModule.ToolbarController([
     new Section('Отрезки', [
         new Button('ЦДА', () => {
             canvas.enterDdaDrawingMode();
