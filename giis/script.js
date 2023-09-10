@@ -1,41 +1,26 @@
 const canvasModule = (function () {
     class CanvasModel {
-        _lineSegments = [];
-        _ellipses = [];
-        _parabolas = [];
-        _hyperbolas = [];
+        _points = [];
 
-        addLineSegment(lineSegment) {
-            this._lineSegments.push(new LineSegment(lineSegment.startpoint, lineSegment.endpoint));
+        constructor(view) {
+            this._view = view;
         }
 
-        get lineSegments() {
-            return [...this._lineSegments];
+        addPoint(point) {
+            this._points.push(point);
         }
 
-        addEllipse(ellipse) {
-            this._ellipses.push(new Ellipse(ellipse.origin, ellipse.a, ellipse.b));
-        }
-        
-        get ellipses() {
-            return [...this._ellipses];
+        addPoints(points) {
+            points.forEach(point => this.addPoint(point));
+            this._redrawCanvas();
         }
 
-        addParabola(parabola) {
-            this._parabolas.push(new Parabola(parabola.vertex, parabola.p, parabola.isHorizontal));
+        _redrawCanvas() {
+            this._view.redrawCanvas();
+            this._view.drawPoints(this.points);
         }
 
-        get parabolas() {
-            return [...this._parabolas];
-        }
-
-        addHyperbola(hyperbola) {
-            this._hyperbolas.push(new Hyperbola(hyperbola.origin, hyperbola.a, hyperbola.b, hyperbola.isHorizontal));
-        }
-
-        get hyperbolas() {
-            return [...this._hyperbolas];
-        }
+        get points() { return [...this._points]; }   
     }
 
     class CanvasView {
@@ -89,7 +74,7 @@ const canvasModule = (function () {
                 this._labelAxes = labelAxes;
             }
 
-            this._redrawCanvas();
+            this.redrawCanvas();
             this._addScalingEventListener();
             this._addTranslationEventListener();
         }
@@ -259,7 +244,7 @@ const canvasModule = (function () {
             this._ctx.stroke();
         }
 
-        _redrawCanvas() {
+        redrawCanvas() {
             this._clearCanvas();
             if (this._drawGridlines_bool) {
                 this._drawGridlines();
@@ -289,6 +274,73 @@ const canvasModule = (function () {
     }
 
     class CanvasController {
+        _drawingFinishedEvent = new Event('drawing-finished');
+        _debuggingModeEnabled = false;
+        _pointsToDrawQueue = [];
+
+        constructor({
+            width = 1000,
+            height = 800,
+            canvasHtmlElemId = 'canvas',
+            drawGridlines = true,
+            gridLineSpacing_X = 10,
+            gridLineSpacing_Y = 10,
+            drawCoordinateSystem = true,
+            singleSegmentSize = 50,
+            singleSegmentTickSize = 20,
+            axisArrowLength = 10,
+            axisArrowHeight = 5,
+            labelAxes = true
+        } = {
+            width: 1000,
+            height: 800,
+            canvasHtmlElemId: 'canvas',
+            drawGridlines: true,
+            gridLineSpacing_X: 10,
+            gridLineSpacing_Y: 10,
+            drawCoordinateSystem: true,
+            singleSegmentSize: 50,
+            singleSegmentTickSize: 20,
+            axisArrowLength: 10,
+            axisArrowHeight: 5,
+            labelAxes: true
+        }) {
+            this._view = new CanvasView({
+                width,
+                height,
+                canvasHtmlElemId,
+                drawGridlines,
+                gridLineSpacing_X,
+                gridLineSpacing_Y,
+                drawCoordinateSystem,
+                singleSegmentSize,
+                singleSegmentTickSize,
+                axisArrowLength,
+                axisArrowHeight,
+                labelAxes
+            });
+            this._model = new CanvasModel(this._view);
+
+            this._canvasHtmlElem = document.getElementById(canvasHtmlElemId);
+            this._drawNextPointEventListener = this._drawNextPointEventListener.bind(this);
+        }
+
+        _enterPointSelection(pointsRequired, exitPointSelectionCallback) {
+            const selectedPoints = [];
+    
+            const clickListener = (event) => {
+                const x = event.offsetX - this._view.width / 2;
+                const y = -1 * event.offsetY + this._view.height / 2;
+                selectedPoints.push(new Point(x, y));
+                if (selectedPoints.length === pointsRequired) {
+                    this._canvasHtmlElem.removeEventListener('click', clickListener);
+                    exitPointSelectionCallback(selectedPoints);
+                    document.dispatchEvent(this._drawingFinishedEvent);
+                }
+            };
+            this._canvasHtmlElem.addEventListener('click', clickListener);
+        }
+
         ////////////////////////////////////////
         ///////////////// lab1 /////////////////
         ////////////////////////////////////////
@@ -470,9 +522,217 @@ const canvasModule = (function () {
             return points;
         }
 
+        enterDdaDrawingMode() {
+            this._enterPointSelection(2, this._exitDdaDrawingMode.bind(this));
+        }
+
+        _exitDdaDrawingMode(selectedPoints) {
+            const startPoint = new Point(selectedPoints[0].x, selectedPoints[0].y);
+            const endPoint = new Point(selectedPoints[1].x, selectedPoints[1].y);
+
+            const pointsToDraw = this.ddaLine({
+                start: startPoint,
+                end: endPoint
+            });
+            this._model.addPoints(pointsToDraw);
+        }
+
+        enterBresenhamDrawingMode() {
+            this._enterPointSelection(2, this._exitBresenhamDrawingMode.bind(this));
+        }
+
+        _exitBresenhamDrawingMode(selectedPoints) {
+            const startPoint = new Point(selectedPoints[0].x, selectedPoints[0].y);
+            const endPoint = new Point(selectedPoints[1].x, selectedPoints[1].y);
+
+            const pointsToDraw = this.bresenhamsLine({
+                start: startPoint,
+                end: endPoint
+            });
+            this._model.addPoints(pointsToDraw);
+        }
+
+        enterWuDrawingMode() {
+            this._enterPointSelection(2, this._exitWuDrawingMode.bind(this));
+        }
+
+        _exitWuDrawingMode(selectedPoints) {
+            const startPoint = new Point(selectedPoints[0].x, selectedPoints[0].y);
+            const endPoint = new Point(selectedPoints[1].x, selectedPoints[1].y);
+
+            const pointsToDraw = this.wuLine({
+                start: startPoint,
+                end: endPoint
+            });
+            this._model.addPoints(pointsToDraw);
+        }
+
         ////////////////////////////////////////
         ///////////////// lab2 /////////////////
         ////////////////////////////////////////
+
+        enterEllipseDrawingMode() {
+            this._enterPointSelection(1, this._exitEllipseDrawingMode.bind(this));
+        }
+
+        _exitEllipseDrawingMode(selectedPoints) {
+            const origin = new Point(selectedPoints[0].x, selectedPoints[0].y);
+            const a = +prompt('Введите значение "a"');
+            const b = +prompt('Введите значение "b"');
+
+            const horizontalEllipseAxis = new Line(origin, new Point(origin.x + a, origin.y));
+            const verticalEllipseAxis = new Line(origin, new Point(origin.x, origin.y + b));
+            const pointsToDraw_quadrant1 = this.ellipse(origin, a, b);
+            const pointsToDraw_quadrant2 = pointsToDraw_quadrant1.map(point => point.reflectAlongLine(verticalEllipseAxis));
+            const pointsToDraw_quadrant3 = pointsToDraw_quadrant2.map(point => point.reflectAlongLine(horizontalEllipseAxis));
+            const pointsToDraw_quadrant4 = pointsToDraw_quadrant1.map(point => point.reflectAlongLine(horizontalEllipseAxis));
+
+            const pointsToDraw = [
+                ...pointsToDraw_quadrant1,
+                ...pointsToDraw_quadrant2,
+                ...pointsToDraw_quadrant3,
+                ...pointsToDraw_quadrant4
+            ];
+            this._drawPointsOrStartDebugging(pointsToDraw);
+        }
+
+        enterHorizontalParabolaDrawingMode() {
+            this._enterPointSelection(1, this._exitHorizontalParabolaDrawingMode.bind(this));
+        }
+
+        _exitHorizontalParabolaDrawingMode(selectedPoints) {
+            const vertex = new Point(selectedPoints[0].x, selectedPoints[0].y);
+            const p = +prompt('Введите значение "p"');
+            const xLimit = this._view.width / 2 - vertex.x;
+            const yLimit = this._view.height / 2 - vertex.y;
+
+            const parabolaAxis = new Line(vertex, new Point(vertex.x + 1, vertex.y));
+            const parabolaUpperHalfPoints = this.horizontalParabola(vertex, p, xLimit, yLimit);
+            const parabolaLowerHalfPoints = parabolaUpperHalfPoints.map(point => point.reflectAlongLine(parabolaAxis));
+            const pointsToDraw = [
+                ...parabolaUpperHalfPoints,
+                ...parabolaLowerHalfPoints
+            ];
+            this._drawPointsOrStartDebugging(pointsToDraw);
+        }
+
+        enterVerticalParabolaDrawingMode() {
+            this._enterPointSelection(1, this._exitVerticalParabolaDrawingMode.bind(this));
+        }
+
+        _exitVerticalParabolaDrawingMode(selectedPoints) {
+            const vertex = new Point(selectedPoints[0].x, selectedPoints[0].y);
+            const p = +prompt('Введите значение "p"');
+            const xLimit = this._view.width / 2 - vertex.x;
+            const yLimit = this._view.height / 2 - vertex.y;
+
+            const parabolaAxis = new Line(vertex, new Point(vertex.x, vertex.y + 1));
+            const parabolaRightHalfPoints = this.verticalParabola(vertex, p, xLimit, yLimit);
+            const parabolaLeftHalfPoints = parabolaRightHalfPoints.map(point => point.reflectAlongLine(parabolaAxis));
+            const pointsToDraw = [
+                ...parabolaRightHalfPoints,
+                ...parabolaLeftHalfPoints
+            ];
+            this._drawPointsOrStartDebugging(pointsToDraw);
+        }
+
+        enterHorizontalHyperbolaDrawingMode() {
+            this._enterPointSelection(1, this._exitHorizontalHyperbolaDrawingMode.bind(this));
+        }
+
+        _exitHorizontalHyperbolaDrawingMode(selectedPoints) {
+            const origin = new Point(selectedPoints[0].x, selectedPoints[0].y);
+            const a = +prompt('Введите значение "a"');
+            const b = +prompt('Введите значение "b"');
+            const Xlimit = this._view.width;
+            const Ylimit = this._view.height;
+
+            const horizontalHyperbolaAxis = new Line(origin, new Point(origin.x + 1, origin.y));
+            const verticalHyperbolaAxis = new Line(origin, new Point(origin.x, origin.y + 1));
+            const hyperbolaPoints_quadrant1 = this.horizontalHyperbola(origin, a, b, Xlimit, Ylimit);
+            const hyperbolaPoints_quadrant2 = hyperbolaPoints_quadrant1.map(point => point.reflectAlongLine(verticalHyperbolaAxis));
+            const hyperbolaPoints_quadrant3 = hyperbolaPoints_quadrant2.map(point => point.reflectAlongLine(horizontalHyperbolaAxis));
+            const hyperbolaPoints_quadrant4 = hyperbolaPoints_quadrant1.map(point => point.reflectAlongLine(horizontalHyperbolaAxis));
+
+            const pointsToDraw = [
+                ...hyperbolaPoints_quadrant1,
+                ...hyperbolaPoints_quadrant2,
+                ...hyperbolaPoints_quadrant3,
+                ...hyperbolaPoints_quadrant4
+            ];
+            this._drawPointsOrStartDebugging(pointsToDraw);
+        }
+
+        enterVerticalHyperbolaDrawingMode() {
+            this._enterPointSelection(1, this._exitVerticalHyperbolaDrawingMode.bind(this));
+        }
+
+        _exitVerticalHyperbolaDrawingMode(selectedPoints) {
+            const origin = new Point(selectedPoints[0].x, selectedPoints[0].y);
+            const a = +prompt('Введите значение "a"');
+            const b = +prompt('Введите значение "b"');
+            const Xlimit = this._view.width;
+            const Ylimit = this._view.height;
+
+            const horizontalHyperbolaAxis = new Line(origin, new Point(origin.x + 1, origin.y));
+            const verticalHyperbolaAxis = new Line(origin, new Point(origin.x, origin.y + 1));
+            const hyperbolaPoints_quadrant1 = this.verticalHyperbola(origin, a, b, Xlimit, Ylimit);
+            const hyperbolaPoints_quadrant2 = hyperbolaPoints_quadrant1.map(point => point.reflectAlongLine(verticalHyperbolaAxis));
+            const hyperbolaPoints_quadrant3 = hyperbolaPoints_quadrant2.map(point => point.reflectAlongLine(horizontalHyperbolaAxis));
+            const hyperbolaPoints_quadrant4 = hyperbolaPoints_quadrant1.map(point => point.reflectAlongLine(horizontalHyperbolaAxis));
+
+            const pointsToDraw = [
+                ...hyperbolaPoints_quadrant1,
+                ...hyperbolaPoints_quadrant2,
+                ...hyperbolaPoints_quadrant3,
+                ...hyperbolaPoints_quadrant4
+            ];
+            this._drawPointsOrStartDebugging(pointsToDraw);
+        }
+
+        toggleDebuggingMode() {
+            this._debuggingModeEnabled = !this._debuggingModeEnabled;
+            return this._debuggingModeEnabled;
+        }
+
+        _setPointsToDrawQueue(points) {
+            this._pointsToDrawQueue = [...points];
+        }
+
+        _addEnterPressEventListener() {
+            document.addEventListener('keydown', this._drawNextPointEventListener);
+        }
+
+        _drawNextPoint() {
+            this._model.addPoint(this._pointsToDrawQueue.shift());
+        }
+
+        _drawAllRemainingPoints() {
+            while(this._pointsToDrawQueue.length > 0) {
+                this._drawNextPoint();
+            }
+        }
+
+        _drawNextPointEventListener(event) {
+            if (event.key !== 'Enter') return;
+            if (!event.shiftKey) {
+                this._drawNextPoint();
+            } else {
+                this._drawAllRemainingPoints();
+            }
+            if (this._pointsToDrawQueue.length === 0) {
+                document.removeEventListener('keydown', this._drawNextPointEventListener);
+            }
+        }
+
+        _drawPointsOrStartDebugging(pointsToDraw) {
+            if (this._debuggingModeEnabled) {
+                this._setPointsToDrawQueue(pointsToDraw);
+                this._addEnterPressEventListener();
+            } else {
+                this._model.addPoints(pointsToDraw);
+            }
+        }
 
         _ellipsePointError(x, y, a, b) {
             return Math.abs((x**2 / a**2) + (y**2 / b**2) - 1);
@@ -663,304 +923,8 @@ const canvasModule = (function () {
         }
     }
 
-    class Canvas {
-        _drawingFinishedEvent = new Event('drawing-finished');
-        _debuggingModeEnabled = false;
-        _pointsToDrawQueue = [];
-
-        constructor({
-            width = 1000,
-            height = 800,
-            canvasHtmlElemId = 'canvas',
-            drawGridlines = true,
-            gridLineSpacing_X = 10,
-            gridLineSpacing_Y = 10,
-            drawCoordinateSystem = true,
-            singleSegmentSize = 50,
-            singleSegmentTickSize = 20,
-            axisArrowLength = 10,
-            axisArrowHeight = 5,
-            labelAxes = true
-        } = {
-            width: 1000,
-            height: 800,
-            canvasHtmlElemId: 'canvas',
-            drawGridlines: true,
-            gridLineSpacing_X: 10,
-            gridLineSpacing_Y: 10,
-            drawCoordinateSystem: true,
-            singleSegmentSize: 50,
-            singleSegmentTickSize: 20,
-            axisArrowLength: 10,
-            axisArrowHeight: 5,
-            labelAxes: true
-        }) {
-            this._model = new CanvasModel();
-            this._view = new CanvasView({
-                width,
-                height,
-                canvasHtmlElemId,
-                drawGridlines,
-                gridLineSpacing_X,
-                gridLineSpacing_Y,
-                drawCoordinateSystem,
-                singleSegmentSize,
-                singleSegmentTickSize,
-                axisArrowLength,
-                axisArrowHeight,
-                labelAxes
-            });
-            this._controller = new CanvasController();
-
-            this._canvasHtmlElem = document.getElementById(canvasHtmlElemId);
-
-            this._drawNextPointEventListener = this._drawNextPointEventListener.bind(this);
-        }
-
-        _enterPointSelection(pointsRequired, exitPointSelectionCallback) {
-            const selectedPoints = [];
-    
-            const clickListener = (event) => {
-                const x = event.offsetX - this._view.width / 2;
-                const y = -1 * event.offsetY + this._view.height / 2;
-                selectedPoints.push(new Point(x, y));
-                if (selectedPoints.length === pointsRequired) {
-                    this._canvasHtmlElem.removeEventListener('click', clickListener);
-                    exitPointSelectionCallback(selectedPoints);
-                    document.dispatchEvent(this._drawingFinishedEvent);
-                }
-            };
-            this._canvasHtmlElem.addEventListener('click', clickListener);
-        }
-
-        enterDdaDrawingMode() {
-            this._enterPointSelection(2, this._exitDdaDrawingMode.bind(this));
-        }
-
-        _exitDdaDrawingMode(selectedPoints) {
-            const startPoint = new Point(selectedPoints[0].x, selectedPoints[0].y);
-            const endPoint = new Point(selectedPoints[1].x, selectedPoints[1].y);
-
-            const pointsToDraw = this._controller.ddaLine({
-                start: startPoint,
-                end: endPoint
-            });
-            this._view.drawPoints(pointsToDraw);
-
-            this._model.addLineSegment(new LineSegment(startPoint, endPoint));
-        }
-
-        enterBresenhamDrawingMode() {
-            this._enterPointSelection(2, this._exitBresenhamDrawingMode.bind(this));
-        }
-
-        _exitBresenhamDrawingMode(selectedPoints) {
-            const startPoint = new Point(selectedPoints[0].x, selectedPoints[0].y);
-            const endPoint = new Point(selectedPoints[1].x, selectedPoints[1].y);
-
-            const pointsToDraw = this._controller.bresenhamsLine({
-                start: startPoint,
-                end: endPoint
-            });
-            this._view.drawPoints(pointsToDraw);
-
-            this._model.addLineSegment(new LineSegment(startPoint, endPoint));
-        }
-
-        enterWuDrawingMode() {
-            this._enterPointSelection(2, this._exitWuDrawingMode.bind(this));
-        }
-
-        _exitWuDrawingMode(selectedPoints) {
-            const startPoint = new Point(selectedPoints[0].x, selectedPoints[0].y);
-            const endPoint = new Point(selectedPoints[1].x, selectedPoints[1].y);
-
-            const pointsToDraw = this._controller.wuLine({
-                start: startPoint,
-                end: endPoint
-            });
-            this._view.drawPoints(pointsToDraw);
-
-            this._model.addLineSegment(new LineSegment(startPoint, endPoint));
-        }
-
-        enterEllipseDrawingMode() {
-            this._enterPointSelection(1, this._exitEllipseDrawingMode.bind(this));
-        }
-
-        _exitEllipseDrawingMode(selectedPoints) {
-            const origin = new Point(selectedPoints[0].x, selectedPoints[0].y);
-            const a = +prompt('Введите значение "a"');
-            const b = +prompt('Введите значение "b"');
-
-            const horizontalEllipseAxis = new Line(origin, new Point(origin.x + a, origin.y));
-            const verticalEllipseAxis = new Line(origin, new Point(origin.x, origin.y + b));
-            const pointsToDraw_quadrant1 = this._controller.ellipse(origin, a, b);
-            const pointsToDraw_quadrant2 = pointsToDraw_quadrant1.map(point => point.reflectAlongLine(verticalEllipseAxis));
-            const pointsToDraw_quadrant3 = pointsToDraw_quadrant2.map(point => point.reflectAlongLine(horizontalEllipseAxis));
-            const pointsToDraw_quadrant4 = pointsToDraw_quadrant1.map(point => point.reflectAlongLine(horizontalEllipseAxis));
-
-            const pointsToDraw = [
-                ...pointsToDraw_quadrant1,
-                ...pointsToDraw_quadrant2,
-                ...pointsToDraw_quadrant3,
-                ...pointsToDraw_quadrant4
-            ];
-            this._drawPointsOrStartDebugging(pointsToDraw);
-
-            this._model.addEllipse(new Ellipse(origin, a, b));
-        }
-
-        enterHorizontalParabolaDrawingMode() {
-            this._enterPointSelection(1, this._exitHorizontalParabolaDrawingMode.bind(this));
-        }
-
-        _exitHorizontalParabolaDrawingMode(selectedPoints) {
-            const vertex = new Point(selectedPoints[0].x, selectedPoints[0].y);
-            const p = +prompt('Введите значение "p"');
-            const xLimit = this._view.width / 2 - vertex.x;
-            const yLimit = this._view.height / 2 - vertex.y;
-
-            const parabolaAxis = new Line(vertex, new Point(vertex.x + 1, vertex.y));
-            const parabolaUpperHalfPoints = this._controller.horizontalParabola(vertex, p, xLimit, yLimit);
-            const parabolaLowerHalfPoints = parabolaUpperHalfPoints.map(point => point.reflectAlongLine(parabolaAxis));
-            const pointsToDraw = [
-                ...parabolaUpperHalfPoints,
-                ...parabolaLowerHalfPoints
-            ];
-            this._drawPointsOrStartDebugging(pointsToDraw);
-
-            this._model.addParabola(new Parabola(vertex, p, true));
-        }
-
-        enterVerticalParabolaDrawingMode() {
-            this._enterPointSelection(1, this._exitVerticalParabolaDrawingMode.bind(this));
-        }
-
-        _exitVerticalParabolaDrawingMode(selectedPoints) {
-            const vertex = new Point(selectedPoints[0].x, selectedPoints[0].y);
-            const p = +prompt('Введите значение "p"');
-            const xLimit = this._view.width / 2 - vertex.x;
-            const yLimit = this._view.height / 2 - vertex.y;
-
-            const parabolaAxis = new Line(vertex, new Point(vertex.x, vertex.y + 1));
-            const parabolaRightHalfPoints = this._controller.verticalParabola(vertex, p, xLimit, yLimit);
-            const parabolaLeftHalfPoints = parabolaRightHalfPoints.map(point => point.reflectAlongLine(parabolaAxis));
-            const pointsToDraw = [
-                ...parabolaRightHalfPoints,
-                ...parabolaLeftHalfPoints
-            ];
-            this._drawPointsOrStartDebugging(pointsToDraw);
-
-            this._model.addParabola(new Parabola(vertex, p, false));
-        }
-
-        enterHorizontalHyperbolaDrawingMode() {
-            this._enterPointSelection(1, this._exitHorizontalHyperbolaDrawingMode.bind(this));
-        }
-
-        _exitHorizontalHyperbolaDrawingMode(selectedPoints) {
-            const origin = new Point(selectedPoints[0].x, selectedPoints[0].y);
-            const a = +prompt('Введите значение "a"');
-            const b = +prompt('Введите значение "b"');
-            const Xlimit = this._view.width;
-            const Ylimit = this._view.height;
-
-            const horizontalHyperbolaAxis = new Line(origin, new Point(origin.x + 1, origin.y));
-            const verticalHyperbolaAxis = new Line(origin, new Point(origin.x, origin.y + 1));
-            const hyperbolaPoints_quadrant1 = this._controller.horizontalHyperbola(origin, a, b, Xlimit, Ylimit);
-            const hyperbolaPoints_quadrant2 = hyperbolaPoints_quadrant1.map(point => point.reflectAlongLine(verticalHyperbolaAxis));
-            const hyperbolaPoints_quadrant3 = hyperbolaPoints_quadrant2.map(point => point.reflectAlongLine(horizontalHyperbolaAxis));
-            const hyperbolaPoints_quadrant4 = hyperbolaPoints_quadrant1.map(point => point.reflectAlongLine(horizontalHyperbolaAxis));
-
-            const pointsToDraw = [
-                ...hyperbolaPoints_quadrant1,
-                ...hyperbolaPoints_quadrant2,
-                ...hyperbolaPoints_quadrant3,
-                ...hyperbolaPoints_quadrant4
-            ];
-            this._drawPointsOrStartDebugging(pointsToDraw);
-
-            this._model.addHyperbola(new Hyperbola(origin, a, b, true));
-        }
-
-        enterVerticalHyperbolaDrawingMode() {
-            this._enterPointSelection(1, this._exitVerticalHyperbolaDrawingMode.bind(this));
-        }
-
-        _exitVerticalHyperbolaDrawingMode(selectedPoints) {
-            const origin = new Point(selectedPoints[0].x, selectedPoints[0].y);
-            const a = +prompt('Введите значение "a"');
-            const b = +prompt('Введите значение "b"');
-            const Xlimit = this._view.width;
-            const Ylimit = this._view.height;
-
-            const horizontalHyperbolaAxis = new Line(origin, new Point(origin.x + 1, origin.y));
-            const verticalHyperbolaAxis = new Line(origin, new Point(origin.x, origin.y + 1));
-            const hyperbolaPoints_quadrant1 = this._controller.verticalHyperbola(origin, a, b, Xlimit, Ylimit);
-            const hyperbolaPoints_quadrant2 = hyperbolaPoints_quadrant1.map(point => point.reflectAlongLine(verticalHyperbolaAxis));
-            const hyperbolaPoints_quadrant3 = hyperbolaPoints_quadrant2.map(point => point.reflectAlongLine(horizontalHyperbolaAxis));
-            const hyperbolaPoints_quadrant4 = hyperbolaPoints_quadrant1.map(point => point.reflectAlongLine(horizontalHyperbolaAxis));
-
-            const pointsToDraw = [
-                ...hyperbolaPoints_quadrant1,
-                ...hyperbolaPoints_quadrant2,
-                ...hyperbolaPoints_quadrant3,
-                ...hyperbolaPoints_quadrant4
-            ];
-            this._drawPointsOrStartDebugging(pointsToDraw);
-
-            this._model.addHyperbola(new Hyperbola(origin, a, b, false));
-        }
-
-        toggleDebuggingMode() {
-            this._debuggingModeEnabled = !this._debuggingModeEnabled;
-            return this._debuggingModeEnabled;
-        }
-
-        _setPointsToDrawQueue(points) {
-            this._pointsToDrawQueue = [...points];
-        }
-
-        _addEnterPressEventListener() {
-            document.addEventListener('keydown', this._drawNextPointEventListener);
-        }
-
-        _drawNextPoint() {
-            const nextPoint = this._pointsToDrawQueue.shift();
-            this._view.drawPoint(nextPoint.x, nextPoint.y, nextPoint.opacity);
-        }
-
-        _drawAllRemainingPoints() {
-            while(this._pointsToDrawQueue.length > 0) {
-                this._drawNextPoint();
-            }
-        }
-
-        _drawNextPointEventListener(event) {
-            if (event.key !== 'Enter') return;
-            if (!event.shiftKey) {
-                this._drawNextPoint();
-            } else {
-                this._drawAllRemainingPoints();
-            }
-            if (this._pointsToDrawQueue.length === 0) {
-                document.removeEventListener('keydown', this._drawNextPointEventListener);
-            }
-        }
-
-        _drawPointsOrStartDebugging(pointsToDraw) {
-            if (this._debuggingModeEnabled) {
-                this._setPointsToDrawQueue(pointsToDraw);
-                this._addEnterPressEventListener();
-            } else {
-                this._view.drawPoints(pointsToDraw);
-            }
-        }
-    }
-
     return {
-        Canvas
+        CanvasController
     }
 })();
 
@@ -1185,85 +1149,15 @@ const geometryModule = (function () {
         }
     }
 
-    class LineSegment {
-        constructor(startpoint, endpoint) {
-            this._startpoint = new Point(startpoint.x, startpoint.y, startpoint.z);
-            this._endpoint = new Point(endpoint.x, endpoint.y, endpoint.z);
-        }
-
-        get startpoint() { return this._startpoint; }
-
-        get endpoint() { return this._endpoint; }
-    }
-    
-    class Ellipse {
-        constructor(origin, a, b) {
-            this._origin = new Point(origin.x, origin.y, origin.z);
-            this._a = a;
-            this._b = b;
-        }
-
-        get origin() {
-            return new Point(this._origin.x, this._origin.y, this._origin.z); 
-        }
-
-        get a() { return this._a; }
-
-        get b() { return this._b; }
-    }
-
-    class Parabola {
-        constructor(vertex, p, isHorizontal) {
-            this._vertex = new Point(vertex.x, vertex.y, vertex.z);
-            this._p = p;
-            this._isHorizontal = isHorizontal;
-        }
-
-        get vertex() {
-            return new Point(this._vertex.x, this._vertex.y, this._vertex.z);
-        }
-
-        get p() { return this._p; }
-
-        get isHorizontal() { return this._isHorizontal; }
-    }
-    
-    class Hyperbola {
-        constructor(origin, a, b, isHorizontal) {
-            this._origin = new Point(origin.x, origin.y, origin.z);
-            this._a = a;
-            this._b = b;
-            this._isHorizontal = isHorizontal;
-        }
-
-        get origin() {
-            return new Point(this._origin.x, this._origin.y, this._origin.z); 
-        }
-
-        get a() { return this._a; }
-
-        get b() { return this._b; }
-
-        get isHorizontal() { return this._isHorizontal; }
-    }
-
     return {
         Point,
         Vector,
-        Line,
-        LineSegment,
-        Ellipse,
-        Parabola,
-        Hyperbola
+        Line
     }
 })();
 const Point = geometryModule.Point;
 const Vector = geometryModule.Vector;
 const Line = geometryModule.Line;
-const LineSegment = geometryModule.LineSegment;
-const Ellipse = geometryModule.Ellipse;
-const Parabola = geometryModule.Parabola;
-const Hyperbola = geometryModule.Hyperbola;
 
 const linearAlgebraModule = (function () {
     class Vector {
@@ -1373,7 +1267,7 @@ const ReusableEntities = (function () {
 /////////////////////////////////////////
 /////////////////////////////////////////
 
-const canvas = new canvasModule.Canvas();
+const canvas = new canvasModule.CanvasController();
 const hint = new HintController();
 const toolbar = new toolbarModule.ToolbarController([
     new Section('Отрезки', [
