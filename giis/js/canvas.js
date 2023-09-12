@@ -47,7 +47,6 @@ const canvasModule = (function () {
         }
 
         addVSpline(vSpline) {
-            console.log(vSpline);
             this._addFigure(this._vSplines, new geometryModule.VSpline(vSpline.referencePoints));
         }
 
@@ -1101,7 +1100,7 @@ const canvasModule = (function () {
             
             const points = [];
             for (let pointIndex = 0; pointIndex < referencePoints.length - 3; pointIndex++) {
-                points.push(...this.vSplineSegment(
+                points.push(...this._vSplineSegment(
                     referencePoints[pointIndex],
                     referencePoints[pointIndex + 1],
                     referencePoints[pointIndex + 2],
