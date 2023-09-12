@@ -401,6 +401,8 @@ const canvasModule = (function () {
             this._model = new CanvasModel(this._view);
 
             this._canvasHtmlElem = document.getElementById(canvasHtmlElemId);
+            this._addScalingEventListener();
+            this._addTranslationEventListener();
         }
 
         _addScalingEventListener() {
@@ -414,7 +416,7 @@ const canvasModule = (function () {
                 if (scaling === -1) {
                     this._view.scaleDown();
                 }
-                this._model.redrawCanvas();
+                this._redrawCanvas();
             });
         }
 
@@ -432,7 +434,7 @@ const canvasModule = (function () {
                     return;
                 }
 
-                this._model.redrawCanvas();
+                this._redrawCanvas();
             });
         }
 
