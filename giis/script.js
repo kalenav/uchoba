@@ -491,27 +491,27 @@ const canvasModule = (function () {
                 }
             ));
 
-            const ellipses = this._model.ellipses.map(ellipse => this.ellipse(ellipse.origin, ellipse.a, ellipse.b));
+            const ellipses = this._model.ellipses.map(ellipse => this._ellipse(ellipse.origin, ellipse.a, ellipse.b));
 
             const rawParabolas = this._model.parabolas;
             const horizontalParabolas = rawParabolas
                 .filter(parabola => parabola.isHorizontal)
-                .map(parabola => this.horizontalParabola(parabola.vertex, parabola.p));
+                .map(parabola => this._horizontalParabola(parabola.vertex, parabola.p));
             const verticalParabolas = rawParabolas
                 .filter(parabola => !parabola.isHorizontal)
-                .map(parabola => this.verticalParabola(parabola.vertex, parabola.p));
+                .map(parabola => this._verticalParabola(parabola.vertex, parabola.p));
 
             const rawHyperbolas = this._model.hyperbolas;
             const horizontalHypebrolas = rawHyperbolas
                 .filter(hyperbola => hyperbola.isHorizontal)
-                .map(hyperbola => this.horizontalHyperbola(hyperbola.origin, hyperbola.a, hyperbola.b));
+                .map(hyperbola => this._horizontalHyperbola(hyperbola.origin, hyperbola.a, hyperbola.b));
             const verticalHypebrolas = rawHyperbolas
                 .filter(hyperbola => !hyperbola.isHorizontal)
-                .map(hyperbola => this.verticalHyperbola(hyperbola.origin, hyperbola.a, hyperbola.b));
+                .map(hyperbola => this._verticalHyperbola(hyperbola.origin, hyperbola.a, hyperbola.b));
 
-            const hermiteCurves = this._model.hermiteCurves.map(curve => this.hermiteForm(curve.P1, curve.P4, curve.R1, curve.R4));
-            const bezierCurves = this._model.bezierCurves.map(curve => this.bezierForm(curve.P1, curve.P2, curve.P3, curve.P4));
-            const vSplines = this._model.vSplines.map(vSpline => this.vSpline(vSpline.referencePoints));
+            const hermiteCurves = this._model.hermiteCurves.map(curve => this._hermiteForm(curve.P1, curve.P4, curve.R1, curve.R4));
+            const bezierCurves = this._model.bezierCurves.map(curve => this._bezierForm(curve.P1, curve.P2, curve.P3, curve.P4));
+            const vSplines = this._model.vSplines.map(vSpline => this._vSpline(vSpline.referencePoints));
 
             const pointsToDraw = [
                 ...ddaLineSegments.flat(),
@@ -756,7 +756,7 @@ const canvasModule = (function () {
             return Math.abs((x**2 / a**2) + (y**2 / b**2) - 1);
         }
 
-        ellipse(origin, a, b) {
+        _ellipse(origin, a, b) {
             const points_quadrant1 = [];
 
             let currX = 0;
@@ -797,7 +797,7 @@ const canvasModule = (function () {
             return Math.abs((y**2 / x) - p);
         }
 
-        horizontalParabola(vertex, p, Xlimit = this._view.width / 2 - vertex.x, Ylimit = this._view.height / 2 - vertex.y) {
+        _horizontalParabola(vertex, p, Xlimit = this._view.width / 2 - vertex.x, Ylimit = this._view.height / 2 - vertex.y) {
             const points_upperHalf = [];
 
             let currX = 0;
@@ -833,7 +833,7 @@ const canvasModule = (function () {
             return Math.abs((x**2 / y) - p);
         }
 
-        verticalParabola(vertex, p, Xlimit = this._view.width / 2 - vertex.x, Ylimit = this._view.height / 2 - vertex.y) {
+        _verticalParabola(vertex, p, Xlimit = this._view.width / 2 - vertex.x, Ylimit = this._view.height / 2 - vertex.y) {
             const points_rightHalf = [];
 
             let currX = 0;
@@ -869,7 +869,7 @@ const canvasModule = (function () {
             return Math.abs((x**2 / a**2) - (y**2 / b**2) - 1);
         }
 
-        horizontalHyperbola(origin, a, b, Xlimit = this._view.width, Ylimit = this._view.height) {
+        _horizontalHyperbola(origin, a, b, Xlimit = this._view.width, Ylimit = this._view.height) {
             const points_quadrant1 = [];
 
             let currX = a;
@@ -910,7 +910,7 @@ const canvasModule = (function () {
             return Math.abs((y**2 / b**2) - (x**2 / a**2) - 1);
         }
 
-        verticalHyperbola(origin, a, b, Xlimit = this._view.width, Ylimit = this._view.height) {
+        _verticalHyperbola(origin, a, b, Xlimit = this._view.width, Ylimit = this._view.height) {
             const points_quadrant1 = [];
 
             let currX = 0;
@@ -1031,7 +1031,7 @@ const canvasModule = (function () {
             return [x_t, y_t];
         }
 
-        hermiteForm(P1, P4, R1, R4, tStep = 0.001) {
+        _hermiteForm(P1, P4, R1, R4, tStep = 0.001) {
             const points = [];
 
             const coordinateMatrix = new Matrix(4, 2);
@@ -1051,7 +1051,7 @@ const canvasModule = (function () {
             return points;
         }
 
-        bezierForm(P1, P2, P3, P4, tStep = 0.001) {
+        _bezierForm(P1, P2, P3, P4, tStep = 0.001) {
             const points = [];
 
             const coordinateMatrix = new Matrix(4, 2);
@@ -1071,7 +1071,7 @@ const canvasModule = (function () {
             return points;
         }
 
-        vSplineSegment(P1, P2, P3, P4, tStep = 0.001) {
+        _vSplineSegment(P1, P2, P3, P4, tStep = 0.001) {
             const points = [];
 
             const coordinateMatrix = new Matrix(4, 2);
@@ -1091,7 +1091,7 @@ const canvasModule = (function () {
             return points;
         }
 
-        vSpline(referencePoints) {
+        _vSpline(referencePoints) {
             referencePoints = [
                 ...referencePoints,
                 referencePoints[0],
