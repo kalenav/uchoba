@@ -16,11 +16,6 @@ body {
     overflow-x: hidden;
 }
 
-/* .canvas-container {
-    width: 1000px;
-    height: 800px;
-} */
-
 #canvas {
     width: 100%;
     height: 100%;
@@ -28,7 +23,6 @@ body {
 }
 
 #toolbar {
-    /* bruh */
     max-width: 1000px; 
     display: flex;
     flex-direction: row;
@@ -62,4 +56,8 @@ body {
 
 .toolbar-section main button {
     padding: 0.25rem;
+}
+
+#hint {
+    margin-bottom: 0.5rem;
 }

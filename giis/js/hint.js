@@ -1,5 +1,5 @@
 class HintController {
-    _defaultHintText = 'Режим не выбран';
+    _defaultHintText = 'Фигура не выбрана';
 
     constructor(hintElemId = 'hint') {
         this._hintElem = document.getElementById(hintElemId);

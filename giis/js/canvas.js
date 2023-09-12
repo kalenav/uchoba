@@ -1,5 +1,7 @@
 const canvasModule = (function () {
     class CanvasModel {
+        _modelSnapshot = null;
+
         _ddaLineSegments = [];
         _bresenhamLineSegments = [];
         _wuLineSegments = [];
@@ -50,12 +52,18 @@ const canvasModule = (function () {
             this._addFigure(this._vSplines, new geometryModule.VSpline(vSpline.referencePoints));
         }
 
-        getClosestReferencePointToPoint(point) {
+        getClosestReferencePointToPoint(point, includeVSplines = true) {
             let closestCurve = null;
             let currMinDistance = Infinity;
             let referencePointInCurveIndex = null;
 
-            for (const curve of this.curves) {
+            const curves = [
+                ...this.hermiteCurves,
+                ...this.bezierCurves,
+                ...(includeVSplines ? this.vSplines : [])
+            ];
+
+            for (const curve of curves) {
                 const distancesToPoint = curve.referencePoints.map(referencePoint => referencePoint.distanceToPoint(point));
                 const minDistance = Math.min(...distancesToPoint);
                 if (minDistance < currMinDistance) {
@@ -71,6 +79,46 @@ const canvasModule = (function () {
             }
         }
 
+        save() {
+            this._modelSnapshot = new CanvasModel();
+            this.ddaLineSegments.forEach(figure => this._modelSnapshot.addDdaLineSegment(figure));
+            this.bresenhamLineSegments.forEach(figure => this._modelSnapshot.addBresenhamLineSegment(figure));
+            this.wuLineSegments.forEach(figure => this._modelSnapshot.addWuLineSegment(figure));
+            this.ellipses.forEach(figure => this._modelSnapshot.addEllipse(figure));
+            this.parabolas.forEach(figure => this._modelSnapshot.addParabola(figure));
+            this.hyperbolas.forEach(figure => this._modelSnapshot.addHyperbola(figure));
+            this.hermiteCurves.forEach(figure => this._modelSnapshot.addHermiteCurve(figure));
+            this.bezierCurves.forEach(figure => this._modelSnapshot.addBezierCurve(figure));
+            this.vSplines.forEach(figure => this._modelSnapshot.addVSpline(figure));
+        }
+
+        restore() {
+            if (this._modelSnapshot === null) {
+                return;
+            }
+            this._ddaLineSegments = this._modelSnapshot.ddaLineSegments;
+            this._bresenhamLineSegments = this._modelSnapshot.bresenhamLineSegments;
+            this._wuLineSegments = this._modelSnapshot.wuLineSegments;
+            this._ellipses = this._modelSnapshot.ellipses;
+            this._parabolas = this._modelSnapshot.parabolas;
+            this._hyperbolas = this._modelSnapshot.hyperbolas;
+            this._hermiteCurves = this._modelSnapshot.hermiteCurves;
+            this._bezierCurves = this._modelSnapshot.bezierCurves;
+            this._vSplines = this._modelSnapshot.vSplines;
+            this._modelSnapshot = null;
+        }
+
+        dropSavedState() {
+            this._modelSnapshot = null;
+        }
+
+        getAllCurveEndpoints(exceptFor) {
+            return [
+                ...this._hermiteCurves.filter(curve => curve !== exceptFor).map(curve => curve.endpoints).flat(),
+                ...this._bezierCurves.filter(curve => curve !== exceptFor).map(curve => curve.endpoints).flat(),
+            ];
+        }
+
         get ddaLineSegments() { return this._ddaLineSegments; }
         get bresenhamLineSegments() { return this._bresenhamLineSegments; }
         get wuLineSegments() { return this._wuLineSegments; }
@@ -80,13 +128,12 @@ const canvasModule = (function () {
         get hermiteCurves() { return this._hermiteCurves; }
         get bezierCurves() { return this._bezierCurves; }
         get vSplines() { return this._vSplines; }
-
         get curves() {
             return [
                 ...this.hermiteCurves,
                 ...this.bezierCurves,
                 ...this.vSplines
-            ]
+            ];
         }
     }
 
@@ -385,11 +432,13 @@ const canvasModule = (function () {
         _debuggingModeEnabled = false;
         _pointCorrectionModeEnabled = false;
         _currPointSelectionListener = null;
-        _currSelectedReferencePoint = null;
+        _segmentConnectingModeEnabled = false;
+        _segmentConnectingSnapDistance = 20;
+        _segmentConnectingMouseForceUnsnapDistance = 100;
 
         constructor({
             width = 1000,
-            height = 800,
+            height = 700,
             canvasHtmlElemId = 'canvas',
             drawGridlines = true,
             gridLineSpacing_X = 10,
@@ -402,7 +451,7 @@ const canvasModule = (function () {
             labelAxes = true
         } = {
             width: 1000,
-            height: 800,
+            height: 700,
             canvasHtmlElemId: 'canvas',
             drawGridlines: true,
             gridLineSpacing_X: 10,
@@ -1205,6 +1254,73 @@ const canvasModule = (function () {
                 this._canvasHtmlElem.removeEventListener('mousemove', mouseMoveEventListener);
                 this._canvasHtmlElem.removeEventListener('click', moveEndEventListener);
                 this._enterReferencePointSelectionMode();
+            }
+            this._canvasHtmlElem.addEventListener('mousemove', mouseMoveEventListener);
+            this._canvasHtmlElem.addEventListener('click', moveEndEventListener);
+        }
+
+        toggleSegmentConnectingMode() {
+            this._segmentConnectingModeEnabled = !this._segmentConnectingModeEnabled;
+            if (this._segmentConnectingModeEnabled) {
+                this.enterSegmentConnectingMode();
+            } else {
+                this._model.restore();
+            }
+            return this._segmentConnectingModeEnabled;
+        }
+
+        enterSegmentConnectingMode() {
+            this._enterPointSelection(1, this._lookForSegmentToConnect.bind(this));
+        }
+
+        _lookForSegmentToConnect(selectedPoints) {
+            const {
+                closestCurve,
+                referencePointInCurveIndex
+            } = this._model.getClosestReferencePointToPoint(new Point(selectedPoints[0].x, selectedPoints[0].y), false);
+
+            this._model.save();
+            const allEndpoints = this._model.getAllCurveEndpoints(closestCurve);
+            const mouseMoveEventListener = (event) => {
+                const { x, y } = this._getCanvasCoordsFromMouseEvent(event);
+                const mousePosition = new Point(x, y);
+
+                for (const currCurveEndpoint of closestCurve.endpoints) {
+                    for (const otherCurveEndpoint of allEndpoints) {
+                        if (
+                            currCurveEndpoint.distanceToPoint(otherCurveEndpoint) <= this._segmentConnectingSnapDistance
+                            && mousePosition.distanceToPoint(otherCurveEndpoint) <= this._segmentConnectingMouseForceUnsnapDistance
+                        ) {
+                            const diffX = otherCurveEndpoint.x - currCurveEndpoint.x;
+                            const diffY = otherCurveEndpoint.y - currCurveEndpoint.y;
+                            closestCurve.referencePoints.forEach((point, index) => {
+                                closestCurve.setReferencePoint(new Point(
+                                    point.x + diffX,
+                                    point.y + diffY
+                                ), index);
+                            });
+                            this._redrawCanvas();
+                            return;
+                        }
+                    }
+                }
+
+                const closestPoint = closestCurve.referencePoints[referencePointInCurveIndex];
+                const diffX = x - closestPoint.x;
+                const diffY = y - closestPoint.y;
+                closestCurve.referencePoints.forEach((point, index) => {
+                    closestCurve.setReferencePoint(new Point(
+                        point.x + diffX,
+                        point.y + diffY
+                    ), index);
+                });
+                this._redrawCanvas();
+            }
+            const moveEndEventListener = () => {
+                this._canvasHtmlElem.removeEventListener('mousemove', mouseMoveEventListener);
+                this._canvasHtmlElem.removeEventListener('click', moveEndEventListener);
+                this._model.dropSavedState();
+                this.enterSegmentConnectingMode();
             }
             this._canvasHtmlElem.addEventListener('mousemove', mouseMoveEventListener);
             this._canvasHtmlElem.addEventListener('click', moveEndEventListener);

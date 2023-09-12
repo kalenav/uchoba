@@ -29,13 +29,17 @@
     const hint = new HintController();
     const toolbar = new toolbarModule.ToolbarController([
         new Section('Режимы', [
-            new Button('Отладочный', () => {
+            new Button('Отладочный режим', () => {
                 const debugging = canvas.toggleDebuggingMode();
                 alert(`Отладочный режим ${debugging ? 'включен' : 'отключен'}`);
             }),
             new Button('Режим корректировки опорных точек', () => {
                 const correcting = canvas.togglePointCorrectionMode();
                 alert(`Режим корректировки опорных точек ${correcting ? 'включен' : 'отключен'}`);
+            }),
+            new Button('Режим состыковки сегментов', () => {
+                const moving = canvas.toggleSegmentConnectingMode();
+                alert(`Режим состыковки сегментов ${moving ? 'включен' : 'отключен'}`);
             })
         ]),
         new Section('Отрезки', [

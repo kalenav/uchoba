@@ -193,6 +193,7 @@ const geometryModule = (function () {
         get R1() { return new Vector(new Point(0, 0, 0), new Point(this._R1.x, this._R1.y, this._R1.z)); }
         get R4() { return new Vector(new Point(0, 0, 0), new Point(this._R4.x, this._R4.y, this._R4.z)); }
         get referencePoints() { return [...this._referencePoints]; }
+        get endpoints() { return [this.referencePoints[0], this.referencePoints[1]]; }
 
         setReferencePoint(point, index) {
             this._referencePoints.splice(index, 1, new Point(point.x, point.y, point.z));
@@ -209,6 +210,7 @@ const geometryModule = (function () {
         get P3() { return this._referencePoints[2]; }
         get P4() { return this._referencePoints[3]; }
         get referencePoints() { return [...this._referencePoints]; }
+        get endpoints() { return [this._referencePoints[0], this._referencePoints[3]]; }
 
         setReferencePoint(point, index) {
             this._referencePoints.splice(index, 1, new Point(point.x, point.y, point.z));
