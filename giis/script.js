@@ -919,7 +919,20 @@ const canvasModule = (function () {
             this._model.addPoints(this.hermiteForm(P1, P4, R1, R4));
         }
 
-        _getHermiteFormParameterizedFunctions(coefficients) {
+        enterBezierFormDrawingMode() {
+            this._enterPointSelection(4, this._exitBezierFormDrawingMode.bind(this));
+        }
+
+        _exitBezierFormDrawingMode(selectedPoints) {
+            this._model.addPoints(this.bezierForm(
+                selectedPoints[0],
+                selectedPoints[1],
+                selectedPoints[2],
+                selectedPoints[3]
+            ));
+        }
+
+        _getXtAndYtFromCoefficients(coefficients) {
             function x_t(t) {
                 return (t**3 * coefficients.getElementAt(1, 1))
                     + (t**2 * coefficients.getElementAt(2, 1))
@@ -948,7 +961,7 @@ const canvasModule = (function () {
                 [R4.x, R4.y]
             ]);
             const coefficients = ReusableEntities.hermiteMatrix.multiply(coordinateMatrix);
-            const [x, y] = this._getHermiteFormParameterizedFunctions(coefficients);
+            const [x, y] = this._getXtAndYtFromCoefficients(coefficients);
 
             for (let t = 0; t <= 1; t += tStep) {
                 points.push(new Point(x(t), y(t)));
@@ -957,7 +970,27 @@ const canvasModule = (function () {
             return points;
         }
 
-        //////////////////////////////////
+        bezierForm(P1, P2, P3, P4, tStep = 0.01) {
+            const points = [];
+
+            const coordinateMatrix = new Matrix(4, 2);
+            coordinateMatrix.setElements([
+                [P1.x, P1.y],
+                [P2.x, P2.y],
+                [P3.x, P3.y],
+                [P4.x, P4.y]
+            ]);
+            const coefficients = ReusableEntities.bezierMatrix.multiply(coordinateMatrix);
+            const [x, y] = this._getXtAndYtFromCoefficients(coefficients);
+
+            for (let t = 0; t <= 1; t += tStep) {
+                points.push(new Point(x(t), y(t)));
+            }
+
+            return points;
+        }
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////
 
         __TEST__() {
 
@@ -1299,8 +1332,17 @@ const ReusableEntities = (function () {
         [1, 0, 0, 0]
     ]);
 
+    const bezierMatrix = new Matrix(4, 4);
+    bezierMatrix.setElements([
+        [-1, 3, -3, 1],
+        [3, -6, 3, 0],
+        [-3, 3, 0, 0],
+        [1, 0, 0, 0]
+    ]);
+
     return {
-        hermiteMatrix
+        hermiteMatrix,
+        bezierMatrix
     }
 })();
 
@@ -1355,6 +1397,10 @@ const toolbar = new toolbarModule.ToolbarController([
         new Button('Эрмитова форма', () => {
             canvas.enterHermiteFormDrawingMode();
             hint.setHintText('Режим рисования кривой (Эрмитова форма)');
+        }),
+        new Button('Форма Безье', () => {
+            canvas.enterBezierFormDrawingMode();
+            hint.setHintText('Режим рисования кривой (Форма Безье)');
         }),
         new Button('test', () => {
             canvas.__TEST__();
