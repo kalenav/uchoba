@@ -39,11 +39,11 @@ const canvasModule = (function () {
         }
 
         addHermiteCurve(hermiteCurve) {
-            this._addFigure(this._hermiteCurves, new geometryModule.HermiteCurve(hermiteCurve.P1, hermiteCurve.P4, hermiteCurve.R1, hermiteCurve.R4));
+            this._addFigure(this._hermiteCurves, new geometryModule.HermiteCurve([hermiteCurve.P1, hermiteCurve.P4], hermiteCurve.R1, hermiteCurve.R4));
         }
 
         addBezierCurve(bezierCurve) {
-            this._addFigure(this._bezierCurves, new geometryModule.BezierCurve(bezierCurve.P1, bezierCurve.P2, bezierCurve.P3, bezierCurve.P4));
+            this._addFigure(this._bezierCurves, new geometryModule.BezierCurve([bezierCurve.P1, bezierCurve.P2, bezierCurve.P3, bezierCurve.P4]));
         }
 
         addVSpline(vSpline) {
@@ -419,11 +419,11 @@ const canvasModule = (function () {
             this._canvasHtmlElem.addEventListener('wheel', (event) => {
                 event.preventDefault();
 
-                const scaling = event.deltaY * -0.01;
-                if (scaling === 1) {
+                const scaling = event.deltaY * -1;
+                if (scaling > 1) {
                     this._view.scaleUp();
                 }
-                if (scaling === -1) {
+                if (scaling < -1) {
                     this._view.scaleDown();
                 }
                 this._redrawCanvas();
@@ -449,6 +449,7 @@ const canvasModule = (function () {
         }
 
         _enterPointSelection(pointsRequired, exitPointSelectionCallback) {
+            this._exitPointSelection();
             const selectedPoints = [];
     
             this._currPointSelectionListener = (event) => {
@@ -779,7 +780,7 @@ const canvasModule = (function () {
             } while (currY >= 0);
 
             const horizontalEllipseAxis = new Line(origin, new Point(origin.x + 1, origin.y));
-            const verticalEllipseAxis = new Line(origin, new Point(origin.x, origin.y + b));
+            const verticalEllipseAxis = new Line(origin, new Point(origin.x, origin.y + 1));
             const points_quadrant2 = points_quadrant1.map(point => point.reflectAlongLine(verticalEllipseAxis));
             const points_quadrant3 = points_quadrant2.map(point => point.reflectAlongLine(horizontalEllipseAxis));
             const points_quadrant4 = points_quadrant1.map(point => point.reflectAlongLine(horizontalEllipseAxis));
@@ -1125,7 +1126,7 @@ const canvasModule = (function () {
             const R1 = this._getSlopeVector(prompt('Введите: R1_x, R1_y'));
             const R4 = this._getSlopeVector(prompt('Введите: R4_x, R4_y'));
 
-            this._model.addHermiteCurve(new geometryModule.HermiteCurve(P1, P4, R1, R4));
+            this._model.addHermiteCurve(new geometryModule.HermiteCurve([P1, P4], R1, R4));
         }
 
         enterBezierFormDrawingMode() {
@@ -1133,7 +1134,7 @@ const canvasModule = (function () {
         }
 
         _exitBezierFormDrawingMode(selectedPoints) {
-            this._model.addBezierCurve(new geometryModule.BezierCurve(selectedPoints[0], selectedPoints[1], selectedPoints[2], selectedPoints[3]));
+            this._model.addBezierCurve(new geometryModule.BezierCurve([selectedPoints[0], selectedPoints[1], selectedPoints[2], selectedPoints[3]]));
         }
 
         enterVsplineDrawingMode() {
@@ -1447,35 +1448,33 @@ const geometryModule = (function () {
     }
 
     class HermiteCurve {
-        constructor(P1, P4, R1, R4) {
-            this._P1 = new Point(P1.x, P1.y, P1.z);
-            this._P4 = new Point(P4.x, P4.y, P4.z);
+        constructor(referencePoints, R1, R4) {
+            this._referencePoints = [...referencePoints];
             this._R1 = new Vector(new Point(0, 0, 0), new Point(R1.x, R1.y, R1.z));
             this._R4 = new Vector(new Point(0, 0, 0), new Point(R4.x, R4.y, R4.z));
         }
 
-        get P1() { return new Point(this._P1.x, this._P1.y, this._P1.z); }
-        get P4() { return new Point(this._P4.x, this._P4.y, this._P4.z); }
+        get P1() { return this._referencePoints[0]; }
+        get P4() { return this._referencePoints[1]; }
         get R1() { return new Vector(new Point(0, 0, 0), new Point(this._R1.x, this._R1.y, this._R1.z)); }
         get R4() { return new Vector(new Point(0, 0, 0), new Point(this._R4.x, this._R4.y, this._R4.z)); }
+        get referencePoints() { return [...this._referencePoints]; }
 
-        get referencePoints() { return [this.P1, this.P2]; }
+        setReferencePoint(point, index) {
+            this._referencePoints.splice(index, 1, new Point(point.x, point.y, point.z));
+        }
     }
 
     class BezierCurve {
-        constructor(P1, P2, P3, P4) {
-            this._P1 = new Point(P1.x, P1.y, P1.z);
-            this._P2 = new Point(P2.x, P2.y, P2.z);
-            this._P3 = new Point(P3.x, P3.y, P3.z);
-            this._P4 = new Point(P4.x, P4.y, P4.z);
+        constructor(referencePoints) {
+            this._referencePoints = [...referencePoints];
         }
 
-        get P1() { return new Point(this._P1.x, this._P1.y, this._P1.z); }
-        get P2() { return new Point(this._P2.x, this._P2.y, this._P2.z); }
-        get P3() { return new Point(this._P3.x, this._P3.y, this._P3.z); }
-        get P4() { return new Point(this._P4.x, this._P4.y, this._P4.z); }
-
-        get referencePoints() { return [this.P1, this.P2, this.P3, this.P4]; }
+        get P1() { return this._referencePoints[0]; }
+        get P2() { return this._referencePoints[1]; }
+        get P3() { return this._referencePoints[2]; }
+        get P4() { return this._referencePoints[3]; }
+        get referencePoints() { return [...this._referencePoints]; }
     }
 
     class VSpline {
