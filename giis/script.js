@@ -13,6 +13,7 @@ const canvasModule = (function () {
                 z: point.z,
                 opacity: point.opacity
             });
+            this.redrawCanvas();
         }
 
         addPoints(points) {
@@ -589,6 +590,156 @@ const canvasModule = (function () {
         ///////////////// lab2 /////////////////
         ////////////////////////////////////////
 
+        _ellipsePointError(x, y, a, b) {
+            return Math.abs((x**2 / a**2) + (y**2 / b**2) - 1);
+        }
+
+        ellipse(origin, a, b) {
+            const points = [];
+
+            let currX = 0;
+            let currY = b;
+            do {
+                points.push(new Point(currX + origin.x, currY + origin.y));
+
+                const horizontalPixelError = this._ellipsePointError(currX + 1, currY, a, b);
+                const verticalPixelError = this._ellipsePointError(currX, currY - 1, a, b);
+                const diagonalPixelError = this._ellipsePointError(currX + 1, currY - 1, a, b);
+                const minimalError = Math.min(horizontalPixelError, verticalPixelError, diagonalPixelError);
+
+                if (minimalError === horizontalPixelError) {
+                    currX++;
+                } else if (minimalError === verticalPixelError) {
+                    currY--;
+                } else {
+                    currX++;
+                    currY--;
+                }
+            } while (currY >= 0);
+
+            return points;
+        }
+
+        _horizontalParabolaPointError(x, y, p) {
+            return Math.abs((y**2 / x) - p);
+        }
+
+        horizontalParabola(vertex, p, Xlimit, Ylimit) {
+            const points = [];
+
+            let currX = 0;
+            let currY = 0;
+            do {
+                points.push(new Point(currX + vertex.x, currY + vertex.y));
+
+                const horizontalPixelError = this._horizontalParabolaPointError(currX + 1, currY, p);
+                const verticalPixelError = this._horizontalParabolaPointError(currX, currY + 1, p);
+                const diagonalPixelError = this._horizontalParabolaPointError(currX + 1, currY + 1, p);
+                const minimalError = Math.min(horizontalPixelError, verticalPixelError, diagonalPixelError);
+
+                if (minimalError === horizontalPixelError) {
+                    currX++;
+                } else if (minimalError === verticalPixelError) {
+                    currY++;
+                } else {
+                    currX++;
+                    currY++;
+                }
+            } while(currX < Xlimit && currY < Ylimit);
+
+            return points;
+        }
+
+        _verticalParabolaPointError(x, y, p) {
+            return Math.abs((x**2 / y) - p);
+        }
+
+        verticalParabola(vertex, p, Xlimit, Ylimit) {
+            const points = [];
+
+            let currX = 0;
+            let currY = 0;
+            do {
+                points.push(new Point(currX + vertex.x, currY + vertex.y));
+
+                const horizontalPixelError = this._verticalParabolaPointError(currX + 1, currY, p);
+                const verticalPixelError = this._verticalParabolaPointError(currX, currY + 1, p);
+                const diagonalPixelError = this._verticalParabolaPointError(currX + 1, currY + 1, p);
+                const minimalError = Math.min(horizontalPixelError, verticalPixelError, diagonalPixelError);
+
+                if (minimalError === horizontalPixelError) {
+                    currX++;
+                } else if (minimalError === verticalPixelError) {
+                    currY++;
+                } else {
+                    currX++;
+                    currY++;
+                }
+            } while(currX < Xlimit && currY < Ylimit);
+
+            return points;
+        }
+
+        _horizontalHyperbolaPointError(x, y, a, b) {
+            return Math.abs((x**2 / a**2) - (y**2 / b**2) - 1);
+        }
+
+        horizontalHyperbola(origin, a, b, Xlimit, Ylimit) {
+            const points = [];
+
+            let currX = a;
+            let currY = 0;
+            do {
+                points.push(new Point(currX + origin.x, currY + origin.y));
+
+                const horizontalPixelError = this._horizontalHyperbolaPointError(currX + 1, currY, a, b);
+                const verticalPixelError = this._horizontalHyperbolaPointError(currX, currY + 1, a, b);
+                const diagonalPixelError = this._horizontalHyperbolaPointError(currX + 1, currY + 1, a, b);
+                const minimalError = Math.min(horizontalPixelError, verticalPixelError, diagonalPixelError);
+
+                if (minimalError === horizontalPixelError) {
+                    currX++;
+                } else if (minimalError === verticalPixelError) {
+                    currY++;
+                } else {
+                    currX++;
+                    currY++;
+                }
+            } while(currX < Xlimit && currY < Ylimit);
+
+            return points;
+        }
+
+        _verticalHyperbolaPointError(x, y, a, b) {
+            return Math.abs((y**2 / b**2) - (x**2 / a**2) - 1);
+        }
+
+        verticalHyperbola(origin, a, b, Xlimit, Ylimit) {
+            const points = [];
+
+            let currX = 0;
+            let currY = b;
+            do {
+                points.push(new Point(currX + origin.x, currY + origin.y));
+
+                const horizontalPixelError = this._verticalHyperbolaPointError(currX + 1, currY, a, b);
+                const verticalPixelError = this._verticalHyperbolaPointError(currX, currY + 1, a, b);
+                const diagonalPixelError = this._verticalHyperbolaPointError(currX + 1, currY + 1, a, b);
+                const minimalError = Math.min(horizontalPixelError, verticalPixelError, diagonalPixelError);
+
+                if (minimalError === horizontalPixelError) {
+                    currX++;
+                } else if (minimalError === verticalPixelError) {
+                    currY++;
+                } else {
+                    currX++;
+                    currY++;
+                }
+            } while(currX < Xlimit && currY < Ylimit);
+
+            return points;
+        }
+
         enterEllipseDrawingMode() {
             this._enterPointSelection(1, this._exitEllipseDrawingMode.bind(this));
         }
@@ -752,190 +903,9 @@ const canvasModule = (function () {
             }
         }
 
-        _ellipsePointError(x, y, a, b) {
-            return Math.abs((x**2 / a**2) + (y**2 / b**2) - 1);
-        }
-
-        ellipse(origin, a, b) {
-            const points = [];
-
-            let currX = 0;
-            let currY = b;
-            do {
-                points.push(new Point(currX + origin.x, currY + origin.y));
-
-                const horizontalPixelError = this._ellipsePointError(currX + 1, currY, a, b);
-                const verticalPixelError = this._ellipsePointError(currX, currY - 1, a, b);
-                const diagonalPixelError = this._ellipsePointError(currX + 1, currY - 1, a, b);
-                const minimalError = Math.min(horizontalPixelError, verticalPixelError, diagonalPixelError);
-
-                if (minimalError === horizontalPixelError) {
-                    currX++;
-                } else if (minimalError === verticalPixelError) {
-                    currY--;
-                } else {
-                    currX++;
-                    currY--;
-                }
-            } while (currY >= 0);
-
-            return points;
-        }
-
-        _horizontalParabolaPointError(x, y, p) {
-            return Math.abs((y**2 / x) - p);
-        }
-
-        horizontalParabola(vertex, p, Xlimit, Ylimit) {
-            const points = [];
-
-            let currX = 0;
-            let currY = 0;
-            do {
-                points.push(new Point(currX + vertex.x, currY + vertex.y));
-
-                const horizontalPixelError = this._horizontalParabolaPointError(currX + 1, currY, p);
-                const verticalPixelError = this._horizontalParabolaPointError(currX, currY + 1, p);
-                const diagonalPixelError = this._horizontalParabolaPointError(currX + 1, currY + 1, p);
-                const minimalError = Math.min(horizontalPixelError, verticalPixelError, diagonalPixelError);
-
-                if (minimalError === horizontalPixelError) {
-                    currX++;
-                } else if (minimalError === verticalPixelError) {
-                    currY++;
-                } else {
-                    currX++;
-                    currY++;
-                }
-            } while(currX < Xlimit && currY < Ylimit);
-
-            return points;
-        }
-
-        _verticalParabolaPointError(x, y, p) {
-            return Math.abs((x**2 / y) - p);
-        }
-
-        verticalParabola(vertex, p, Xlimit, Ylimit) {
-            const points = [];
-
-            let currX = 0;
-            let currY = 0;
-            do {
-                points.push(new Point(currX + vertex.x, currY + vertex.y));
-
-                const horizontalPixelError = this._verticalParabolaPointError(currX + 1, currY, p);
-                const verticalPixelError = this._verticalParabolaPointError(currX, currY + 1, p);
-                const diagonalPixelError = this._verticalParabolaPointError(currX + 1, currY + 1, p);
-                const minimalError = Math.min(horizontalPixelError, verticalPixelError, diagonalPixelError);
-
-                if (minimalError === horizontalPixelError) {
-                    currX++;
-                } else if (minimalError === verticalPixelError) {
-                    currY++;
-                } else {
-                    currX++;
-                    currY++;
-                }
-            } while(currX < Xlimit && currY < Ylimit);
-
-            return points;
-        }
-
-        _horizontalHyperbolaPointError(x, y, a, b) {
-            return Math.abs((x**2 / a**2) - (y**2 / b**2) - 1);
-        }
-
-        horizontalHyperbola(origin, a, b, Xlimit, Ylimit) {
-            const points = [];
-
-            let currX = a;
-            let currY = 0;
-            do {
-                points.push(new Point(currX + origin.x, currY + origin.y));
-
-                const horizontalPixelError = this._horizontalHyperbolaPointError(currX + 1, currY, a, b);
-                const verticalPixelError = this._horizontalHyperbolaPointError(currX, currY + 1, a, b);
-                const diagonalPixelError = this._horizontalHyperbolaPointError(currX + 1, currY + 1, a, b);
-                const minimalError = Math.min(horizontalPixelError, verticalPixelError, diagonalPixelError);
-
-                if (minimalError === horizontalPixelError) {
-                    currX++;
-                } else if (minimalError === verticalPixelError) {
-                    currY++;
-                } else {
-                    currX++;
-                    currY++;
-                }
-            } while(currX < Xlimit && currY < Ylimit);
-
-            return points;
-        }
-
-        _verticalHyperbolaPointError(x, y, a, b) {
-            return Math.abs((y**2 / b**2) - (x**2 / a**2) - 1);
-        }
-
-        verticalHyperbola(origin, a, b, Xlimit, Ylimit) {
-            const points = [];
-
-            let currX = 0;
-            let currY = b;
-            do {
-                points.push(new Point(currX + origin.x, currY + origin.y));
-
-                const horizontalPixelError = this._verticalHyperbolaPointError(currX + 1, currY, a, b);
-                const verticalPixelError = this._verticalHyperbolaPointError(currX, currY + 1, a, b);
-                const diagonalPixelError = this._verticalHyperbolaPointError(currX + 1, currY + 1, a, b);
-                const minimalError = Math.min(horizontalPixelError, verticalPixelError, diagonalPixelError);
-
-                if (minimalError === horizontalPixelError) {
-                    currX++;
-                } else if (minimalError === verticalPixelError) {
-                    currY++;
-                } else {
-                    currX++;
-                    currY++;
-                }
-            } while(currX < Xlimit && currY < Ylimit);
-
-            return points;
-        }
-
         ////////////////////////////////////////
         ///////////////// lab3 /////////////////
         ////////////////////////////////////////
-
-        enterHermiteFormDrawingMode() {
-            this._enterPointSelection(2, this._exitHermiteFormDrawingMode.bind(this));
-        }
-
-        _getSlopeVector(userInput) {
-            const coordinates = userInput.split(', ');
-            return new Vector(new Point(0, 0), new Point(coordinates[0], coordinates[1]));
-        }
-
-        _exitHermiteFormDrawingMode(selectedPoints) {
-            const P1 = new Point(selectedPoints[0].x, selectedPoints[0].y);
-            const P4 = new Point(selectedPoints[1].x, selectedPoints[1].y);
-            const R1 = this._getSlopeVector(prompt('Введите: R1_x, R1_y'));
-            const R4 = this._getSlopeVector(prompt('Введите: R4_x, R4_y'));
-
-            this._model.addPoints(this.hermiteForm(P1, P4, R1, R4));
-        }
-
-        enterBezierFormDrawingMode() {
-            this._enterPointSelection(4, this._exitBezierFormDrawingMode.bind(this));
-        }
-
-        _exitBezierFormDrawingMode(selectedPoints) {
-            this._model.addPoints(this.bezierForm(
-                selectedPoints[0],
-                selectedPoints[1],
-                selectedPoints[2],
-                selectedPoints[3]
-            ));
-        }
 
         _getXtAndYtFromCoefficients(coefficients) {
             function x_t(t) {
@@ -993,6 +963,37 @@ const canvasModule = (function () {
             }
 
             return points;
+        }
+
+        enterHermiteFormDrawingMode() {
+            this._enterPointSelection(2, this._exitHermiteFormDrawingMode.bind(this));
+        }
+
+        _getSlopeVector(userInput) {
+            const coordinates = userInput.split(', ');
+            return new Vector(new Point(0, 0), new Point(coordinates[0], coordinates[1]));
+        }
+
+        _exitHermiteFormDrawingMode(selectedPoints) {
+            const P1 = new Point(selectedPoints[0].x, selectedPoints[0].y);
+            const P4 = new Point(selectedPoints[1].x, selectedPoints[1].y);
+            const R1 = this._getSlopeVector(prompt('Введите: R1_x, R1_y'));
+            const R4 = this._getSlopeVector(prompt('Введите: R4_x, R4_y'));
+
+            this._drawPointsOrStartDebugging(this.hermiteForm(P1, P4, R1, R4));
+        }
+
+        enterBezierFormDrawingMode() {
+            this._enterPointSelection(4, this._exitBezierFormDrawingMode.bind(this));
+        }
+
+        _exitBezierFormDrawingMode(selectedPoints) {
+            this._drawPointsOrStartDebugging(this.bezierForm(
+                selectedPoints[0],
+                selectedPoints[1],
+                selectedPoints[2],
+                selectedPoints[3]
+            ));
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////
