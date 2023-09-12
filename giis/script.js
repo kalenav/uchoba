@@ -10,10 +10,6 @@ const canvasModule = (function () {
         _bezierCurves = [];
         _vSplines = [];
 
-        constructor(view) {
-            this._view = view;
-        }
-
         _addFigure(list, figure) {
             list.push(figure);
         }
@@ -39,7 +35,7 @@ const canvasModule = (function () {
         }
 
         addHyperbola(hyperbola) {
-            this._addFigure(this._hyperbolas, new geometryModule.Hyperbola(hyperbola.origin, hyperbola.a, hyperbola.b));
+            this._addFigure(this._hyperbolas, new geometryModule.Hyperbola(hyperbola.origin, hyperbola.a, hyperbola.b, hyperbola.isHorizontal));
         }
 
         addHermiteCurve(hermiteCurve) {
@@ -51,7 +47,8 @@ const canvasModule = (function () {
         }
 
         addVSpline(vSpline) {
-            this._addFigure(this._vSplines, new geometryModule.VSpline(vSpline.points));
+            console.log(vSpline);
+            this._addFigure(this._vSplines, new geometryModule.VSpline(vSpline.referencePoints));
         }
 
         get ddaLineSegments() { return this._ddaLineSegments; }
@@ -63,6 +60,14 @@ const canvasModule = (function () {
         get hermiteCurves() { return this._hermiteCurves; }
         get bezierCurves() { return this._bezierCurves; }
         get vSplines() { return this._vSplines; }
+
+        get curves() {
+            return [
+                ...this.hermiteCurves,
+                ...this.bezierCurves,
+                ...this.vSplines
+            ]
+        }
     }
 
     class CanvasView {
@@ -72,8 +77,8 @@ const canvasModule = (function () {
             blue: 0
         }
         _DEFAULT_HIGHLIGHT_COLOR = {
-            red: 255,
-            green: 0,
+            red: 0,
+            green: 255,
             blue: 0
         }
         _minScale = 1;
@@ -338,15 +343,16 @@ const canvasModule = (function () {
             }
         }
 
-        highlightPoint(x, y, color = this._DEFAULT_HIGHLIGHT_COLOR) {
-            this._ctx.strokeStyle = `rgb(${color.red}, ${color.green}, ${color.blue})`;
+        _highlightPoint(x, y) {
             this._ctx.beginPath();
             this._ctx.arc(this._origin.x + x, this._origin.y - y, 5, 0, 2 * Math.PI);
             this._ctx.stroke();
         }
 
-        highlightPoints(points, color) {
-            points.forEach(point => this.highlightPoint(point.x, point.y, color));
+        highlightPoints(points, color = this._DEFAULT_HIGHLIGHT_COLOR) {
+            this._ctx.strokeStyle = `rgb(${color.red}, ${color.green}, ${color.blue})`;
+            points.forEach(point => this._highlightPoint(point.x, point.y));
+            this._ctx.strokeStyle = `rgb(0, 0, 0)`;
         }
 
         get width() { return this._width; }
@@ -358,6 +364,8 @@ const canvasModule = (function () {
         _drawingFinishedEvent = new Event('drawing-finished');
         _debuggingModeEnabled = false;
         _pointCorrectionModeEnabled = false;
+        _currPointSelectionListener = null;
+        _currSelectedReferencePoint = null;
 
         constructor({
             width = 1000,
@@ -386,6 +394,7 @@ const canvasModule = (function () {
             axisArrowHeight: 5,
             labelAxes: true
         }) {
+            this._model = new CanvasModel();
             this._view = new CanvasView({
                 width,
                 height,
@@ -400,8 +409,7 @@ const canvasModule = (function () {
                 axisArrowHeight,
                 labelAxes
             });
-            this._model = new CanvasModel(this._view);
-
+        
             this._canvasHtmlElem = document.getElementById(canvasHtmlElemId);
             this._addScalingEventListener();
             this._addTranslationEventListener();
@@ -443,18 +451,23 @@ const canvasModule = (function () {
         _enterPointSelection(pointsRequired, exitPointSelectionCallback) {
             const selectedPoints = [];
     
-            const clickListener = (event) => {
+            this._currPointSelectionListener = (event) => {
                 const x = event.offsetX - this._view.width / 2;
                 const y = -1 * event.offsetY + this._view.height / 2;
                 selectedPoints.push(new Point(x, y));
                 if (selectedPoints.length === pointsRequired) {
-                    this._canvasHtmlElem.removeEventListener('click', clickListener);
+                    this._exitPointSelection();
                     exitPointSelectionCallback(selectedPoints);
                     this._redrawCanvas();
                     document.dispatchEvent(this._drawingFinishedEvent);
                 }
             };
-            this._canvasHtmlElem.addEventListener('click', clickListener);
+            this._canvasHtmlElem.addEventListener('click', this._currPointSelectionListener);
+        }
+
+        _exitPointSelection() {
+            this._canvasHtmlElem.removeEventListener('click', this._currPointSelectionListener);
+            this._currPointSelectionListener = null;
         }
 
         _redrawCanvas() {
@@ -497,7 +510,7 @@ const canvasModule = (function () {
 
             const hermiteCurves = this._model.hermiteCurves.map(curve => this.hermiteForm(curve.P1, curve.P4, curve.R1, curve.R4));
             const bezierCurves = this._model.bezierCurves.map(curve => this.bezierForm(curve.P1, curve.P2, curve.P3, curve.P4));
-            const vSplines = this._model.vSplines.map(vSpline => this.vSpline(vSpline.points));
+            const vSplines = this._model.vSplines.map(vSpline => this.vSpline(vSpline.referencePoints));
 
             const pointsToDraw = [
                 ...ddaLineSegments.flat(),
@@ -514,6 +527,9 @@ const canvasModule = (function () {
             ];
 
             this._view.redrawCanvas();
+            if (this._pointCorrectionModeEnabled) {
+                this._highlightAllCurveReferencePoints();
+            }
             this._view.drawPointsOrStartDebugging(pointsToDraw);
         }
 
@@ -1131,13 +1147,28 @@ const canvasModule = (function () {
 
         togglePointCorrectionMode() {
             this._pointCorrectionModeEnabled = !this._pointCorrectionModeEnabled;
+            if (this._pointCorrectionModeEnabled) {
+                this._highlightAllCurveReferencePoints();
+                this._enterPointSelection(1, this._referencePointSelectedCallback.bind(this));
+            } else {
+                this._exitPointSelection();
+                this._redrawCanvas();
+            }
             return this._pointCorrectionModeEnabled;
+        }
+
+        _highlightAllCurveReferencePoints() {
+            this._model.curves.forEach(curve => this._view.highlightPoints(curve.referencePoints));
+        }
+
+        _referencePointSelectedCallback(selectedPoints) {
+
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////
 
         __TEST__() {
-            this._view.highlightPoint(100, 100);
+            
         }
     }
 
@@ -1417,7 +1448,6 @@ const geometryModule = (function () {
 
     class HermiteCurve {
         constructor(P1, P4, R1, R4) {
-            console.log(arguments);
             this._P1 = new Point(P1.x, P1.y, P1.z);
             this._P4 = new Point(P4.x, P4.y, P4.z);
             this._R1 = new Vector(new Point(0, 0, 0), new Point(R1.x, R1.y, R1.z));
@@ -1428,6 +1458,8 @@ const geometryModule = (function () {
         get P4() { return new Point(this._P4.x, this._P4.y, this._P4.z); }
         get R1() { return new Vector(new Point(0, 0, 0), new Point(this._R1.x, this._R1.y, this._R1.z)); }
         get R4() { return new Vector(new Point(0, 0, 0), new Point(this._R4.x, this._R4.y, this._R4.z)); }
+
+        get referencePoints() { return [this.P1, this.P2]; }
     }
 
     class BezierCurve {
@@ -1442,6 +1474,8 @@ const geometryModule = (function () {
         get P2() { return new Point(this._P2.x, this._P2.y, this._P2.z); }
         get P3() { return new Point(this._P3.x, this._P3.y, this._P3.z); }
         get P4() { return new Point(this._P4.x, this._P4.y, this._P4.z); }
+
+        get referencePoints() { return [this.P1, this.P2, this.P3, this.P4]; }
     }
 
     class VSpline {
@@ -1449,7 +1483,7 @@ const geometryModule = (function () {
             this._points = points.map(point => new Point(point.x, point.y, point.z));
         }
 
-        get points() { return this._points.map(point => new Point(point.x, point.y, point.z)); }
+        get referencePoints() { return this._points; }
     }
 
     return {
