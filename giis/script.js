@@ -965,6 +965,26 @@ const canvasModule = (function () {
             return points;
         }
 
+        vSplineSegment(P1, P2, P3, P4, tStep = 0.001) {
+            const points = [];
+
+            const coordinateMatrix = new Matrix(4, 2);
+            coordinateMatrix.setElements([
+                [P1.x, P1.y],
+                [P2.x, P2.y],
+                [P3.x, P3.y],
+                [P4.x, P4.y]
+            ]);
+            const coefficients = ReusableEntities.vSplineMatrix.multiply(coordinateMatrix);
+            const [x, y] = this._getXtAndYtFromCoefficients(coefficients);
+
+            for (let t = 0; t <= 1; t += tStep) {
+                points.push(new Point(x(t), y(t)));
+            }
+
+            return points;
+        }
+
         enterHermiteFormDrawingMode() {
             this._enterPointSelection(2, this._exitHermiteFormDrawingMode.bind(this));
         }
@@ -994,6 +1014,31 @@ const canvasModule = (function () {
                 selectedPoints[2],
                 selectedPoints[3]
             ));
+        }
+
+        enterVsplineDrawingMode() {
+            const segmentsQuantity = +prompt('Введите количество сегментов сплайна');
+            this._enterPointSelection(segmentsQuantity + 1, this._exitVsplineDrawingMode.bind(this));
+        }
+
+        _exitVsplineDrawingMode(selectedPoints) {
+            selectedPoints = [
+                ...selectedPoints,
+                selectedPoints[0],
+                selectedPoints[1],
+                selectedPoints[2]
+            ];
+
+            const pointsToDraw = [];
+            for (let pointIndex = 0; pointIndex < selectedPoints.length - 3; pointIndex++) {
+                pointsToDraw.push(...this.vSplineSegment(
+                    selectedPoints[pointIndex],
+                    selectedPoints[pointIndex + 1],
+                    selectedPoints[pointIndex + 2],
+                    selectedPoints[pointIndex + 3]
+                ));
+            }
+            this._drawPointsOrStartDebugging(pointsToDraw);
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1346,9 +1391,18 @@ const ReusableEntities = (function () {
         [1, 0, 0, 0]
     ]);
 
+    const vSplineMatrix = new Matrix(4, 4);
+    vSplineMatrix.setElements([
+        [-1/6, 1/2, -1/2, 1/6],
+        [1/2, -1, 1/2, 0],
+        [-1/2, 0, 1/2, 0],
+        [1/6, 2/3, 1/6, 0]
+    ]);
+
     return {
         hermiteMatrix,
-        bezierMatrix
+        bezierMatrix,
+        vSplineMatrix
     }
 })();
 
@@ -1407,6 +1461,10 @@ const toolbar = new toolbarModule.ToolbarController([
         new Button('Форма Безье', () => {
             canvas.enterBezierFormDrawingMode();
             hint.setHintText('Режим рисования кривой (Форма Безье)');
+        }),
+        new Button('В-сплайн', () => {
+            canvas.enterVsplineDrawingMode();
+            hint.setHintText('Режим рисования кривой (В-сплайн)');
         }),
         new Button('test', () => {
             canvas.__TEST__();
