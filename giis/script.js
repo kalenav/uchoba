@@ -7,7 +7,7 @@ const canvasModule = (function () {
         }
 
         addPoint(point) {
-            this._points.push(new Point(Math.round(point.x), Math.round(point.y), Math.round(point.z)));
+            this._points.push(new Point(Math.trunc(point.x), Math.trunc(point.y), point.z));
         }
 
         addPoints(points) {
@@ -948,10 +948,10 @@ const canvasModule = (function () {
                 [R4.x, R4.y]
             ]);
             const coefficients = ReusableEntities.hermiteMatrix.multiply(coordinateMatrix);
-            const [x_t, y_t] = this._getHermiteFormParameterizedFunctions(coefficients);
+            const [x, y] = this._getHermiteFormParameterizedFunctions(coefficients);
 
             for (let t = 0; t <= 1; t += tStep) {
-                points.push(new Point(x_t(t), y_t(t)));
+                points.push(new Point(x(t), y(t)));
             }
 
             return points;
@@ -960,12 +960,7 @@ const canvasModule = (function () {
         //////////////////////////////////
 
         __TEST__() {
-            this._model.addPoints(this.hermiteForm(
-                new Point(0, 0),
-                new Point(1, 0),
-                new Vector(new Point(0, 0), new Point(0, 1)),
-                new Vector(new Point(0, 0), new Point(1, 0))
-            ));
+
         }
     }
 
@@ -1213,7 +1208,7 @@ const linearAlgebraModule = (function () {
 
         dotProduct(vector) {
             return this._vector
-                .map((el, index) => el + vector.getElementAt(index))
+                .map((el, index) => el * vector.getElementAt(index))
                 .reduce((acc, el) => acc + el, 0);
         }
 
