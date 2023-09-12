@@ -19,6 +19,82 @@
         </div>
     </div>
 </body>
-<script src="script.js"></script>
+<script src="js/canvas.js"></script>
+<script src="js/hint.js"></script>
+<script src="js/toolbar.js"></script>
+<script src="js/geometry.js"></script>
+<script src="js/linear-algebra.js"></script>
+<script>
+    const canvas = new canvasModule.CanvasController();
+    const hint = new HintController();
+    const toolbar = new toolbarModule.ToolbarController([
+        new Section('Режимы', [
+            new Button('Отладочный', () => {
+                const debugging = canvas.toggleDebuggingMode();
+                alert(`Отладочный режим ${debugging ? 'включен' : 'отключен'}`);
+            }),
+            new Button('Режим корректировки опорных точек', () => {
+                const correcting = canvas.togglePointCorrectionMode();
+                alert(`Режим корректировки опорных точек ${correcting ? 'включен' : 'отключен'}`);
+            })
+        ]),
+        new Section('Отрезки', [
+            new Button('ЦДА', () => {
+                canvas.enterDdaDrawingMode();
+                hint.setHintText('Режим рисования отрезка (ЦДА)');
+            }),
+            new Button('Брезенхейм', () => {
+                canvas.enterBresenhamDrawingMode();
+                hint.setHintText('Режим рисования отрезка (алгоритм Брезенхейма)');
+            }),
+            new Button('Ву', () => {
+                canvas.enterWuDrawingMode();
+                hint.setHintText('Режим рисования отрезка (алгоритм Ву)');
+            })
+        ]),
+        new Section('Линии второго порядка', [
+            new Button('Эллипс', () => {
+                canvas.enterEllipseDrawingMode();
+                hint.setHintText('Режим рисования эллипса');
+            }),
+            new Button('Парабола (горизонтальная)', () => {
+                canvas.enterHorizontalParabolaDrawingMode();
+                hint.setHintText('Режим рисования горизонтальной параболы');
+            }),
+            new Button('Парабола (вертикальная)', () => {
+                canvas.enterVerticalParabolaDrawingMode();
+                hint.setHintText('Режим рисования вертикальной параболы');
+            }),
+            new Button('Гипербола (горизонтальная)', () => {
+                canvas.enterHorizontalHyperbolaDrawingMode();
+                hint.setHintText('Режим рисования горизонтальной гиперболы');
+            }),
+            new Button('Гипербола (вертикальная)', () => {
+                canvas.enterVerticalHyperbolaDrawingMode();
+                hint.setHintText('Режим рисования вертикальной гиперболы');
+            })
+        ]),
+        new Section('Кривые', [
+            new Button('Эрмитова форма', () => {
+                canvas.enterHermiteFormDrawingMode();
+                hint.setHintText('Режим рисования кривой (Эрмитова форма)');
+            }),
+            new Button('Форма Безье', () => {
+                canvas.enterBezierFormDrawingMode();
+                hint.setHintText('Режим рисования кривой (Форма Безье)');
+            }),
+            new Button('В-сплайн', () => {
+                canvas.enterVsplineDrawingMode();
+                hint.setHintText('Режим рисования кривой (В-сплайн)');
+            }),
+            new Button('test', () => {
+                canvas.__TEST__();
+            })
+        ])
+    ]);
 
+    document.addEventListener('drawing-finished', () => {
+        hint.resetHint();
+    });
+</script>
 </html>
