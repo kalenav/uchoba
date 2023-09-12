@@ -106,6 +106,8 @@ const canvasModule = (function () {
 
             this._ctx = this._canvasHtmlElem.getContext('2d');
 
+            this._drawNextPointEventListener = this._drawNextPointEventListener.bind(this);
+
             this._drawGridlines_bool = drawGridlines;
             if (drawGridlines) {
                 this._gridLineSpacing_X = gridLineSpacing_X;
@@ -124,14 +126,14 @@ const canvasModule = (function () {
             this.redrawCanvas();
         }
 
-        drawPoint(x, y, opacity = 1, color = this._DEFAULT_COLOR) {
+        _drawPoint(x, y, opacity = 1, color = this._DEFAULT_COLOR) {
             this._ctx.fillStyle = `rgba(${color.red}, ${color.green}, ${color.blue}, ${opacity})`;
             this._ctx.fillRect(Math.trunc(this._origin.x + x), Math.trunc(this._origin.y - y), 1, 1);
         }
 
-        drawPoints(points) {
+        _drawPoints(points) {
             points.forEach(point => {
-                this.drawPoint(point.x, point.y, point.opacity ?? 1, point.color ?? this._DEFAULT_COLOR);
+                this._drawPoint(point.x, point.y, point.opacity ?? 1, point.color ?? this._DEFAULT_COLOR);
             });
         }
 
@@ -305,7 +307,8 @@ const canvasModule = (function () {
         }
 
         _drawNextPoint() {
-            this._model.addPoint(this._pointsToDrawQueue.shift());
+            const pointToDraw = this._pointsToDrawQueue.shift();
+            this._drawPoint(pointToDraw.x, pointToDraw.y, pointToDraw.opacity);
         }
 
         _drawAllRemainingPoints() {
@@ -326,12 +329,12 @@ const canvasModule = (function () {
             }
         }
 
-        _drawPointsOrStartDebugging(pointsToDraw) {
+        drawPointsOrStartDebugging(pointsToDraw) {
             if (this._debuggingModeEnabled) {
                 this._setPointsToDrawQueue(pointsToDraw);
                 this._addEnterPressEventListener();
             } else {
-                this.drawPoints(pointsToDraw);
+                this._drawPoints(pointsToDraw);
             }
         }
 
@@ -354,7 +357,6 @@ const canvasModule = (function () {
     class CanvasController {
         _drawingFinishedEvent = new Event('drawing-finished');
         _debuggingModeEnabled = false;
-        _pointsToDrawQueue = [];
         _pointCorrectionModeEnabled = false;
 
         constructor({
@@ -512,7 +514,7 @@ const canvasModule = (function () {
             ];
 
             this._view.redrawCanvas();
-            this._view.drawPoints(pointsToDraw);
+            this._view.drawPointsOrStartDebugging(pointsToDraw);
         }
 
         ////////////////////////////////////////
