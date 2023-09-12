@@ -7,7 +7,12 @@ const canvasModule = (function () {
         }
 
         addPoint(point) {
-            this._points.push(new Point(Math.trunc(point.x), Math.trunc(point.y), point.z));
+            this._points.push({
+                x: Math.trunc(point.x),
+                y: Math.trunc(point.y),
+                z: point.z,
+                opacity: point.opacity
+            });
         }
 
         addPoints(points) {
@@ -378,8 +383,8 @@ const canvasModule = (function () {
             let currY = y_start;
             for (let stepsElapsed = 1; stepsElapsed <= rasterizationSteps; stepsElapsed++) {
                 points.push({
-                    x: Math.round(currX),
-                    y: Math.round(currY)
+                    x: currX,
+                    y: currY
                 });
     
                 currX += xGrowth;
@@ -950,7 +955,7 @@ const canvasModule = (function () {
             return [x_t, y_t];
         }
 
-        hermiteForm(P1, P4, R1, R4, tStep = 0.01) {
+        hermiteForm(P1, P4, R1, R4, tStep = 0.001) {
             const points = [];
 
             const coordinateMatrix = new Matrix(4, 2);
@@ -970,7 +975,7 @@ const canvasModule = (function () {
             return points;
         }
 
-        bezierForm(P1, P2, P3, P4, tStep = 0.01) {
+        bezierForm(P1, P2, P3, P4, tStep = 0.001) {
             const points = [];
 
             const coordinateMatrix = new Matrix(4, 2);
