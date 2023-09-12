@@ -50,6 +50,27 @@ const canvasModule = (function () {
             this._addFigure(this._vSplines, new geometryModule.VSpline(vSpline.referencePoints));
         }
 
+        getClosestReferencePointToPoint(point) {
+            let closestCurve = null;
+            let currMinDistance = Infinity;
+            let referencePointInCurveIndex = null;
+
+            for (const curve of this.curves) {
+                const distancesToPoint = curve.referencePoints.map(referencePoint => referencePoint.distanceToPoint(point));
+                const minDistance = Math.min(...distancesToPoint);
+                if (minDistance < currMinDistance) {
+                    closestCurve = curve;
+                    currMinDistance = minDistance;
+                    referencePointInCurveIndex = curve.referencePoints.findIndex(referencePoint => referencePoint.distanceToPoint(point) === minDistance);
+                }
+            }
+
+            return {
+                closestCurve,
+                referencePointInCurveIndex
+            }
+        }
+
         get ddaLineSegments() { return this._ddaLineSegments; }
         get bresenhamLineSegments() { return this._bresenhamLineSegments; }
         get wuLineSegments() { return this._wuLineSegments; }
@@ -447,13 +468,19 @@ const canvasModule = (function () {
             });
         }
 
+        _getCanvasCoordsFromMouseEvent(event) {
+            return {
+                x: event.offsetX - this._view.width / 2,
+                y: -1 * event.offsetY + this._view.height / 2
+            };
+        }
+
         _enterPointSelection(pointsRequired, exitPointSelectionCallback) {
             this._exitPointSelection();
             const selectedPoints = [];
     
             this._currPointSelectionListener = (event) => {
-                const x = event.offsetX - this._view.width / 2;
-                const y = -1 * event.offsetY + this._view.height / 2;
+                const { x, y } = this._getCanvasCoordsFromMouseEvent(event);
                 selectedPoints.push(new Point(x, y));
                 if (selectedPoints.length === pointsRequired) {
                     this._exitPointSelection();
@@ -1149,7 +1176,7 @@ const canvasModule = (function () {
             this._pointCorrectionModeEnabled = !this._pointCorrectionModeEnabled;
             if (this._pointCorrectionModeEnabled) {
                 this._highlightAllCurveReferencePoints();
-                this._enterPointSelection(1, this._referencePointSelectedCallback.bind(this));
+                this._enterReferencePointSelectionMode();
             } else {
                 this._exitPointSelection();
                 this._redrawCanvas();
@@ -1161,8 +1188,26 @@ const canvasModule = (function () {
             this._model.curves.forEach(curve => this._view.highlightPoints(curve.referencePoints));
         }
 
-        _referencePointSelectedCallback(selectedPoints) {
+        _enterReferencePointSelectionMode() {
+            this._enterPointSelection(1, this._referencePointSelectedCallback.bind(this));
+        }
 
+        _referencePointSelectedCallback(selectedPoints) {
+            const { closestCurve, referencePointInCurveIndex } = this._model.getClosestReferencePointToPoint(new Point(selectedPoints[0].x, selectedPoints[0].y));
+
+            const mouseMoveEventListener = (event) => {
+                const { x, y } = this._getCanvasCoordsFromMouseEvent(event);
+                const newReferencePoint = new Point(x, y);
+                closestCurve.setReferencePoint(newReferencePoint, referencePointInCurveIndex);
+                this._redrawCanvas();
+            }
+            const moveEndEventListener = () => {
+                this._canvasHtmlElem.removeEventListener('mousemove', mouseMoveEventListener);
+                this._canvasHtmlElem.removeEventListener('click', moveEndEventListener);
+                this._enterReferencePointSelectionMode();
+            }
+            this._canvasHtmlElem.addEventListener('mousemove', mouseMoveEventListener);
+            this._canvasHtmlElem.addEventListener('click', moveEndEventListener);
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -209,6 +209,10 @@ const geometryModule = (function () {
         get P3() { return this._referencePoints[2]; }
         get P4() { return this._referencePoints[3]; }
         get referencePoints() { return [...this._referencePoints]; }
+
+        setReferencePoint(point, index) {
+            this._referencePoints.splice(index, 1, new Point(point.x, point.y, point.z));
+        }
     }
 
     class VSpline {
@@ -217,6 +221,10 @@ const geometryModule = (function () {
         }
 
         get referencePoints() { return this._points; }
+
+        setReferencePoint(point, index) {
+            this._points.splice(index, 1, new Point(point.x, point.y, point.z));
+        }
     }
 
     return {
