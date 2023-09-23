@@ -1,0 +1,5 @@
+concept_nuclear_power_source
+<- sc_node_class;
+<- concept_wit_entity;
+=> nrel_main_idtf: [Атомный источник энергии] (* <- lang_ru;; *);
+=> nrel_note: [система, которая использует ядерные реакции для производства электроэнергии.] (* <- lang_ru;; *);;

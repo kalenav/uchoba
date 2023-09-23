@@ -1,0 +1,17 @@
+concept_robot
+<- sc_node_class;
+<- concept_wit_entity;
+=> nrel_main_idtf: [Робот] (* <- lang_ru;; *);
+=> nrel_note: [автоматическое устройство, предназначенное для осуществления различного рода механических операций, которое действует по заранее заложенной программе.] (* <- lang_ru;; *);
+<= nrel_subdividing:
+    ...
+    (*
+        <- sc_node_tuple;;
+        -> concept_agricultural_robot;;
+        -> concept_construction_robot;;
+        -> concept_domestic_robot;;
+        -> concept_industrial_robot;;
+        -> concept_medical_robot;;
+        -> concept_military_robot;;
+        -> concept_nanorobot;;
+    *);;
