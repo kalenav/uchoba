@@ -1,0 +1,3 @@
+npsa2000
+<- concept_nuclear_power_source;
+=> nrel_main_idtf: [HPS-A-2000] (* <- lang_ru;; <- lang_en;; *);;

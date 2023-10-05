@@ -1,0 +1,3 @@
+ppsa2000
+<- concept_pneumatic_power_source;
+=> nrel_main_idtf: [PPS-A-2000] (* <- lang_ru;; <- lang_en;; *);;
