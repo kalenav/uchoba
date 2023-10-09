@@ -90,9 +90,21 @@
             new Button('В-сплайн', () => {
                 canvas.enterVsplineDrawingMode();
                 hint.setHintText('Режим рисования кривой (В-сплайн)');
+            })
+        ]),
+        new Section('Преобразования', [
+            new Button('Вращение', () => {
+                canvas.askForRotationAmountAndRotate();
             }),
-            new Button('test', () => {
-                canvas.__TEST__();
+            new Button('Масштабирование', () => {
+                canvas.askForScalingAmountAndScale();
+            }),
+            new Button('Сдвиг', () => {
+                canvas.askForTranslationAmountAndTranslate();
+            }),
+            new Button('Перспективное преобразование', () => {
+                const changingPerspective = canvas.togglePerspectiveChangingMode();
+                alert(`Режим изменения перспективы ${changingPerspective ? 'включен' : 'отключен'}`);
             })
         ])
     ]);
