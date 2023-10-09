@@ -1,0 +1,87 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#include <math.h>
+#include <conio.h>
+#include <iostream.h>
+#pragma hdrstop
+
+#include "Unit1.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TForm1 *Form1;
+
+//---------------------------------------------------------------------------
+__fastcall TForm1::TForm1(TComponent* Owner)
+        : TForm(Owner)
+{
+        double S(double x)
+        {
+                int n = StrToFloat(Edit4->Text);
+                double sum = 0;
+                for(int k = 1; k <= n; k++)
+                {
+                        double fact = 1;
+                        for(double next = 2; next <= 2*k; next++)
+                        {
+                                fact *= next;
+                        }
+                        sum += pow(-1,k) * pow(2*x,2*k) / fact;
+                }
+                return sum;
+        }
+        
+        double Y(double x)
+        {
+                return 2*(cos(x)*cos(x) - 1);
+        }
+
+        double mod(double f1, double f2)
+        {
+                return fabs(f1 - f2);
+        }
+
+        AnsiString out(double x,double chosen)
+        {
+                AnsiString out = "For x = " + FloatToStr(x) + ", " + RadioGroup1->Items->Strings[chosen] + " = "
+                switch(chosen)
+                {
+                        case 0:
+                        {
+                                out += FloatToStr(S(x));
+                                break;
+                        }
+                        case 1:
+                        {
+                                out += FloatToStr(Y(x));
+                                break;
+                        }
+                        case 2:
+                        {
+                                out += FloatToStr(mod(Y(x),S(x)));
+                                break;
+                        }
+                }
+                return out;
+        }
+}
+//---------------------------------------------------------------------------
+
+
+
+void __fastcall TForm1::Button1Click(TObject *Sender)
+{
+        double a,b,h,x;
+        int n;
+        a = StrToFloat(Edit1->Text);
+        b = StrToFloat(Edit2->Text);
+        h = StrToFloat(Edit3->Text);
+        n = StrToInt(Edit4->Text);
+        for(x = a; x <= b; x += h)
+        {
+                Memo1->Lines->Add(out(x, RadioGroup1->ItemIndex))
+        }
+}
+//---------------------------------------------------------------------------
+ 

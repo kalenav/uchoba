@@ -1,0 +1,15 @@
+﻿  pch.cpp
+  functions.cpp
+E:\Important\uchoba)\aois\lab2\functions.cpp(57,22): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+E:\Important\uchoba)\aois\lab2\functions.cpp(72,22): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+E:\Important\uchoba)\aois\lab2\functions.cpp(176,20): warning C4018: '<': signed/unsigned mismatch
+E:\Important\uchoba)\aois\lab2\functions.cpp(216,11): warning C4018: '<': signed/unsigned mismatch
+E:\Important\uchoba)\aois\lab2\functions.cpp(276,21): warning C4018: '<': signed/unsigned mismatch
+E:\Important\uchoba)\aois\lab2\functions.cpp(323,48): warning C4018: '<': signed/unsigned mismatch
+E:\Important\uchoba)\aois\lab2\functions.cpp(338,20): warning C4018: '<': signed/unsigned mismatch
+E:\Important\uchoba)\aois\lab2\functions.cpp(345,20): warning C4018: '<': signed/unsigned mismatch
+E:\Important\uchoba)\aois\lab2\functions.cpp(347,9): warning C4018: '<': signed/unsigned mismatch
+E:\Important\uchoba)\aois\lab2\functions.cpp(332): warning C4715: 'threeArgumentLogicalFunctionParser': not all control paths return a value
+  lab2tests.cpp
+     Creating library E:\Important\uchoba)\aois\lab2\Debug\lab2tests.lib and object E:\Important\uchoba)\aois\lab2\Debug\lab2tests.exp
+  lab2tests.vcxproj -> E:\Important\uchoba)\aois\lab2\Debug\lab2tests.dll

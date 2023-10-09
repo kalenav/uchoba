@@ -1,0 +1,24 @@
+Date of departure (DD/MM/YYYY): 29/9/2020
+Time of departure: 10:00
+Destination city: 9
+Free seats: 12
+_
+Date of departure (DD/MM/YYYY): 12/5/2001
+Time of departure: 19:00
+Destination city: 10
+Free seats: 16
+_
+Date of departure (DD/MM/YYYY): 25/3/2002
+Time of departure: 19:05
+Destination city: 9
+Free seats: 20
+_
+Date of departure (DD/MM/YYYY): 20/3/2021
+Time of departure: 9:00
+Destination city: 5
+Free seats: 25
+_
+Date of departure (DD/MM/YYYY): 26/7/2010
+Time of departure: 8:00
+Destination city: 9
+Free seats: 72

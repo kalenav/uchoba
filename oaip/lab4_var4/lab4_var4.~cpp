@@ -1,0 +1,63 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#include <math.h>
+#include <stdio.h>
+#include <iostream.h>
+#include <conio.h>
+#pragma hdrstop
+
+//---------------------------------------------------------------------------
+
+#pragma argsused
+double s(double x, int n)
+{
+        double sum = 0;
+        for(int k = 0; k <= n; k++)
+        {
+                double fact = 1;
+                for(int i = 1; i <= 2*k; i++) fact *= i;
+                sum += pow(-1, k) * pow(x, 2*k) / fact;
+        }
+        return sum;
+}
+
+double y(double x)
+{
+        return cos(x);
+}
+
+double mod(double f1, double f2)
+{
+        return fabs(f1-f2);
+}
+
+void out(x, res1, res2, res3)
+{
+        cout
+        << "For x = " << x << ", "
+        << "S(x) = " << res1 << ", "
+        << "Y(x) = " << res2 << ", "
+        << "|Y(x)-S(x)| = " << res3 << endl;
+}
+
+int main(int argc, char* argv[])
+{
+        double a, b, h, n;
+        cout << "Vvedite a,b,h,n" << endl;
+        cin >> a;
+        cin >> b;
+        cin >> h;
+        cin >> n;
+        for(double x = a; x <= b; x += h)
+        {
+                double res1 = s(x, n);
+                double res2 = y(x);
+                double res3 = mod(res1, res2);
+                out(x, res1, res2, res3);
+        }
+        getch();
+        return 0;
+}
+//---------------------------------------------------------------------------
+ 

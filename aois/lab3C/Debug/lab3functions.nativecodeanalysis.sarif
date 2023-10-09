@@ -1,0 +1,2775 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
+      "results": [
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'StringArray::arr' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                },
+                "region": {
+                  "startLine": 6,
+                  "startColumn": 14,
+                  "endLine": 6,
+                  "endColumn": 14
+                }
+              },
+              "logicalLocations": [
+                {
+                  "decoratedName": "??0StringArray@@QAE@XZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "suppressions": [],
+          "properties": {
+            "targetSymbol": "StringArray::arr"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'StringArray::arr' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                },
+                "region": {
+                  "startLine": 11,
+                  "startColumn": 14,
+                  "endLine": 11,
+                  "endColumn": 14
+                }
+              },
+              "logicalLocations": [
+                {
+                  "decoratedName": "??0StringArray@@QAE@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "suppressions": [],
+          "properties": {
+            "targetSymbol": "StringArray::arr"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'BoolArray::arr' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                },
+                "region": {
+                  "startLine": 75,
+                  "startColumn": 12,
+                  "endLine": 75,
+                  "endColumn": 12
+                }
+              },
+              "logicalLocations": [
+                {
+                  "decoratedName": "??0BoolArray@@QAE@XZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "suppressions": [],
+          "properties": {
+            "targetSymbol": "BoolArray::arr"
+          }
+        },
+        {
+          "ruleId": "C6386",
+          "message": {
+            "text": "Buffer overrun while writing to 'newArr':  the writable size is '++size*1' bytes, but '7' bytes might be written."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                },
+                "region": {
+                  "startLine": 103,
+                  "startColumn": 2,
+                  "endLine": 103,
+                  "endColumn": 21
+                }
+              },
+              "logicalLocations": [
+                {
+                  "decoratedName": "?push@BoolArray@@QAEX_N@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 101,
+                            "startColumn": 6
+                          }
+                        },
+                        "message": {
+                          "text": "'newArr' is an array of 6 elements (6 bytes)"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 102,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 102,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 102,
+                            "startColumn": 47
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 102,
+                            "startColumn": 33
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 102,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 102,
+                            "startColumn": 47
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 102,
+                            "startColumn": 33
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 102,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 103,
+                            "startColumn": 19
+                          }
+                        },
+                        "message": {
+                          "text": "Invalid write to 'newArr[6]', (writable range is 0 to 5)"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "suppressions": []
+        },
+        {
+          "ruleId": "C6001",
+          "message": {
+            "text": "Using uninitialized memory '*variablesInCurrentParenthesesSet'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                },
+                "region": {
+                  "startLine": 134,
+                  "startColumn": 52,
+                  "endLine": 134,
+                  "endColumn": 91
+                }
+              },
+              "logicalLocations": [
+                {
+                  "decoratedName": "?isSKNF@@YA_NV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 118,
+                            "startColumn": 5
+                          }
+                        },
+                        "message": {
+                          "text": "'*variablesInCurrentParenthesesSet' is not initialized"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 119,
+                            "startColumn": 7
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 120,
+                            "startColumn": 6
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 121,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 121,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 121,
+                            "startColumn": 64
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 121,
+                            "startColumn": 42
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 121,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 122,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 122,
+                            "startColumn": 20
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this loop, (assume 'i<size(input)')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 124,
+                            "startColumn": 16
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'input[](i)==40' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 129,
+                            "startColumn": 82
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 130,
+                            "startColumn": 25
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 131,
+                            "startColumn": 16
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this branch, (assume 'input[](i)==41')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 133,
+                            "startColumn": 28
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 134,
+                            "startColumn": 13
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 134,
+                            "startColumn": 22
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this loop, (assume 'j<argumentsQuantity')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 134,
+                            "startColumn": 88
+                          }
+                        },
+                        "message": {
+                          "text": "'*variablesInCurrentParenthesesSet' is used, but may not have been initialized"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "suppressions": []
+        },
+        {
+          "ruleId": "C6001",
+          "message": {
+            "text": "Using uninitialized memory '*variablesInCurrentParenthesesSet'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                },
+                "region": {
+                  "startLine": 134,
+                  "startColumn": 52,
+                  "endLine": 134,
+                  "endColumn": 91
+                }
+              },
+              "logicalLocations": [
+                {
+                  "decoratedName": "?isSKNF@@YA_NV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 118,
+                            "startColumn": 5
+                          }
+                        },
+                        "message": {
+                          "text": "'*variablesInCurrentParenthesesSet' is not initialized"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 119,
+                            "startColumn": 7
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 120,
+                            "startColumn": 6
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 121,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 121,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 121,
+                            "startColumn": 64
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 121,
+                            "startColumn": 42
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 121,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 122,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 122,
+                            "startColumn": 20
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this loop, (assume 'i<size(input)')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 124,
+                            "startColumn": 16
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'input[](i)==40' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 129,
+                            "startColumn": 82
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 130,
+                            "startColumn": 25
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 131,
+                            "startColumn": 16
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this branch, (assume 'input[](i)==41')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 133,
+                            "startColumn": 28
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 134,
+                            "startColumn": 13
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 134,
+                            "startColumn": 22
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this loop, (assume 'j<argumentsQuantity')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 134,
+                            "startColumn": 88
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 134,
+                            "startColumn": 88
+                          }
+                        },
+                        "message": {
+                          "text": "'*variablesInCurrentParenthesesSet' is used, but may not have been initialized"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "suppressions": []
+        },
+        {
+          "ruleId": "C6001",
+          "message": {
+            "text": "Using uninitialized memory '*variablesInCurrentParenthesesSet'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                },
+                "region": {
+                  "startLine": 161,
+                  "startColumn": 52,
+                  "endLine": 161,
+                  "endColumn": 91
+                }
+              },
+              "logicalLocations": [
+                {
+                  "decoratedName": "?isSDNF@@YA_NV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 145,
+                            "startColumn": 5
+                          }
+                        },
+                        "message": {
+                          "text": "'*variablesInCurrentParenthesesSet' is not initialized"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 146,
+                            "startColumn": 7
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 147,
+                            "startColumn": 6
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 148,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 148,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 148,
+                            "startColumn": 64
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 148,
+                            "startColumn": 42
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 148,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 149,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 149,
+                            "startColumn": 20
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this loop, (assume 'i<size(input)')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 151,
+                            "startColumn": 16
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'input[](i)==40' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 156,
+                            "startColumn": 82
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 157,
+                            "startColumn": 25
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 158,
+                            "startColumn": 16
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this branch, (assume 'input[](i)==41')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 160,
+                            "startColumn": 28
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 161,
+                            "startColumn": 13
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 161,
+                            "startColumn": 22
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this loop, (assume 'j<argumentsQuantity')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 161,
+                            "startColumn": 88
+                          }
+                        },
+                        "message": {
+                          "text": "'*variablesInCurrentParenthesesSet' is used, but may not have been initialized"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "suppressions": []
+        },
+        {
+          "ruleId": "C6001",
+          "message": {
+            "text": "Using uninitialized memory '*variablesInCurrentParenthesesSet'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                },
+                "region": {
+                  "startLine": 161,
+                  "startColumn": 52,
+                  "endLine": 161,
+                  "endColumn": 91
+                }
+              },
+              "logicalLocations": [
+                {
+                  "decoratedName": "?isSDNF@@YA_NV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 145,
+                            "startColumn": 5
+                          }
+                        },
+                        "message": {
+                          "text": "'*variablesInCurrentParenthesesSet' is not initialized"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 146,
+                            "startColumn": 7
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 147,
+                            "startColumn": 6
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 148,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 148,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 148,
+                            "startColumn": 64
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 148,
+                            "startColumn": 42
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 148,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 149,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 149,
+                            "startColumn": 20
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this loop, (assume 'i<size(input)')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 151,
+                            "startColumn": 16
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'input[](i)==40' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 156,
+                            "startColumn": 82
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 157,
+                            "startColumn": 25
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 158,
+                            "startColumn": 16
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this branch, (assume 'input[](i)==41')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 160,
+                            "startColumn": 28
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 161,
+                            "startColumn": 13
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 161,
+                            "startColumn": 22
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this loop, (assume 'j<argumentsQuantity')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 161,
+                            "startColumn": 88
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 161,
+                            "startColumn": 88
+                          }
+                        },
+                        "message": {
+                          "text": "'*variablesInCurrentParenthesesSet' is used, but may not have been initialized"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "suppressions": []
+        },
+        {
+          "ruleId": "C6001",
+          "message": {
+            "text": "Using uninitialized memory 'connector'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                },
+                "region": {
+                  "startLine": 213,
+                  "startColumn": 29,
+                  "endLine": 213,
+                  "endColumn": 29
+                }
+              },
+              "logicalLocations": [
+                {
+                  "decoratedName": "?bothSumOrProduct@@YA_NV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 172,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 173,
+                            "startColumn": 17
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 178,
+                            "startColumn": 33
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 179,
+                            "startColumn": 7
+                          }
+                        },
+                        "message": {
+                          "text": "'connector' is not initialized"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 180,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 180,
+                            "startColumn": 20
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this loop, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 194,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 194,
+                            "startColumn": 20
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this loop, (assume 'i<size(left)' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 205,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 205,
+                            "startColumn": 20
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this loop, (assume 'i<size(right)')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 207,
+                            "startColumn": 16
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this branch, (assume 'right[](i)==120')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 209,
+                            "startColumn": 21
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'right[](i-1)==33' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 213,
+                            "startColumn": 26
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 213,
+                            "startColumn": 29
+                          }
+                        },
+                        "message": {
+                          "text": "'connector' is used, but may not have been initialized"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "suppressions": []
+        },
+        {
+          "ruleId": "C6001",
+          "message": {
+            "text": "Using uninitialized memory 'separatorIndex'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                },
+                "region": {
+                  "startLine": 332,
+                  "startColumn": 22,
+                  "endLine": 332,
+                  "endColumn": 22
+                }
+              },
+              "logicalLocations": [
+                {
+                  "decoratedName": "?evaluateFunction@@YA_NV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@VBoolArray@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 318,
+                            "startColumn": 6
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 319,
+                            "startColumn": 6
+                          }
+                        },
+                        "message": {
+                          "text": "'separatorIndex' is not initialized"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 320,
+                            "startColumn": 7
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 321,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 321,
+                            "startColumn": 20
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this loop, (assume 'i<size(input)' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 330,
+                            "startColumn": 17
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'implicants==1' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 331,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 332,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 332,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 333,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 334,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 332,
+                            "startColumn": 22
+                          }
+                        },
+                        "message": {
+                          "text": "'separatorIndex' is used, but may not have been initialized"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "suppressions": []
+        },
+        {
+          "ruleId": "C6001",
+          "message": {
+            "text": "Using uninitialized memory 'lockedArgsIndeces'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                },
+                "region": {
+                  "startLine": 384,
+                  "startColumn": 21,
+                  "endLine": 384,
+                  "endColumn": 21
+                }
+              },
+              "logicalLocations": [
+                {
+                  "decoratedName": "?checkImplicantImportance@@YA_NV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 341,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 342,
+                            "startColumn": 7
+                          }
+                        },
+                        "message": {
+                          "text": "'lockedArgsIndeces' is not initialized"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 343,
+                            "startColumn": 6
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 344,
+                            "startColumn": 7
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 345,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 345,
+                            "startColumn": 20
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this loop, (assume 'i<size(implicant)' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 354,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 354,
+                            "startColumn": 20
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this loop, (assume 'i<size(implicant)' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 377,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 378,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 381,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 382,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 382,
+                            "startColumn": 21
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this loop, (assume 'i<size(result)')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 384,
+                            "startColumn": 20
+                          }
+                        },
+                        "message": {
+                          "text": "'lockedArgsIndeces' is an In/Out argument to 'elementInArr' (declared at e:\\important\\uchoba)\\aois\\lab2\\lab2header.h:15)"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 384,
+                            "startColumn": 21
+                          }
+                        },
+                        "message": {
+                          "text": "'lockedArgsIndeces' is used, but may not have been initialized"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "suppressions": []
+        },
+        {
+          "ruleId": "C6001",
+          "message": {
+            "text": "Using uninitialized memory 'extraTermIndex'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                },
+                "region": {
+                  "startLine": 442,
+                  "startColumn": 6,
+                  "endLine": 442,
+                  "endColumn": 6
+                }
+              },
+              "logicalLocations": [
+                {
+                  "decoratedName": "?concatenateNeighboring@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V12@0@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 395,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 396,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 397,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 398,
+                            "startColumn": 6
+                          }
+                        },
+                        "message": {
+                          "text": "'extraTermIndex' is not initialized"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 399,
+                            "startColumn": 7
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 400,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 400,
+                            "startColumn": 36
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this loop, (assume 'leftIndex<size(left)-1' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 440,
+                            "startColumn": 6
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 440,
+                            "startColumn": 25
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 441,
+                            "startColumn": 7
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 442,
+                            "startColumn": 21
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+                          },
+                          "region": {
+                            "startLine": 442,
+                            "startColumn": 6
+                          }
+                        },
+                        "message": {
+                          "text": "'extraTermIndex' is used, but may not have been initialized"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "suppressions": []
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "PREfast",
+          "fullName": "PREfast Code Analysis",
+          "version": "14.28.29913.0",
+          "informationUri": "https://aka.ms/cpp/ca"
+        }
+      },
+      "invocations": [
+        {
+          "commandLine": "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.28.29910\\bin\\HostX86\\x86\\c1xx.dll\" -ACf{1F7B090C-16DB-4822-966A-A93D26ED4681} -ACpmspft140.dll -Alint -D_PREFAST_ -D_AST_FE_ -Analyze -zm0x010AB1C0 -il C:\\Users\\konst\\AppData\\Local\\Temp\\_CL_de6f6cdcast -typedil -f lab3functions.cpp -Ze -D_MSC_EXTENSIONS -Zp8 -Gs -pc \\:/ -D_MSC_VER=1928 -D_MSC_FULL_VER=192829913 -D_MSC_BUILD=0 -D_WIN32 -D_M_IX86=600 -D_M_IX86_FP=2 -GR -D_CPPRTTI -nologo -W 3 -diagnostics:column -D_GUARDOVERFLOW_CRT_ALLOCATORS=1 -Ot -DCODE_ANALYSIS -DWIN32 -D_DEBUG -D_CONSOLE -D_UNICODE -DUNICODE -EHs -D_CPPUNWIND -EHc -D__MSVC_RUNTIME_CHECKS -RTCs -RTCu -MDd -D_DEBUG -D_MT -D_DLL -GS -D_M_FP_PRECISE -permissive- -Zc:wchar_t -Zc:forScope -FoDebug\\lab3functions.obj -FdDebug\\vc142.pdb -Gd -analyze:projectdirectory E:\\Important\\uchoba)\\aois\\lab3 -analyze:rulesetdirectory ;C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\Team Tools\\Static Analysis Tools\\\\Rule Sets; -analyze:ruleset C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\Team Tools\\Static Analysis Tools\\Rule Sets\\NativeRecommendedRules.ruleset -analyze:quiet -analyze:plugin C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.28.29910\\bin\\HostX86\\x86\\EspXEngine.dll -FC -errorreport:prompt -I C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.28.29910\\include -I C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.28.29910\\atlmfc\\include -I C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\VS\\include -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.18362.0\\ucrt -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.18362.0\\um -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.18362.0\\shared -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.18362.0\\winrt -I C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.18362.0\\cppwinrt -I C:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.8\\Include\\um",
+          "executionSuccessful": true
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///E:/Important/uchoba)/aois/lab3/lab3functions.cpp"
+          },
+          "roles": [
+            "analysisTarget",
+            "resultFile"
+          ],
+          "hashes": {
+            "md5": "59fc90614fe701d49ab2bd44513c75cb"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///e:/important/uchoba)/aois/lab3/lab3header.h"
+          },
+          "hashes": {
+            "md5": "ce0247d250b509b391aea6574e2db0cd"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///e:/important/uchoba)/aois/lab2/lab2header.h"
+          },
+          "hashes": {
+            "md5": "ddbd1375edc3a8d542961f51a0219e94"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///e:/important/uchoba)/aois/lab1letstrythatagain/lab1ltta.h"
+          },
+          "hashes": {
+            "md5": "0c8ed5a57bf42fdab58e1dac07ddf208"
+          }
+        }
+      ]
+    }
+  ]
+}
