@@ -2,6 +2,10 @@ class GeometryUtils {
     static radiansToDegrees(radians) {
         return Math.round(radians * 180 / Math.PI);
     }
+
+    static degreesToRadians(degrees) {
+        return degrees * Math.PI / 180;
+    }
 }
 
 const geometryModule = (function () {
@@ -44,6 +48,15 @@ const geometryModule = (function () {
 
         reflectAlongLine(line) {
             return this.reflectAroundPoint(line.closestOwnPointToPoint(this));
+        }
+
+        applyMatrix(matrix) { // matrix has to be 4x4!
+            return new Point(
+                this._x * matrix.getElementAt(1, 1) + this._y * matrix.getElementAt(1, 2) + this._z * matrix.getElementAt(1, 3) + this._w * matrix.getElementAt(1, 4),
+                this._x * matrix.getElementAt(2, 1) + this._y * matrix.getElementAt(2, 2) + this._z * matrix.getElementAt(2, 3) + this._w * matrix.getElementAt(2, 4),
+                this._x * matrix.getElementAt(3, 1) + this._y * matrix.getElementAt(3, 2) + this._z * matrix.getElementAt(3, 3) + this._w * matrix.getElementAt(3, 4),
+                this._x * matrix.getElementAt(4, 1) + this._y * matrix.getElementAt(4, 2) + this._z * matrix.getElementAt(4, 3) + this._w * matrix.getElementAt(4, 4)
+            );
         }
     }
 
