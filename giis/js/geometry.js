@@ -6,6 +6,48 @@ class GeometryUtils {
     static degreesToRadians(degrees) {
         return degrees * Math.PI / 180;
     }
+
+    static lineSegmentCombinationIsAPolygon(lineSegments) {
+        return lineSegments.every(lineSegment => {
+            let intersectionsWithOtherLineSegments = 0;
+            lineSegments.forEach((otherLineSegment) => {
+                if (lineSegment === otherLineSegment) {
+                    return;
+                }
+                if (lineSegment.intersects(otherLineSegment)) {
+                    intersectionsWithOtherLineSegments++;
+                }
+            });
+            return intersectionsWithOtherLineSegments === 2;
+        });
+    }
+
+    static getPolygons(lineSegments) {
+        const polygons = [];
+
+        const allLineSegmentCombinations = Utils.arrayOfSubarrays(lineSegments);
+        const polygonCandidates = allLineSegmentCombinations.filter((lineSegmentCombination) => lineSegmentCombination.length >= 3);
+        polygonCandidates.forEach((lineSegmentCombination) => {
+            if (GeometryUtils.lineSegmentCombinationIsAPolygon(lineSegmentCombination)) {
+                const polygonVertices = [];
+
+                for (let lineSegmentIndex = 0; lineSegmentIndex < lineSegmentCombination.length; lineSegmentIndex++) {
+                    const lineSegment = lineSegmentCombination[lineSegmentIndex];
+                    for (let otherLineSegmentIndex = lineSegmentIndex + 1; otherLineSegmentIndex < lineSegmentCombination.length; otherLineSegmentIndex++) {
+                        const otherLineSegment = lineSegmentCombination[otherLineSegmentIndex];
+                        const currVertex = lineSegment.intersectionPoint(otherLineSegment);
+                        if (currVertex !== null) {
+                            polygonVertices.push(currVertex);
+                        }
+                    }
+                }
+
+                polygons.push(new geometryModule.Polygon(polygonVertices));
+            }
+        })
+
+        return polygons;
+    }
 }
 
 const geometryModule = (function () {
@@ -120,6 +162,8 @@ const geometryModule = (function () {
     }
 
     class Line {
+        _pointContainmentError = 1e-10;
+
         constructor(point1, point2) {
             this._point = new Point(point1.x, point1.y, point1.z, point1.w);
             this._directionVector = new Vector(point1, point2);
@@ -144,6 +188,32 @@ const geometryModule = (function () {
                 this._point.z + normalizedDirectionVector.z * dotProduct
             )
         }
+
+        intersectionPoint(line) {
+            const [ a1, b1, c1 ] = [this.coefficients_2d.a, this.coefficients_2d.b, this.coefficients_2d.c];
+            const [ a2, b2, c2 ] = [line.coefficients_2d.a, line.coefficients_2d.b, line.coefficients_2d.c];
+            return new Point(
+                (b1 * c2 - b2 * c1) / (a1 * b2 - a2 * b1),
+                (c1 * a2 - c2 * a1) / (a1 * b2 - a2 * b1)
+            );
+        }
+
+        get normalVector() { // z = 0
+            return new Vector(new Point(0, 0), new Point(-this._directionVector.y, this._directionVector.x));
+        }
+
+        get coefficients_2d() {
+            return {
+                a: this.normalVector.x,
+                b: this.normalVector.y,
+                c: -(this._point.x * this.normalVector.x + this._point.y * this.normalVector.y)
+            };
+        }
+
+        containsPoint(point) {
+            const helperVector = new Vector(this._point, point);
+            return Math.abs(this._directionVector.dotProduct(helperVector)) / (this._directionVector.modulus * helperVector.modulus) >= 1 - this._pointContainmentError;
+        }
     }
 
     class LineSegment {
@@ -154,6 +224,51 @@ const geometryModule = (function () {
 
         get P1() { return new Point(this._point1.x, this._point1.y, this._point1.z); }
         get P2() { return new Point(this._point2.x, this._point2.y, this._point2.z); }
+
+        intersectionPoint(lineSegment) {
+            const lineIntersectionPoint = (new Line(this.P1, this.P2)).intersectionPoint(new Line(lineSegment.P1, lineSegment.P2));
+            return this.containsPoint(lineIntersectionPoint) ? lineIntersectionPoint : null;
+        }
+
+        containsPoint(point) {
+            if (point.x < this.minX ||
+                point.x > this.maxX ||
+                point.y < this.minY ||
+                point.y > this.maxY ||
+                point.z < this.minZ ||
+                point.z > this.maxZ) {
+                return false;
+            }
+            return (new Line(this.P1, this.P2)).containsPoint(point);
+        }
+
+        intersects(lineSegment) {
+            return this.intersectionPoint(lineSegment) !== null;
+        }
+
+        get minX() {
+            return this.P1.x < this.P2.x ? this.P1.x : this.P2.x;
+        }
+
+        get maxX() {
+            return this.P1.x > this.P2.x ? this.P1.x : this.P2.x;
+        }
+
+        get minY() {
+            return this.P1.y < this.P2.y ? this.P1.y : this.P2.y;
+        }
+
+        get maxY() {
+            return this.P1.y > this.P2.y ? this.P1.y : this.P2.y;
+        }
+
+        get minZ() {
+            return this.P1.z < this.P2.z ? this.P1.z : this.P2.z;
+        }
+
+        get maxZ() {
+            return this.P1.z > this.P2.z ? this.P1.z : this.P2.z;
+        }
     }
 
     class Ellipse {
@@ -242,6 +357,21 @@ const geometryModule = (function () {
         }
     }
 
+    class Polygon {
+        _filledIn = false;
+
+        constructor(vertices) {
+            this._vertices = vertices.map(vertex => new Point(vertex.x, vertex.y, vertex.z));
+        }
+
+        get vertices() { return this._vertices; }
+        get filledIn() { return this._filledIn; }
+
+        fill() {
+            this._filledIn = true;
+        }
+    }
+
     return {
         Point,
         Vector,
@@ -252,7 +382,8 @@ const geometryModule = (function () {
         Parabola,
         HermiteCurve,
         BezierCurve,
-        VSpline
+        VSpline,
+        Polygon
     }
 })();
 const Point = geometryModule.Point;

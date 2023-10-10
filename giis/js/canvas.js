@@ -23,6 +23,7 @@ const canvasModule = (function () {
         _hermiteCurves = [];
         _bezierCurves = [];
         _vSplines = [];
+        _polygons = [];
 
         _addFigure(list, figure) {
             list.push(figure);
@@ -98,6 +99,20 @@ const canvasModule = (function () {
             ];
         }
 
+        addPolygon(vertices) {
+            this._addFigure(this._polygons, new geometryModule.Polygon(vertices));
+        }
+
+        updatePolygons() {
+            const lineSegments = [
+                ...this.ddaLineSegments,
+                ...this.bresenhamLineSegments,
+                ...this.wuLineSegments
+            ];
+
+            console.log(GeometryUtils.getPolygons(lineSegments));
+        }
+
         get ddaLineSegments() { return this._ddaLineSegments; }
         get bresenhamLineSegments() { return this._bresenhamLineSegments; }
         get wuLineSegments() { return this._wuLineSegments; }
@@ -113,6 +128,9 @@ const canvasModule = (function () {
                 ...this.bezierCurves,
                 ...this.vSplines
             ];
+        }
+        get polygons() {
+            return this._polygons;
         }
 
         rotateBy(degreesX, degreesY, degreesZ) {
@@ -631,7 +649,9 @@ const canvasModule = (function () {
     
             this._currPointSelectionListener = (event) => {
                 const { x, y } = this._getCanvasCoordsFromMouseEvent(event);
-                selectedPoints.push(new Point(x, y));
+                const selectedPoint = new Point(x, y);
+                selectedPoints.push(selectedPoint);
+                this._view.highlightPoints([selectedPoint])
                 if (selectedPoints.length === pointsRequired) {
                     this._exitPointSelection();
                     exitPointSelectionCallback(selectedPoints);
@@ -909,6 +929,7 @@ const canvasModule = (function () {
             const endPoint = new Point(selectedPoints[1].x, selectedPoints[1].y);
 
             this._model.addDdaLineSegment(new geometryModule.LineSegment(startPoint, endPoint));
+            this._model.updatePolygons();
         }
 
         enterBresenhamDrawingMode() {
@@ -920,6 +941,7 @@ const canvasModule = (function () {
             const endPoint = new Point(selectedPoints[1].x, selectedPoints[1].y);
 
             this._model.addBresenhamLineSegment(new geometryModule.LineSegment(startPoint, endPoint));
+            this._model.updatePolygons();
         }
 
         enterWuDrawingMode() {
@@ -931,6 +953,7 @@ const canvasModule = (function () {
             const endPoint = new Point(selectedPoints[1].x, selectedPoints[1].y);
 
             this._model.addWuLineSegment(new geometryModule.LineSegment(startPoint, endPoint));
+            this._model.updatePolygons();
         }
 
         ////////////////////////////////////////
