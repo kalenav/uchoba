@@ -7,7 +7,24 @@ class GeometryUtils {
         return degrees * Math.PI / 180;
     }
 
-    static lineSegmentCombinationIsAPolygon(lineSegments) {
+    static getLineSegmentSetIntersectionPoints(lineSegments) {
+        const intersectionPoints = [];
+
+        for (let lineSegmentIndex = 0; lineSegmentIndex < lineSegments.length; lineSegmentIndex++) {
+            const lineSegment = lineSegments[lineSegmentIndex];
+            for (let otherLineSegmentIndex = lineSegmentIndex + 1; otherLineSegmentIndex < lineSegments.length; otherLineSegmentIndex++) {
+                const otherLineSegment = lineSegments[otherLineSegmentIndex];
+                const currIntersectionPoint = lineSegment.intersectionPoint(otherLineSegment);
+                if (currIntersectionPoint !== null) {
+                    intersectionPoints.push(currIntersectionPoint);
+                }
+            }
+        }
+
+        return intersectionPoints;
+    }
+    
+    static lineSegmentSetIsConnectedAndClosed(lineSegments) {
         return lineSegments.every(lineSegment => {
             let intersectionsWithOtherLineSegments = 0;
             lineSegments.forEach((otherLineSegment) => {
@@ -22,27 +39,36 @@ class GeometryUtils {
         });
     }
 
+    static lineSegmentSetGraphIsConnected(lineSegments) {
+        const intersectionPoints = GeometryUtils.getLineSegmentSetIntersectionPoints(lineSegments);
+        const graphNodes = intersectionPoints.map(point => new Node(point));
+        const graphArcs = [];
+        for (const lineSegment of lineSegments) {
+            for (let intersectionPointIndex = 0; intersectionPointIndex < intersectionPoints.length; intersectionPointIndex++) {
+                const intersectionPoint = intersectionPoints[intersectionPointIndex];
+                for (let otherIntersectionPointIndex = intersectionPointIndex + 1; otherIntersectionPointIndex < intersectionPoints.length; otherIntersectionPointIndex++) {
+                    const otherIntersectionPoint = intersectionPoints[otherIntersectionPointIndex];
+                    if (lineSegment.containsPoint(intersectionPoint) && lineSegment.containsPoint(otherIntersectionPoint)) {
+                        graphArcs.push(new Arc(graphNodes[intersectionPointIndex], graphNodes[otherIntersectionPointIndex], false));
+                    }
+                }
+            }
+        }
+        return (new Graph(graphNodes, graphArcs)).isConnected();
+    }
+
+    static lineSegmentSetIsAPolygon(lineSegments) {
+        return GeometryUtils.lineSegmentSetIsConnectedAndClosed(lineSegments) && GeometryUtils.lineSegmentSetGraphIsConnected(lineSegments);
+    }
+
     static getPolygons(lineSegments) {
         const polygons = [];
 
-        const allLineSegmentCombinations = Utils.arrayOfSubarrays(lineSegments);
-        const polygonCandidates = allLineSegmentCombinations.filter((lineSegmentCombination) => lineSegmentCombination.length >= 3);
-        polygonCandidates.forEach((lineSegmentCombination) => {
-            if (GeometryUtils.lineSegmentCombinationIsAPolygon(lineSegmentCombination)) {
-                const polygonVertices = [];
-
-                for (let lineSegmentIndex = 0; lineSegmentIndex < lineSegmentCombination.length; lineSegmentIndex++) {
-                    const lineSegment = lineSegmentCombination[lineSegmentIndex];
-                    for (let otherLineSegmentIndex = lineSegmentIndex + 1; otherLineSegmentIndex < lineSegmentCombination.length; otherLineSegmentIndex++) {
-                        const otherLineSegment = lineSegmentCombination[otherLineSegmentIndex];
-                        const currVertex = lineSegment.intersectionPoint(otherLineSegment);
-                        if (currVertex !== null) {
-                            polygonVertices.push(currVertex);
-                        }
-                    }
-                }
-
-                polygons.push(new geometryModule.Polygon(polygonVertices));
+        const allLineSegmentSets = Utils.arrayOfSubarrays(lineSegments);
+        const polygonCandidates = allLineSegmentSets.filter((lineSegmentSet) => lineSegmentSet.length >= 3);
+        polygonCandidates.forEach((lineSegmentSet) => {
+            if (GeometryUtils.lineSegmentSetIsAPolygon(lineSegmentSet)) {
+                polygons.push(new geometryModule.Polygon(GeometryUtils.getLineSegmentSetIntersectionPoints(lineSegmentSet)));
             }
         })
 

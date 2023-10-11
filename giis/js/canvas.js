@@ -110,7 +110,7 @@ const canvasModule = (function () {
                 ...this.wuLineSegments
             ];
 
-            console.log(GeometryUtils.getPolygons(lineSegments));
+            this._polygons = GeometryUtils.getPolygons(lineSegments).slice();
         }
 
         get ddaLineSegments() { return this._ddaLineSegments; }
@@ -315,14 +315,19 @@ const canvasModule = (function () {
             this.redrawCanvas();
         }
 
-        _drawPoint(x, y, opacity = 1, color = this._DEFAULT_COLOR) {
+        _drawPoint({
+            x,
+            y,
+            opacity = 1,
+            color = this._DEFAULT_COLOR
+        }) {
             this._ctx.fillStyle = `rgba(${color.red}, ${color.green}, ${color.blue}, ${opacity})`;
             this._ctx.fillRect(Math.trunc(this._origin.x + x), Math.trunc(this._origin.y - y), 1, 1);
         }
 
         _drawPoints(points) {
             points.forEach(point => {
-                this._drawPoint(point.x, point.y, point.opacity ?? 1, point.color ?? this._DEFAULT_COLOR);
+                this._drawPoint(point);
             });
         }
 
@@ -554,6 +559,11 @@ const canvasModule = (function () {
         _segmentConnectingModeEnabled = false;
         _segmentConnectingSnapDistance = 20;
         _segmentConnectingMouseForceUnsnapDistance = 100;
+        _polygonBoundaryDefaultColor = {
+            red: 255,
+            green: 0,
+            blue: 0
+        }
 
         constructor({
             width = 1000,
@@ -709,6 +719,11 @@ const canvasModule = (function () {
             const bezierCurves = this._model.bezierCurves.map(curve => this._bezierForm(curve.P1, curve.P2, curve.P3, curve.P4));
             const vSplines = this._model.vSplines.map(vSpline => this._vSpline(vSpline.referencePoints));
 
+            const polygons = this._model.polygons.map(polygon => this._convexPolygon(polygon.vertices).map(point => ({
+                ...point,
+                color: this._polygonBoundaryDefaultColor
+            })));
+
             const transformationMatrix = this._model.getTransformationMatrix();
             const pointsToDraw = [
                 ...ddaLineSegments.flat(),
@@ -721,15 +736,16 @@ const canvasModule = (function () {
                 ...verticalHypebrolas.flat(),
                 ...hermiteCurves.flat(),
                 ...bezierCurves.flat(),
-                ...vSplines.flat()
+                ...vSplines.flat(),
+                ...polygons.flat()
             ]
                 .map(point => {
                     const transformedPoint = (new Point(point.x, point.y, point.z)).applyMatrix(transformationMatrix);
-                    return new Point(
-                        transformedPoint.x / transformedPoint.w,
-                        transformedPoint.y / transformedPoint.w,
-                        transformedPoint.z / transformedPoint.w
-                    );
+                    return {
+                        x: transformedPoint.x / transformedPoint.w,
+                        y: transformedPoint.y / transformedPoint.w,
+                        color: point.color ?? undefined
+                    };
                 });
 
             this._view.redrawCanvas();
@@ -1512,6 +1528,58 @@ const canvasModule = (function () {
         _exitPerspectiveChangingMode() {
             document.removeEventListener('keydown', this._currPerspectiveChangeListener);
             this._currPerspectiveChangeListener = null;
+        }
+
+        ////////////////////////////////////////
+        ///////////////// lab5 /////////////////
+        ////////////////////////////////////////
+
+        _convexPolygon(vertices) {
+            if (vertices.length < 3) {
+                return [];
+            }
+
+            const constituentLineSegments = [];
+
+            const sortedVertices = vertices.toSorted((p1, p2) => (p1.y - p2.y) || (p1.x - p2.x));
+            const [extremeVertex, otherVertices] = [sortedVertices[0], sortedVertices.slice(1)];
+            otherVertices.sort((p1, p2) => {
+                const vectorToP1 = new Vector(extremeVertex, p1);
+                const vectorToP2 = new Vector(extremeVertex, p2);
+                return (vectorToP1.angleToXAxis - vectorToP2.angleToXAxis) || (vectorToP1.modulus - vectorToP2.modulus);
+            });
+
+            const verticesStack = new Stack();
+            verticesStack.push(extremeVertex);
+            verticesStack.push(otherVertices[0]);
+            otherVertices.forEach((vertex, index) => {
+                if (index === 0) { // already in stack
+                    return;
+                }
+                const lastPoint = verticesStack.get(1);
+                const secondToLastPoint = verticesStack.get(2);
+                const vector1 = new Vector(secondToLastPoint, lastPoint);
+                const vector2 = new Vector(lastPoint, vertex);
+                if (vector1.crossProduct(vector2).modulus > 0) {
+                    verticesStack.push(vertex);
+                } else {
+                    verticesStack.pop();
+                }
+            });
+
+            const verticesArray = [];
+            while (!verticesStack.empty) verticesArray.push(verticesStack.pop());
+            verticesArray.forEach((vertex, index) => {
+                if (index === verticesArray.length - 1) {
+                    constituentLineSegments.push(new geometryModule.LineSegment(vertex, verticesArray[0]));
+                } else {
+                    constituentLineSegments.push(new geometryModule.LineSegment(vertex, verticesArray[index + 1]));
+                }
+            });
+
+            return constituentLineSegments
+                .map(lineSegment => this._ddaLine({ start: lineSegment.P1, end: lineSegment.P2 }))
+                .flat();
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////
