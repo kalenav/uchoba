@@ -1,0 +1,189 @@
+<Entry>:
+    canvas.before:
+        Color:
+            rgb: 0, 0, 0
+        Line:
+            width: 2
+            rectangle: self.x, self.y, self.width, self.height
+
+<EntryLabel>:
+    canvas.before:
+        Color:
+            rgb: 0, 0, 0
+        Line:
+            width: 2
+            rectangle: self.x, self.y, self.width, self.height
+
+<Table>:
+    id: table
+    canvas.before:
+        Color:
+            rgb: 0, 0, 0
+        Line:
+            width: 2
+            rectangle: self.x, self.y, self.width, self.height
+
+<MiscTextContainer>:
+    pos: 0, 50
+    size_hint: None, None
+    canvas.before:
+        Color:
+            rgb: 0, 0, 0
+        Line:
+            width: 2
+            rectangle: self.x, self.y, self.width, self.height
+
+<MainActionBar>:
+    pos: 0, 0
+    ActionView:
+        ActionPrevious:
+            title: ''
+            with_previous: False
+
+        ActionButton:
+            text: 'Add entry'
+            on_press:
+                app.screen_manager.transition.direction = 'left'
+                app.screen_manager.current = 'new_entry'
+
+        ActionButton:
+            text: 'Filter'
+            on_press:
+                app.screen_manager.transition.direction = 'left'
+                app.screen_manager.current = 'filter'
+
+        ActionButton:
+            text: 'Delete'
+            on_press:
+                app.screen_manager.transition.direction = 'left'
+                app.screen_manager.current = 'delete'
+            
+        ActionButton:
+            text: 'Save'
+            on_press: 
+                app.screen_manager.transition.direction = 'left'
+                app.screen_manager.current = 'file_choose'
+                app.saving = True
+
+        ActionButton:
+            text: 'Load'
+            on_press: 
+                app.screen_manager.transition.direction = 'left'
+                app.screen_manager.current = 'file_choose'
+
+        ActionButton:
+            text: 'Pagination'
+            on_press:
+                app.screen_manager.transition.direction = 'left'
+                app.screen_manager.current = 'pagination'
+
+        ActionButton:
+            text: 'Clear Filters'
+            on_press: app.clear_filters()
+
+        ActionButton:
+            text: '< Previous'
+            on_press: app.previous()
+
+        ActionButton:
+            text: 'Next >'
+            on_press: app.next()
+
+<FileChooserActionBar>:
+    pos: 0, 0
+    ActionView:
+        ActionPrevious:
+            title: 'return'
+            with_previous: True
+            on_press: 
+                app.screen_manager.transition.direction = 'right'
+                app.screen_manager.current = 'main'
+
+<FileChooserIconView>:
+    canvas.before:
+        Color:
+            rgb: 0, 0, 0, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    id: filechooser
+    on_selection: 
+        app.screen_manager.transition.direction = 'right'
+        app.screen_manager.current = 'main'
+        if(app.saving): app.save(filechooser.selection)
+        else: app.load(filechooser.selection)
+
+<AddEntryActionBar>:
+    pos: 0, 0
+    ActionView:
+        ActionPrevious:
+            title: 'return'
+            with_previous: True
+            on_press:
+                app.screen_manager.transition.direction = 'right'
+                app.screen_manager.current = 'main'
+
+        ActionButton:
+            text: 'Confirm'
+            on_press:
+                PROMPT_BLOCK = app.screen_manager.current_screen.children[1]
+                app.screen_manager.transition.direction = 'right'
+                app.screen_manager.current = 'main'
+                app.add_entry(PROMPT_BLOCK.name.text, PROMPT_BLOCK.course.text, PROMPT_BLOCK.group.text, PROMPT_BLOCK.completed.text, PROMPT_BLOCK.overall.text, PROMPT_BLOCK.lang.text)
+
+<FilterActionbar>:
+    pos: 0, 0
+    ActionView:
+        ActionPrevious:
+            title: 'return'
+            with_previous: True
+            on_press:
+                app.screen_manager.transition.direction = 'right'
+                app.screen_manager.current = 'main'
+
+        ActionButton:
+            text: 'Confirm'
+            on_press:
+                PROMPT_BLOCK = app.screen_manager.current_screen.children[1]
+                FILTER_CONFIG = {'name': PROMPT_BLOCK.name.text, 'course': PROMPT_BLOCK.course.text, 'group': PROMPT_BLOCK.group.text, 'completed': PROMPT_BLOCK.completed.text, 'overall': PROMPT_BLOCK.overall.text, 'lang': PROMPT_BLOCK.lang.text}
+                app.screen_manager.transition.direction = 'right'
+                app.screen_manager.current = 'main'
+                app.display_table(app.find_entries(FILTER_CONFIG))
+
+<DeleteActionbar>:
+    pos: 0, 0
+    ActionView:
+        ActionPrevious:
+            title: 'return'
+            with_previous: True
+            on_press:
+                app.screen_manager.transition.direction = 'right'
+                app.screen_manager.current = 'main'
+
+        ActionButton:
+            text: 'Confirm'
+            on_press:
+                PROMPT_BLOCK = app.screen_manager.current_screen.children[1]
+                FILTER_CONFIG = {'name': PROMPT_BLOCK.name.text, 'course': PROMPT_BLOCK.course.text, 'group': PROMPT_BLOCK.group.text, 'completed': PROMPT_BLOCK.completed.text, 'overall': PROMPT_BLOCK.overall.text, 'lang': PROMPT_BLOCK.lang.text}
+                app.screen_manager.transition.direction = 'right'
+                app.screen_manager.current = 'main'
+                app.delete_entries(FILTER_CONFIG)
+                app.display_table(app.find_entries(None))
+
+<ChangeShownEntriesQuantityActionBar>:
+    pos: 0, 0
+    ActionView:
+        ActionPrevious:
+            title: 'return'
+            with_previous: True
+            on_press:
+                app.screen_manager.transition.direction = 'right'
+                app.screen_manager.current = 'main'
+
+        ActionButton:
+            text: 'Confirm'
+            on_press:
+                input = app.screen_manager.current_screen.children[2].text
+                app.screen_manager.transition.direction = 'right'
+                app.screen_manager.current = 'main'
+                app.change_shown_entries_quantity(int(input))

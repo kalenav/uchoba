@@ -1,0 +1,1114 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#"
+     xml:base="http://www.semanticweb.org/konst/ontologies/2023/1/lab2"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:lab2="http://kalenav.github.io/ontology.rdf"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:lab21="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#"
+     xmlns:untitled-ontology-9="http://www.semanticweb.org/konst/ontologies/2023/1/untitled-ontology-9#">
+    <owl:Ontology rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLObjectProperty_727f70f7_52f9_4df1_93ff_1ab720b4261d -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLObjectProperty_727f70f7_52f9_4df1_93ff_1ab720b4261d">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:label xml:lang="en">select_fire</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLObjectProperty_76e84087_6b9c_422e_9926_7e0b1755b005 -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLObjectProperty_76e84087_6b9c_422e_9926_7e0b1755b005">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:label xml:lang="en">suitable_for_cqc</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLObjectProperty_8a892285_03f7_489e_8ddb_9a7a7773a36a -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLObjectProperty_8a892285_03f7_489e_8ddb_9a7a7773a36a">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:label xml:lang="en">single_fire_only</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLObjectProperty_b1e2a058_391b_4d2b_87b2_c0d259d3dac3 -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLObjectProperty_b1e2a058_391b_4d2b_87b2_c0d259d3dac3">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:label xml:lang="en">lightweight</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLObjectProperty_b2762894_be23_4322_b4bb_63858b2f9dee -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLObjectProperty_b2762894_be23_4322_b4bb_63858b2f9dee">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:label xml:lang="en">suitable_for_long_range_combat</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLObjectProperty_b4d14285_02d6_4b11_8d43_2ec0d632f44d -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLObjectProperty_b4d14285_02d6_4b11_8d43_2ec0d632f44d">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:label xml:lang="en">suitable_for_medium_range_combat</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLObjectProperty_d78e995f_02c1_4a84_84c0_f7e4d851e720 -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLObjectProperty_d78e995f_02c1_4a84_84c0_f7e4d851e720">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:label xml:lang="en">heavy</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac">
+        <rdfs:label xml:lang="en">effectiveRange_m</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968">
+        <rdfs:label xml:lang="en">caliber_mm</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_00291114_1650_45dd_b700_f2d6367bde78 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_00291114_1650_45dd_b700_f2d6367bde78">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_566138a1_7726_4e1f_a37f_06c744a95cfc"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_acccfa71_3a8d_443a_8418_7fec9e8b9b2f"/>
+        <rdfs:label xml:lang="en">Horizontal shotgun</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_039fea87_7f75_44a6_bb02_328cdb22e069 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_039fea87_7f75_44a6_bb02_328cdb22e069">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_744c4a56_2ff1_466f_bbe7_5f6461dad2f9"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_cc71b06b_486f_4738_9494_075940296f7d"/>
+        <rdfs:label xml:lang="en">Automatic pistol</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_05395909_967e_4dad_a25e_67687021f2ff -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_05395909_967e_4dad_a25e_67687021f2ff">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_50489c1f_95fb_4182_89a3_2d06a55acaa1"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_744c4a56_2ff1_466f_bbe7_5f6461dad2f9"/>
+        <rdfs:label xml:lang="en">Revolver</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_08703212_05c1_4bdd_a1c9_ce30fbce7028 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_08703212_05c1_4bdd_a1c9_ce30fbce7028">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d201cafd_8aa7_4724_9d7b_71da6b601dba"/>
+        <rdfs:label xml:lang="en">Single-shot shotgun</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_08a105e0_50a4_4d15_919e_acf7c8e3f1c0 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_08a105e0_50a4_4d15_919e_acf7c8e3f1c0">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3573cabb_ceaa_435d_9b7b_bbb8c48885b9"/>
+        <rdfs:label xml:lang="en">SMG</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_0b55a61c_ed1f_466e_bfbf_ad48d01b8a3e -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_0b55a61c_ed1f_466e_bfbf_ad48d01b8a3e">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3196b83b_fd17_4f1d_a5b5_c3cc78dde2a0"/>
+        <rdfs:label xml:lang="en">Musket</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_0deb86b4_b90f_43a7_a5b0_2443019d9f6c -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_0deb86b4_b90f_43a7_a5b0_2443019d9f6c">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d6022946_332f_4b49_9e72_5214a2a86a71"/>
+        <rdfs:label xml:lang="en">Bolt-action rifle</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_136932ad_9c6a_4891_ac56_e060f8f75741 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_136932ad_9c6a_4891_ac56_e060f8f75741">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_ef1e35cc_2db6_4509_a79c_fc3048011237"/>
+        <rdfs:label xml:lang="en">MMG</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_28e087f5_3161_4582_9834_273111b9ea4e -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_28e087f5_3161_4582_9834_273111b9ea4e">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d6022946_332f_4b49_9e72_5214a2a86a71"/>
+        <rdfs:label xml:lang="en">Assault rifle</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_2cbf0f44_0c33_4bce_ba4d_0bf8ee3f71f3 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_2cbf0f44_0c33_4bce_ba4d_0bf8ee3f71f3">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_cc162c49_8991_47e6_b8b2_4c442308437e"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_a98cd715_fd45_48f1_8c03_ea83e098fb85"/>
+        <rdfs:label xml:lang="en">Double-tube shotgun</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3196b83b_fd17_4f1d_a5b5_c3cc78dde2a0 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3196b83b_fd17_4f1d_a5b5_c3cc78dde2a0">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d4e6352d_2e30_4826_be37_6dd536c0d1b3"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3573cabb_ceaa_435d_9b7b_bbb8c48885b9"/>
+        <rdfs:label xml:lang="en">Black powder firearm</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3573cabb_ceaa_435d_9b7b_bbb8c48885b9 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3573cabb_ceaa_435d_9b7b_bbb8c48885b9">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d4e6352d_2e30_4826_be37_6dd536c0d1b3"/>
+        <rdfs:label xml:lang="en">Smokeless powder firearm</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3ae0c562_0220_4383_b9c3_54b24fc3d0d6 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3ae0c562_0220_4383_b9c3_54b24fc3d0d6">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_ebca139b_ff9b_45e9_9006_57f848fcfc4e"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_f7d6b9a7_68e3_4a04_b143_8c8b9e9a3a48"/>
+        <rdfs:label xml:lang="en">Semi-automatic shotgun</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3b6885d2_ff55_46e1_b1ce_c8664798d0e1 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3b6885d2_ff55_46e1_b1ce_c8664798d0e1">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_8a42b6d8_0a6c_4d3f_9b6d_7f7bf7fb9221"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_cd6faa01_694b_41cb_855e_23714b7058a6"/>
+        <rdfs:label xml:lang="en">Elongated pistol carbine</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_48360c73_b616_4c3a_a9be_93e849344749 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_48360c73_b616_4c3a_a9be_93e849344749">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_ef1e35cc_2db6_4509_a79c_fc3048011237"/>
+        <rdfs:label xml:lang="en">HMG</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_4c8c95da_e66f_4bbe_8e5a_453755c78796 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_4c8c95da_e66f_4bbe_8e5a_453755c78796">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d201cafd_8aa7_4724_9d7b_71da6b601dba"/>
+        <rdfs:label xml:lang="en">Lever-action shotgun</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_4e5de6c8_787a_44d3_8f4b_04d6b863a3df -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_4e5de6c8_787a_44d3_8f4b_04d6b863a3df">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3196b83b_fd17_4f1d_a5b5_c3cc78dde2a0"/>
+        <rdfs:label xml:lang="en">Musketon</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_50489c1f_95fb_4182_89a3_2d06a55acaa1 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_50489c1f_95fb_4182_89a3_2d06a55acaa1">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3573cabb_ceaa_435d_9b7b_bbb8c48885b9"/>
+        <rdfs:label xml:lang="en">Pistol</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_566138a1_7726_4e1f_a37f_06c744a95cfc -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_566138a1_7726_4e1f_a37f_06c744a95cfc">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d201cafd_8aa7_4724_9d7b_71da6b601dba"/>
+        <rdfs:label xml:lang="en">Double-barrel shotgun</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_69848ff3_9d9e_4ff4_8bb1_b0848b3f73c4 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_69848ff3_9d9e_4ff4_8bb1_b0848b3f73c4">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_08a105e0_50a4_4d15_919e_acf7c8e3f1c0"/>
+        <rdfs:label xml:lang="en">PDW</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_6a6804fc_a44d_4bb8_86b9_b9142bd0994f -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_6a6804fc_a44d_4bb8_86b9_b9142bd0994f">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_28e087f5_3161_4582_9834_273111b9ea4e"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_f0e9e124_21cc_4a23_9914_7995f46267f9"/>
+        <rdfs:label xml:lang="en">Magazine-fed</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_7168fffd_749f_457e_902a_72b6119850a2 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_7168fffd_749f_457e_902a_72b6119850a2">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_05395909_967e_4dad_a25e_67687021f2ff"/>
+        <rdfs:label xml:lang="en">Double-action revolver</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_744c4a56_2ff1_466f_bbe7_5f6461dad2f9 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_744c4a56_2ff1_466f_bbe7_5f6461dad2f9">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_50489c1f_95fb_4182_89a3_2d06a55acaa1"/>
+        <rdfs:label xml:lang="en">Magazine-fed pistol</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_7d20502b_cda4_4214_b110_fa150a779a53 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_7d20502b_cda4_4214_b110_fa150a779a53">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_0deb86b4_b90f_43a7_a5b0_2443019d9f6c"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_83bdaad9_74b4_4a1e_b69d_5127152219a0"/>
+        <rdfs:label xml:lang="en">Bolt-action rifle with manual bolt rotation</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_83bdaad9_74b4_4a1e_b69d_5127152219a0 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_83bdaad9_74b4_4a1e_b69d_5127152219a0">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_0deb86b4_b90f_43a7_a5b0_2443019d9f6c"/>
+        <rdfs:label xml:lang="en">Staight-pull bolt-action rifle</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_8a42b6d8_0a6c_4d3f_9b6d_7f7bf7fb9221 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_8a42b6d8_0a6c_4d3f_9b6d_7f7bf7fb9221">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3573cabb_ceaa_435d_9b7b_bbb8c48885b9"/>
+        <rdfs:label xml:lang="en">Carbine</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_8a5f99a1_a95f_48f7_939a_fd2895f5d747 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_8a5f99a1_a95f_48f7_939a_fd2895f5d747">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3196b83b_fd17_4f1d_a5b5_c3cc78dde2a0"/>
+        <rdfs:label xml:lang="en">Pistole</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_a82690b7_000f_4703_8667_453d7b47b7e3 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_a82690b7_000f_4703_8667_453d7b47b7e3">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d6022946_332f_4b49_9e72_5214a2a86a71"/>
+        <rdfs:label xml:lang="en">Double-barrel rifle</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_a98cd715_fd45_48f1_8c03_ea83e098fb85 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_a98cd715_fd45_48f1_8c03_ea83e098fb85">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_cc162c49_8991_47e6_b8b2_4c442308437e"/>
+        <rdfs:label xml:lang="en">Single-tube shotgun</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_acccfa71_3a8d_443a_8418_7fec9e8b9b2f -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_acccfa71_3a8d_443a_8418_7fec9e8b9b2f">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_566138a1_7726_4e1f_a37f_06c744a95cfc"/>
+        <rdfs:label xml:lang="en">Over-under shotgun</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_cc162c49_8991_47e6_b8b2_4c442308437e -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_cc162c49_8991_47e6_b8b2_4c442308437e">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d201cafd_8aa7_4724_9d7b_71da6b601dba"/>
+        <rdfs:label xml:lang="en">Pump-action shotgun</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_cc71b06b_486f_4738_9494_075940296f7d -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_cc71b06b_486f_4738_9494_075940296f7d">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_744c4a56_2ff1_466f_bbe7_5f6461dad2f9"/>
+        <rdfs:label xml:lang="en">Semi-automatic pistol</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_cd6faa01_694b_41cb_855e_23714b7058a6 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_cd6faa01_694b_41cb_855e_23714b7058a6">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_8a42b6d8_0a6c_4d3f_9b6d_7f7bf7fb9221"/>
+        <rdfs:label xml:lang="en">Shortened rifle carbine</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d201cafd_8aa7_4724_9d7b_71da6b601dba -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d201cafd_8aa7_4724_9d7b_71da6b601dba">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3573cabb_ceaa_435d_9b7b_bbb8c48885b9"/>
+        <rdfs:label xml:lang="en">Shotgun</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d4e6352d_2e30_4826_be37_6dd536c0d1b3 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d4e6352d_2e30_4826_be37_6dd536c0d1b3">
+        <rdfs:label xml:lang="en">Firearm</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d6022946_332f_4b49_9e72_5214a2a86a71 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d6022946_332f_4b49_9e72_5214a2a86a71">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3573cabb_ceaa_435d_9b7b_bbb8c48885b9"/>
+        <rdfs:label xml:lang="en">Rifle</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_dddd859b_12c5_46dc_b4d0_a267df8f787e -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_dddd859b_12c5_46dc_b4d0_a267df8f787e">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d6022946_332f_4b49_9e72_5214a2a86a71"/>
+        <rdfs:label xml:lang="en">Single-shot rifle</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_ebca139b_ff9b_45e9_9006_57f848fcfc4e -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_ebca139b_ff9b_45e9_9006_57f848fcfc4e">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d201cafd_8aa7_4724_9d7b_71da6b601dba"/>
+        <rdfs:label xml:lang="en">Magazine-fed shotgun</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_ef1e35cc_2db6_4509_a79c_fc3048011237 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_ef1e35cc_2db6_4509_a79c_fc3048011237">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3573cabb_ceaa_435d_9b7b_bbb8c48885b9"/>
+        <rdfs:label xml:lang="en">Machine gun</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_efa89e6a_a9a1_4a0f_b337_29932ce5ea10 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_efa89e6a_a9a1_4a0f_b337_29932ce5ea10">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d6022946_332f_4b49_9e72_5214a2a86a71"/>
+        <rdfs:label xml:lang="en">Anti-materiel rifle</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_efb170a1_cb27_4048_908e_9f247ad8d3e4 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_efb170a1_cb27_4048_908e_9f247ad8d3e4">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d6022946_332f_4b49_9e72_5214a2a86a71"/>
+        <rdfs:label xml:lang="en">Lever-action rifle</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_f0e9e124_21cc_4a23_9914_7995f46267f9 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_f0e9e124_21cc_4a23_9914_7995f46267f9">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_28e087f5_3161_4582_9834_273111b9ea4e"/>
+        <rdfs:label xml:lang="en">Clip-fed</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_f2c8bdfc_aa41_4133_8f3b_3b8b8528b3c6 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_f2c8bdfc_aa41_4133_8f3b_3b8b8528b3c6">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_ef1e35cc_2db6_4509_a79c_fc3048011237"/>
+        <rdfs:label xml:lang="en">LMG</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_f7d6b9a7_68e3_4a04_b143_8c8b9e9a3a48 -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_f7d6b9a7_68e3_4a04_b143_8c8b9e9a3a48">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_ebca139b_ff9b_45e9_9006_57f848fcfc4e"/>
+        <rdfs:label xml:lang="en">Automatic shotgun</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_08902833_7a14_4208_ad7c_69d99c202a54 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_08902833_7a14_4208_ad7c_69d99c202a54">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_00291114_1650_45dd_b700_f2d6367bde78"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">50</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">10.4</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">BM-16</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_08cd44f0_fb04_49de_bcee_b384cc2aec55 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_08cd44f0_fb04_49de_bcee_b384cc2aec55">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_a82690b7_000f_4703_8667_453d7b47b7e3"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">1500</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.1</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Krieghoff Big Five</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_0a2ef87c_974a_4a25_9e51_6bc578e65af7 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_0a2ef87c_974a_4a25_9e51_6bc578e65af7">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_136932ad_9c6a_4891_ac56_e060f8f75741"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">1500</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">7.62</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">PKM</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_11df2f32_f456_4e33_9a54_1b8c14e76f9c -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_11df2f32_f456_4e33_9a54_1b8c14e76f9c">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_f7d6b9a7_68e3_4a04_b143_8c8b9e9a3a48"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">50</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.7</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">USAS-12</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_11e491b9_74f6_4231_9bbf_ff5695d591af -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_11e491b9_74f6_4231_9bbf_ff5695d591af">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_7168fffd_749f_457e_902a_72b6119850a2"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">50</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">9</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">MP-412</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_13190ee4_c9c1_456a_8a1f_5c25cfff4634 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_13190ee4_c9c1_456a_8a1f_5c25cfff4634">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_acccfa71_3a8d_443a_8418_7fec9e8b9b2f"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">50</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.7</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Benelli 828 U Sport</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_17baccb5_0632_4d03_9011_3ff7ffa18da9 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_17baccb5_0632_4d03_9011_3ff7ffa18da9">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_dddd859b_12c5_46dc_b4d0_a267df8f787e"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">300</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5.56</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">H&amp;R Handi-Rifle</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_19670303_cc34_4e78_bcae_11adfaffe5d6 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_19670303_cc34_4e78_bcae_11adfaffe5d6">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_f7d6b9a7_68e3_4a04_b143_8c8b9e9a3a48"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">100</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.7</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">AA-12</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_1c31d2d1_a5d0_4eed_9b0d_4dfe924bf815 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_1c31d2d1_a5d0_4eed_9b0d_4dfe924bf815">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_48360c73_b616_4c3a_a9be_93e849344749"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">1830</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.7</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">M2 Browning</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_1fecfc97_9fdc_46f6_bd5c_4484d332e20a -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_1fecfc97_9fdc_46f6_bd5c_4484d332e20a">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_acccfa71_3a8d_443a_8418_7fec9e8b9b2f"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">50</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.7</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">TOZ-34</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_2640f762_6e7f_42f0_bf4f_0379e2962e0a -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_2640f762_6e7f_42f0_bf4f_0379e2962e0a">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_7168fffd_749f_457e_902a_72b6119850a2"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">45</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">9.07</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Chiappa Rhino</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_26482bf4_cb3e_409d_9240_121cdb32fec4 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_26482bf4_cb3e_409d_9240_121cdb32fec4">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_2cbf0f44_0c33_4bce_ba4d_0bf8ee3f71f3"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">50</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.7</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">DP-12</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_27f801d1_e9cf_497e_a82a_4a46bde693f3 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_27f801d1_e9cf_497e_a82a_4a46bde693f3">
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">46</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">9.14</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Colt Model 1851</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_2c0ffee8_4fd1_4fad_90f3_72489f4987ae -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_2c0ffee8_4fd1_4fad_90f3_72489f4987ae">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_136932ad_9c6a_4891_ac56_e060f8f75741"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">1800</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">7.62</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">M240</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_2d3e8f8f_9fd3_4df4_b134_ad079a8efef7 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_2d3e8f8f_9fd3_4df4_b134_ad079a8efef7">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_039fea87_7f75_44a6_bb02_328cdb22e069"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">45</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">9</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Glock 18C</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_301fb444_0cb8_49e2_8704_42fa4c8d2a06 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_301fb444_0cb8_49e2_8704_42fa4c8d2a06">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_039fea87_7f75_44a6_bb02_328cdb22e069"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">55</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">9</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">CZ-75 Auto</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_4f06a1ec_ae89_4df5_a3bb_470498956696 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_4f06a1ec_ae89_4df5_a3bb_470498956696">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_6a6804fc_a44d_4bb8_86b9_b9142bd0994f"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">500</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5.56</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">M4 Carbine</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_51dfcf6e_94e1_46a6_aed9_72b88692dcde -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_51dfcf6e_94e1_46a6_aed9_72b88692dcde">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_cc71b06b_486f_4738_9494_075940296f7d"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">45</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">9</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Glock 19</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_55f46dce_f8c5_44f1_b1cc_0b79490a9000 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_55f46dce_f8c5_44f1_b1cc_0b79490a9000">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_69848ff3_9d9e_4ff4_8bb1_b0848b3f73c4"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">200</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5.7</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">P90</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_56884ebb_011f_4d60_bf56_1bb418120a39 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_56884ebb_011f_4d60_bf56_1bb418120a39">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_a82690b7_000f_4703_8667_453d7b47b7e3"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">200</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5.56</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Merkel 140AE</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_5835a618_c8a8_4097_be77_d6a29a5462bf -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_5835a618_c8a8_4097_be77_d6a29a5462bf">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_83bdaad9_74b4_4a1e_b69d_5127152219a0"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">200</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5.56</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Blaser R8</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_6022dac7_c158_469d_9ac1_8c932708c4cf -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_6022dac7_c158_469d_9ac1_8c932708c4cf">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_f0e9e124_21cc_4a23_9914_7995f46267f9"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">460</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">7.62</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">M1 Garand</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_738e9561_680d_4195_8f3c_033228b17045 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_738e9561_680d_4195_8f3c_033228b17045">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_dddd859b_12c5_46dc_b4d0_a267df8f787e"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">200</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5.56</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Ruger No 1</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_79ee53f1_f918_4af8_9953_cacf215cdae5 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_79ee53f1_f918_4af8_9953_cacf215cdae5">
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">90</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">11.43</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Single Action Army</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_7cafd540_f581_4ad6_9025_8b19c7a72ef8 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_7cafd540_f581_4ad6_9025_8b19c7a72ef8">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3ae0c562_0220_4383_b9c3_54b24fc3d0d6"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">90</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.7</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Derya MK-12</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_842aa28d_15f7_489c_b4a5_d3f9ad62cf13 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_842aa28d_15f7_489c_b4a5_d3f9ad62cf13">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_83bdaad9_74b4_4a1e_b69d_5127152219a0"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">100</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5.6</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Browning T-bolt</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_845a0957_74aa_4b5c_89a2_47566ce16fcf -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_845a0957_74aa_4b5c_89a2_47566ce16fcf">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_a98cd715_fd45_48f1_8c03_ea83e098fb85"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">50</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.7</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Mossberg 590</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_8688c3d7_bee6_4144_8266_850e7d22b10d -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_8688c3d7_bee6_4144_8266_850e7d22b10d">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_f2c8bdfc_aa41_4133_8f3b_3b8b8528b3c6"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">1000</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5.56</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">FN Minimi</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_8fb8a700_36cf_4df5_a4b1_d78a25326b1c -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_8fb8a700_36cf_4df5_a4b1_d78a25326b1c">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_a98cd715_fd45_48f1_8c03_ea83e098fb85"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">50</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.7</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">MP-133</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_9036b814_f1d1_449a_80bf_2f22312aecfc -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_9036b814_f1d1_449a_80bf_2f22312aecfc">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_3ae0c562_0220_4383_b9c3_54b24fc3d0d6"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">50</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.7</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Saiga 12</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_996f2249_49e4_4765_a710_124a5c8c7eea -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_996f2249_49e4_4765_a710_124a5c8c7eea">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_7d20502b_cda4_4214_b110_fa150a779a53"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">500</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">7.62</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Mosin-Nagant M1891/30</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_9e0703f2_8d14_4c36_8f25_56bc5caf7f12 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_9e0703f2_8d14_4c36_8f25_56bc5caf7f12">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_2cbf0f44_0c33_4bce_ba4d_0bf8ee3f71f3"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">50</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.7</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">KelTec KSG-12</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_9fa39354_d622_45a6_8dab_ae21e2dd3ef7 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_9fa39354_d622_45a6_8dab_ae21e2dd3ef7">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_efa89e6a_a9a1_4a0f_b337_29932ce5ea10"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">1800</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.7</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Barrett M107A1</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_a2a14365_8c78_4b51_bd67_3a53b92f0643 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_a2a14365_8c78_4b51_bd67_3a53b92f0643">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_69848ff3_9d9e_4ff4_8bb1_b0848b3f73c4"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">200</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">4.6</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">H&amp;K MP7</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_a8b18e6a_a461_4554_8f6c_ca58d7a36ed4 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_a8b18e6a_a461_4554_8f6c_ca58d7a36ed4">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_4c8c95da_e66f_4bbe_8e5a_453755c78796"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">50</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.7</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Winchester Model 1887</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_a8b3fdf8_8174_48ad_a13f_6c9e4e0d3d7c -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_a8b3fdf8_8174_48ad_a13f_6c9e4e0d3d7c">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_efa89e6a_a9a1_4a0f_b337_29932ce5ea10"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">2500</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.7</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">GM6 Lynx</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_b292f568_affa_47d5_b9bf_69b049b03a11 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_b292f568_affa_47d5_b9bf_69b049b03a11">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_08703212_05c1_4bdd_a1c9_ce30fbce7028"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">50</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.7</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Stevens 555 TRAP</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_b3b64421_de29_4e92_821e_41e030efe6ba -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_b3b64421_de29_4e92_821e_41e030efe6ba">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_6a6804fc_a44d_4bb8_86b9_b9142bd0994f"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">600</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">7.62</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">H&amp;K G3</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_b824b380_6271_49f1_b378_f6793095650d -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_b824b380_6271_49f1_b378_f6793095650d">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_48360c73_b616_4c3a_a9be_93e849344749"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">2000</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.7</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">DShK</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_c92f760a_73c1_4de4_ad35_c457269b76b1 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_c92f760a_73c1_4de4_ad35_c457269b76b1">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_08703212_05c1_4bdd_a1c9_ce30fbce7028"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">50</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.7</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Henry 015-12</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_d39216a9_f6b6_4889_9d1d_ff6c4097d29d -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_d39216a9_f6b6_4889_9d1d_ff6c4097d29d">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_cc71b06b_486f_4738_9494_075940296f7d"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">50</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">9</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Beretta M9</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_d980d22b_7deb_43be_996b_6974c9d2a5f5 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_d980d22b_7deb_43be_996b_6974c9d2a5f5">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_efb170a1_cb27_4048_908e_9f247ad8d3e4"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">300</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">7.62</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Marlin Model 336</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_e166df9a_54f4_4ef0_b867_956ab286e53b -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_e166df9a_54f4_4ef0_b867_956ab286e53b">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_f0e9e124_21cc_4a23_9914_7995f46267f9"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">900</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">6.5</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Carcano M91</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_e18b399e_ad1d_4a08_93c1_66a7cf1e880c -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_e18b399e_ad1d_4a08_93c1_66a7cf1e880c">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_f2c8bdfc_aa41_4133_8f3b_3b8b8528b3c6"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">800</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5.56</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">M249 SAW</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_e4cc1565_0502_462b_a86c_ab427621be22 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_e4cc1565_0502_462b_a86c_ab427621be22">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_7d20502b_cda4_4214_b110_fa150a779a53"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">1200</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">8.58</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Accuracy International L96A1</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_e6f5a064_642d_4274_8dc9_ccb32c788907 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_e6f5a064_642d_4274_8dc9_ccb32c788907">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_efb170a1_cb27_4048_908e_9f247ad8d3e4"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">250</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">7.62</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Winchester Model 1894</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_f4d58c82_beb7_4409_b94d_559e04e0517f -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_f4d58c82_beb7_4409_b94d_559e04e0517f">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_4c8c95da_e66f_4bbe_8e5a_453755c78796"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">50</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12.7</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">Browning BPS</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_f6e6d8c6_4e81_41a6_9af9_eca69738aa59 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLNamedIndividual_f6e6d8c6_4e81_41a6_9af9_eca69738aa59">
+        <rdf:type rdf:resource="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_f2c8bdfc_aa41_4133_8f3b_3b8b8528b3c6"/>
+        <OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">500</OWLDataProperty_1b13e99f_abba_4dca_a9a0_fcf03aa1a7ac>
+        <OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">7.62</OWLDataProperty_ce3e3690_c9e9_4292_8197_5c5705549968>
+        <rdfs:label xml:lang="en">H&amp;K HK21</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // General axioms
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_08703212_05c1_4bdd_a1c9_ce30fbce7028"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_4c8c95da_e66f_4bbe_8e5a_453755c78796"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_566138a1_7726_4e1f_a37f_06c744a95cfc"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_cc162c49_8991_47e6_b8b2_4c442308437e"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_ebca139b_ff9b_45e9_9006_57f848fcfc4e"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_08a105e0_50a4_4d15_919e_acf7c8e3f1c0"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_50489c1f_95fb_4182_89a3_2d06a55acaa1"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_8a42b6d8_0a6c_4d3f_9b6d_7f7bf7fb9221"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d201cafd_8aa7_4724_9d7b_71da6b601dba"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_d6022946_332f_4b49_9e72_5214a2a86a71"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_ef1e35cc_2db6_4509_a79c_fc3048011237"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_0deb86b4_b90f_43a7_a5b0_2443019d9f6c"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_28e087f5_3161_4582_9834_273111b9ea4e"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_a82690b7_000f_4703_8667_453d7b47b7e3"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_dddd859b_12c5_46dc_b4d0_a267df8f787e"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_efa89e6a_a9a1_4a0f_b337_29932ce5ea10"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/konst/ontologies/2023/1/lab2#OWLClass_efb170a1_cb27_4048_908e_9f247ad8d3e4"/>
+        </owl:members>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.24.2023-01-14T21:28:32Z) https://github.com/owlcs/owlapi -->
+

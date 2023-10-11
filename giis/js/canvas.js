@@ -1,6 +1,18 @@
 const canvasModule = (function () {
     class CanvasModel {
-        _modelSnapshot = null;
+        _currRotationX = 0;
+        _currRotationY = 0;
+        _currRotationZ = 0;
+        _currScaleX = 1;
+        _currScaleY = 1;
+        _currScaleZ = 1;
+        _currTranslationX = 0;
+        _currTranslationY = 0;
+        _currTranslationZ = 0;
+        _tX = 0;
+        _tY = 0;
+        _reflectedX = false;
+        _reflectedY = false;
 
         _ddaLineSegments = [];
         _bresenhamLineSegments = [];
@@ -11,6 +23,7 @@ const canvasModule = (function () {
         _hermiteCurves = [];
         _bezierCurves = [];
         _vSplines = [];
+        _polygons = [];
 
         _addFigure(list, figure) {
             list.push(figure);
@@ -79,44 +92,25 @@ const canvasModule = (function () {
             }
         }
 
-        save() {
-            this._modelSnapshot = new CanvasModel();
-            this.ddaLineSegments.forEach(figure => this._modelSnapshot.addDdaLineSegment(figure));
-            this.bresenhamLineSegments.forEach(figure => this._modelSnapshot.addBresenhamLineSegment(figure));
-            this.wuLineSegments.forEach(figure => this._modelSnapshot.addWuLineSegment(figure));
-            this.ellipses.forEach(figure => this._modelSnapshot.addEllipse(figure));
-            this.parabolas.forEach(figure => this._modelSnapshot.addParabola(figure));
-            this.hyperbolas.forEach(figure => this._modelSnapshot.addHyperbola(figure));
-            this.hermiteCurves.forEach(figure => this._modelSnapshot.addHermiteCurve(figure));
-            this.bezierCurves.forEach(figure => this._modelSnapshot.addBezierCurve(figure));
-            this.vSplines.forEach(figure => this._modelSnapshot.addVSpline(figure));
-        }
-
-        restore() {
-            if (this._modelSnapshot === null) {
-                return;
-            }
-            this._ddaLineSegments = this._modelSnapshot.ddaLineSegments;
-            this._bresenhamLineSegments = this._modelSnapshot.bresenhamLineSegments;
-            this._wuLineSegments = this._modelSnapshot.wuLineSegments;
-            this._ellipses = this._modelSnapshot.ellipses;
-            this._parabolas = this._modelSnapshot.parabolas;
-            this._hyperbolas = this._modelSnapshot.hyperbolas;
-            this._hermiteCurves = this._modelSnapshot.hermiteCurves;
-            this._bezierCurves = this._modelSnapshot.bezierCurves;
-            this._vSplines = this._modelSnapshot.vSplines;
-            this._modelSnapshot = null;
-        }
-
-        dropSavedState() {
-            this._modelSnapshot = null;
-        }
-
         getAllCurveEndpoints(exceptFor) {
             return [
                 ...this._hermiteCurves.filter(curve => curve !== exceptFor).map(curve => curve.endpoints).flat(),
                 ...this._bezierCurves.filter(curve => curve !== exceptFor).map(curve => curve.endpoints).flat(),
             ];
+        }
+
+        addPolygon(vertices) {
+            this._addFigure(this._polygons, new geometryModule.Polygon(vertices));
+        }
+
+        updatePolygons() {
+            const lineSegments = [
+                ...this.ddaLineSegments,
+                ...this.bresenhamLineSegments,
+                ...this.wuLineSegments
+            ];
+
+            this._polygons = GeometryUtils.getPolygons(lineSegments).slice();
         }
 
         get ddaLineSegments() { return this._ddaLineSegments; }
@@ -134,6 +128,129 @@ const canvasModule = (function () {
                 ...this.bezierCurves,
                 ...this.vSplines
             ];
+        }
+        get polygons() {
+            return this._polygons;
+        }
+
+        rotateBy(degreesX, degreesY, degreesZ) {
+            this._currRotationX += degreesX;
+            this._currRotationY += degreesY;
+            this._currRotationZ += degreesZ;
+        }
+
+        scaleBy(scaleX, scaleY, scaleZ) {
+            this._currScaleX *= scaleX;
+            this._currScaleY *= scaleY;
+            this._currScaleZ *= scaleZ;
+        }
+
+        translateBy(dX, dY, dZ) {
+            this._currTranslationX += dX;
+            this._currTranslationY += dY;
+            this._currTranslationZ += dZ;
+        }
+
+        adjustTxUp() {
+            this._tX += 0.01;
+        }
+
+        adjustTxDown() {
+            this._tX -= 0.01;
+        }
+
+        adjustTyUp() {
+            this._tY += 0.01;
+        }
+        
+        adjustTyDown() {
+            this._tY -= 0.01;
+        }
+
+        get _translationMatrix() {
+            const translationMatrix = new linearAlgebraModule.Matrix(4, 4);
+            translationMatrix.setElements([
+                [1, 0, 0, this._currTranslationX],
+                [0, 1, 0, this._currTranslationY],
+                [0, 0, 1, this._currTranslationZ],
+                [0, 0, 0, 1]
+            ]);
+            return translationMatrix;
+        }
+
+        get _scalingMatrix() {
+            const scalingMatrix = new linearAlgebraModule.Matrix(4, 4);
+            scalingMatrix.setElements([
+                [this._currScaleX, 0, 0, 0],
+                [0, this._currScaleY, 0, 0],
+                [0, 0, this._currScaleZ, 0],
+                [0, 0, 0, 1] 
+            ]);
+            return scalingMatrix;
+        }
+
+        get _xRotationMatrix() {
+            const rotationMatrix = new linearAlgebraModule.Matrix(4, 4);
+            const rotationInRadians = GeometryUtils.degreesToRadians(this._currRotationX);
+            const sin = Math.sin(rotationInRadians);
+            const cos = Math.cos(rotationInRadians);
+            rotationMatrix.setElements([
+                [1, 0, 0, 0],
+                [0, cos, sin, 0],
+                [0, -sin, cos, 0],
+                [0, 0, 0, 1]
+            ]);
+            return rotationMatrix;
+        }
+
+        get _yRotationMatrix() {
+            const rotationMatrix = new linearAlgebraModule.Matrix(4, 4);
+            const rotationInRadians = GeometryUtils.degreesToRadians(this._currRotationY);
+            const sin = Math.sin(rotationInRadians);
+            const cos = Math.cos(rotationInRadians);
+            rotationMatrix.setElements([
+                [cos, 0, sin, 0],
+                [0, 1, 0, 0],
+                [-sin, 0, cos, 0],
+                [0, 0, 0, 1]
+            ]);
+            return rotationMatrix;
+        }
+
+        get _zRotationMatrix() {
+            const rotationMatrix = new linearAlgebraModule.Matrix(4, 4);
+            const rotationInRadians = GeometryUtils.degreesToRadians(this._currRotationZ);
+            const sin = Math.sin(rotationInRadians);
+            const cos = Math.cos(rotationInRadians);
+            rotationMatrix.setElements([
+                [cos, sin, 0, 0],
+                [-sin, cos, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1]
+            ]);
+            return rotationMatrix;
+        }
+
+        get _perspectiveMatrix() {
+            const perspectiveMatrix = new linearAlgebraModule.Matrix(4, 4);
+
+            perspectiveMatrix.setElements([
+                [1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, 1, 0],
+                [this._tX, this._tY, 0, 1]
+            ]);
+
+            return perspectiveMatrix;
+        }
+
+        getTransformationMatrix() {
+            return this._translationMatrix
+                .multiply(this._scalingMatrix)
+                .multiply(this._xRotationMatrix)
+                .multiply(this._yRotationMatrix)
+                .multiply(this._zRotationMatrix)
+                .multiply(this._perspectiveMatrix)
         }
     }
 
@@ -198,14 +315,19 @@ const canvasModule = (function () {
             this.redrawCanvas();
         }
 
-        _drawPoint(x, y, opacity = 1, color = this._DEFAULT_COLOR) {
+        _drawPoint({
+            x,
+            y,
+            opacity = 1,
+            color = this._DEFAULT_COLOR
+        }) {
             this._ctx.fillStyle = `rgba(${color.red}, ${color.green}, ${color.blue}, ${opacity})`;
             this._ctx.fillRect(Math.trunc(this._origin.x + x), Math.trunc(this._origin.y - y), 1, 1);
         }
 
         _drawPoints(points) {
             points.forEach(point => {
-                this._drawPoint(point.x, point.y, point.opacity ?? 1, point.color ?? this._DEFAULT_COLOR);
+                this._drawPoint(point);
             });
         }
 
@@ -432,9 +554,16 @@ const canvasModule = (function () {
         _debuggingModeEnabled = false;
         _pointCorrectionModeEnabled = false;
         _currPointSelectionListener = null;
+        _perspectiveChangeModeEnabled = false;
+        _currPerspectiveChangeListener = null;
         _segmentConnectingModeEnabled = false;
         _segmentConnectingSnapDistance = 20;
         _segmentConnectingMouseForceUnsnapDistance = 100;
+        _polygonBoundaryDefaultColor = {
+            red: 255,
+            green: 0,
+            blue: 0
+        }
 
         constructor({
             width = 1000,
@@ -530,7 +659,9 @@ const canvasModule = (function () {
     
             this._currPointSelectionListener = (event) => {
                 const { x, y } = this._getCanvasCoordsFromMouseEvent(event);
-                selectedPoints.push(new Point(x, y));
+                const selectedPoint = new Point(x, y);
+                selectedPoints.push(selectedPoint);
+                this._view.highlightPoints([selectedPoint])
                 if (selectedPoints.length === pointsRequired) {
                     this._exitPointSelection();
                     exitPointSelectionCallback(selectedPoints);
@@ -588,6 +719,12 @@ const canvasModule = (function () {
             const bezierCurves = this._model.bezierCurves.map(curve => this._bezierForm(curve.P1, curve.P2, curve.P3, curve.P4));
             const vSplines = this._model.vSplines.map(vSpline => this._vSpline(vSpline.referencePoints));
 
+            const polygons = this._model.polygons.map(polygon => this._convexPolygon(polygon.vertices).map(point => ({
+                ...point,
+                color: this._polygonBoundaryDefaultColor
+            })));
+
+            const transformationMatrix = this._model.getTransformationMatrix();
             const pointsToDraw = [
                 ...ddaLineSegments.flat(),
                 ...bresenhamLineSegments.flat(),
@@ -599,8 +736,17 @@ const canvasModule = (function () {
                 ...verticalHypebrolas.flat(),
                 ...hermiteCurves.flat(),
                 ...bezierCurves.flat(),
-                ...vSplines.flat()
-            ];
+                ...vSplines.flat(),
+                ...polygons.flat()
+            ]
+                .map(point => {
+                    const transformedPoint = (new Point(point.x, point.y, point.z)).applyMatrix(transformationMatrix);
+                    return {
+                        x: transformedPoint.x / transformedPoint.w,
+                        y: transformedPoint.y / transformedPoint.w,
+                        color: point.color ?? undefined
+                    };
+                });
 
             this._view.redrawCanvas();
             if (this._pointCorrectionModeEnabled) {
@@ -799,6 +945,7 @@ const canvasModule = (function () {
             const endPoint = new Point(selectedPoints[1].x, selectedPoints[1].y);
 
             this._model.addDdaLineSegment(new geometryModule.LineSegment(startPoint, endPoint));
+            this._model.updatePolygons();
         }
 
         enterBresenhamDrawingMode() {
@@ -810,6 +957,7 @@ const canvasModule = (function () {
             const endPoint = new Point(selectedPoints[1].x, selectedPoints[1].y);
 
             this._model.addBresenhamLineSegment(new geometryModule.LineSegment(startPoint, endPoint));
+            this._model.updatePolygons();
         }
 
         enterWuDrawingMode() {
@@ -821,6 +969,7 @@ const canvasModule = (function () {
             const endPoint = new Point(selectedPoints[1].x, selectedPoints[1].y);
 
             this._model.addWuLineSegment(new geometryModule.LineSegment(startPoint, endPoint));
+            this._model.updatePolygons();
         }
 
         ////////////////////////////////////////
@@ -1263,8 +1412,6 @@ const canvasModule = (function () {
             this._segmentConnectingModeEnabled = !this._segmentConnectingModeEnabled;
             if (this._segmentConnectingModeEnabled) {
                 this.enterSegmentConnectingMode();
-            } else {
-                this._model.restore();
             }
             return this._segmentConnectingModeEnabled;
         }
@@ -1279,7 +1426,6 @@ const canvasModule = (function () {
                 referencePointInCurveIndex
             } = this._model.getClosestReferencePointToPoint(new Point(selectedPoints[0].x, selectedPoints[0].y), false);
 
-            this._model.save();
             const allEndpoints = this._model.getAllCurveEndpoints(closestCurve);
             const mouseMoveEventListener = (event) => {
                 const { x, y } = this._getCanvasCoordsFromMouseEvent(event);
@@ -1319,11 +1465,121 @@ const canvasModule = (function () {
             const moveEndEventListener = () => {
                 this._canvasHtmlElem.removeEventListener('mousemove', mouseMoveEventListener);
                 this._canvasHtmlElem.removeEventListener('click', moveEndEventListener);
-                this._model.dropSavedState();
                 this.enterSegmentConnectingMode();
             }
             this._canvasHtmlElem.addEventListener('mousemove', mouseMoveEventListener);
             this._canvasHtmlElem.addEventListener('click', moveEndEventListener);
+        }
+
+        ////////////////////////////////////////
+        ///////////////// lab4 /////////////////
+        ////////////////////////////////////////
+
+        askForRotationAmountAndRotate() {
+            const degreesToRotateBy_X = +prompt('Вращение по оси X');
+            const degreesToRotateBy_Y = +prompt('Вращение по оси Y');
+            const degreesToRotateBy_Z = +prompt('Вращение по оси Z');
+            this._model.rotateBy(degreesToRotateBy_X, degreesToRotateBy_Y, degreesToRotateBy_Z);
+            this._redrawCanvas();
+        }
+
+        askForScalingAmountAndScale() {
+            const scaleX = +prompt('Масштабирование по оси X');
+            const scaleY = +prompt('Масштабирование по оси Y');
+            const scaleZ = +prompt('Масштабирование по оси Z');
+            this._model.scaleBy(scaleX, scaleY, scaleZ);
+            this._redrawCanvas();
+        }
+
+        askForTranslationAmountAndTranslate() {
+            const dX = +prompt('Смещение по оси X');
+            const dY = +prompt('Смещение по оси Y');
+            const dZ = +prompt('Смещение по оси Z');
+            this._model.translateBy(dX, dY, dZ);
+            this._redrawCanvas();
+        }
+
+        togglePerspectiveChangingMode() {
+            this._perspectiveChangeModeEnabled = !this._perspectiveChangeModeEnabled;
+            this._perspectiveChangeModeEnabled ? this._enterPerspectiveChangingMode() : this._exitPerspectiveChangingMode();
+            return this._perspectiveChangeModeEnabled;
+        }
+
+        _enterPerspectiveChangingMode() {
+            this._currPerspectiveChangeListener = (event) => {
+                if (!event.shiftKey) return;
+                if (event.key === 'ArrowUp') {
+                    this._model.adjustTyUp();
+                } else if (event.key === 'ArrowDown') {
+                    this._model.adjustTyDown();
+                } else if (event.key === 'ArrowLeft') {
+                    this._model.adjustTxUp();
+                } else if (event.key === 'ArrowRight') {
+                    this._model.adjustTxDown();
+                } else {
+                    return;
+                }
+
+                this._redrawCanvas();
+            };
+            document.addEventListener('keydown', this._currPerspectiveChangeListener);
+        }
+
+        _exitPerspectiveChangingMode() {
+            document.removeEventListener('keydown', this._currPerspectiveChangeListener);
+            this._currPerspectiveChangeListener = null;
+        }
+
+        ////////////////////////////////////////
+        ///////////////// lab5 /////////////////
+        ////////////////////////////////////////
+
+        _convexPolygon(vertices) {
+            if (vertices.length < 3) {
+                return [];
+            }
+
+            const constituentLineSegments = [];
+
+            const sortedVertices = vertices.toSorted((p1, p2) => (p1.y - p2.y) || (p1.x - p2.x));
+            const [extremeVertex, otherVertices] = [sortedVertices[0], sortedVertices.slice(1)];
+            otherVertices.sort((p1, p2) => {
+                const vectorToP1 = new Vector(extremeVertex, p1);
+                const vectorToP2 = new Vector(extremeVertex, p2);
+                return (vectorToP1.angleToXAxis - vectorToP2.angleToXAxis) || (vectorToP1.modulus - vectorToP2.modulus);
+            });
+
+            const verticesStack = new Stack();
+            verticesStack.push(extremeVertex);
+            verticesStack.push(otherVertices[0]);
+            otherVertices.forEach((vertex, index) => {
+                if (index === 0) { // already in stack
+                    return;
+                }
+                const lastPoint = verticesStack.get(1);
+                const secondToLastPoint = verticesStack.get(2);
+                const vector1 = new Vector(secondToLastPoint, lastPoint);
+                const vector2 = new Vector(lastPoint, vertex);
+                if (vector1.crossProduct(vector2).modulus > 0) {
+                    verticesStack.push(vertex);
+                } else {
+                    verticesStack.pop();
+                }
+            });
+
+            const verticesArray = [];
+            while (!verticesStack.empty) verticesArray.push(verticesStack.pop());
+            verticesArray.forEach((vertex, index) => {
+                if (index === verticesArray.length - 1) {
+                    constituentLineSegments.push(new geometryModule.LineSegment(vertex, verticesArray[0]));
+                } else {
+                    constituentLineSegments.push(new geometryModule.LineSegment(vertex, verticesArray[index + 1]));
+                }
+            });
+
+            return constituentLineSegments
+                .map(lineSegment => this._ddaLine({ start: lineSegment.P1, end: lineSegment.P2 }))
+                .flat();
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////

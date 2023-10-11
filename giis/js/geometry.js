@@ -2,6 +2,78 @@ class GeometryUtils {
     static radiansToDegrees(radians) {
         return Math.round(radians * 180 / Math.PI);
     }
+
+    static degreesToRadians(degrees) {
+        return degrees * Math.PI / 180;
+    }
+
+    static getLineSegmentSetIntersectionPoints(lineSegments) {
+        const intersectionPoints = [];
+
+        for (let lineSegmentIndex = 0; lineSegmentIndex < lineSegments.length; lineSegmentIndex++) {
+            const lineSegment = lineSegments[lineSegmentIndex];
+            for (let otherLineSegmentIndex = lineSegmentIndex + 1; otherLineSegmentIndex < lineSegments.length; otherLineSegmentIndex++) {
+                const otherLineSegment = lineSegments[otherLineSegmentIndex];
+                const currIntersectionPoint = lineSegment.intersectionPoint(otherLineSegment);
+                if (currIntersectionPoint !== null) {
+                    intersectionPoints.push(currIntersectionPoint);
+                }
+            }
+        }
+
+        return intersectionPoints;
+    }
+    
+    static lineSegmentSetIsConnectedAndClosed(lineSegments) {
+        return lineSegments.every(lineSegment => {
+            let intersectionsWithOtherLineSegments = 0;
+            lineSegments.forEach((otherLineSegment) => {
+                if (lineSegment === otherLineSegment) {
+                    return;
+                }
+                if (lineSegment.intersects(otherLineSegment)) {
+                    intersectionsWithOtherLineSegments++;
+                }
+            });
+            return intersectionsWithOtherLineSegments === 2;
+        });
+    }
+
+    static lineSegmentSetGraphIsConnected(lineSegments) {
+        const intersectionPoints = GeometryUtils.getLineSegmentSetIntersectionPoints(lineSegments);
+        const graphNodes = intersectionPoints.map(point => new Node(point));
+        const graphArcs = [];
+        for (const lineSegment of lineSegments) {
+            for (let intersectionPointIndex = 0; intersectionPointIndex < intersectionPoints.length; intersectionPointIndex++) {
+                const intersectionPoint = intersectionPoints[intersectionPointIndex];
+                for (let otherIntersectionPointIndex = intersectionPointIndex + 1; otherIntersectionPointIndex < intersectionPoints.length; otherIntersectionPointIndex++) {
+                    const otherIntersectionPoint = intersectionPoints[otherIntersectionPointIndex];
+                    if (lineSegment.containsPoint(intersectionPoint) && lineSegment.containsPoint(otherIntersectionPoint)) {
+                        graphArcs.push(new Arc(graphNodes[intersectionPointIndex], graphNodes[otherIntersectionPointIndex], false));
+                    }
+                }
+            }
+        }
+        return (new Graph(graphNodes, graphArcs)).isConnected();
+    }
+
+    static lineSegmentSetIsAPolygon(lineSegments) {
+        return GeometryUtils.lineSegmentSetIsConnectedAndClosed(lineSegments) && GeometryUtils.lineSegmentSetGraphIsConnected(lineSegments);
+    }
+
+    static getPolygons(lineSegments) {
+        const polygons = [];
+
+        const allLineSegmentSets = Utils.arrayOfSubarrays(lineSegments);
+        const polygonCandidates = allLineSegmentSets.filter((lineSegmentSet) => lineSegmentSet.length >= 3);
+        polygonCandidates.forEach((lineSegmentSet) => {
+            if (GeometryUtils.lineSegmentSetIsAPolygon(lineSegmentSet)) {
+                polygons.push(new geometryModule.Polygon(GeometryUtils.getLineSegmentSetIntersectionPoints(lineSegmentSet)));
+            }
+        })
+
+        return polygons;
+    }
 }
 
 const geometryModule = (function () {
@@ -44,6 +116,15 @@ const geometryModule = (function () {
 
         reflectAlongLine(line) {
             return this.reflectAroundPoint(line.closestOwnPointToPoint(this));
+        }
+
+        applyMatrix(matrix) { // matrix has to be 4x4!
+            return new Point(
+                this._x * matrix.getElementAt(1, 1) + this._y * matrix.getElementAt(1, 2) + this._z * matrix.getElementAt(1, 3) + this._w * matrix.getElementAt(1, 4),
+                this._x * matrix.getElementAt(2, 1) + this._y * matrix.getElementAt(2, 2) + this._z * matrix.getElementAt(2, 3) + this._w * matrix.getElementAt(2, 4),
+                this._x * matrix.getElementAt(3, 1) + this._y * matrix.getElementAt(3, 2) + this._z * matrix.getElementAt(3, 3) + this._w * matrix.getElementAt(3, 4),
+                this._x * matrix.getElementAt(4, 1) + this._y * matrix.getElementAt(4, 2) + this._z * matrix.getElementAt(4, 3) + this._w * matrix.getElementAt(4, 4)
+            );
         }
     }
 
@@ -107,6 +188,8 @@ const geometryModule = (function () {
     }
 
     class Line {
+        _pointContainmentError = 1e-10;
+
         constructor(point1, point2) {
             this._point = new Point(point1.x, point1.y, point1.z, point1.w);
             this._directionVector = new Vector(point1, point2);
@@ -131,6 +214,32 @@ const geometryModule = (function () {
                 this._point.z + normalizedDirectionVector.z * dotProduct
             )
         }
+
+        intersectionPoint(line) {
+            const [ a1, b1, c1 ] = [this.coefficients_2d.a, this.coefficients_2d.b, this.coefficients_2d.c];
+            const [ a2, b2, c2 ] = [line.coefficients_2d.a, line.coefficients_2d.b, line.coefficients_2d.c];
+            return new Point(
+                (b1 * c2 - b2 * c1) / (a1 * b2 - a2 * b1),
+                (c1 * a2 - c2 * a1) / (a1 * b2 - a2 * b1)
+            );
+        }
+
+        get normalVector() { // z = 0
+            return new Vector(new Point(0, 0), new Point(-this._directionVector.y, this._directionVector.x));
+        }
+
+        get coefficients_2d() {
+            return {
+                a: this.normalVector.x,
+                b: this.normalVector.y,
+                c: -(this._point.x * this.normalVector.x + this._point.y * this.normalVector.y)
+            };
+        }
+
+        containsPoint(point) {
+            const helperVector = new Vector(this._point, point);
+            return Math.abs(this._directionVector.dotProduct(helperVector)) / (this._directionVector.modulus * helperVector.modulus) >= 1 - this._pointContainmentError;
+        }
     }
 
     class LineSegment {
@@ -141,6 +250,51 @@ const geometryModule = (function () {
 
         get P1() { return new Point(this._point1.x, this._point1.y, this._point1.z); }
         get P2() { return new Point(this._point2.x, this._point2.y, this._point2.z); }
+
+        intersectionPoint(lineSegment) {
+            const lineIntersectionPoint = (new Line(this.P1, this.P2)).intersectionPoint(new Line(lineSegment.P1, lineSegment.P2));
+            return this.containsPoint(lineIntersectionPoint) ? lineIntersectionPoint : null;
+        }
+
+        containsPoint(point) {
+            if (point.x < this.minX ||
+                point.x > this.maxX ||
+                point.y < this.minY ||
+                point.y > this.maxY ||
+                point.z < this.minZ ||
+                point.z > this.maxZ) {
+                return false;
+            }
+            return (new Line(this.P1, this.P2)).containsPoint(point);
+        }
+
+        intersects(lineSegment) {
+            return this.intersectionPoint(lineSegment) !== null;
+        }
+
+        get minX() {
+            return this.P1.x < this.P2.x ? this.P1.x : this.P2.x;
+        }
+
+        get maxX() {
+            return this.P1.x > this.P2.x ? this.P1.x : this.P2.x;
+        }
+
+        get minY() {
+            return this.P1.y < this.P2.y ? this.P1.y : this.P2.y;
+        }
+
+        get maxY() {
+            return this.P1.y > this.P2.y ? this.P1.y : this.P2.y;
+        }
+
+        get minZ() {
+            return this.P1.z < this.P2.z ? this.P1.z : this.P2.z;
+        }
+
+        get maxZ() {
+            return this.P1.z > this.P2.z ? this.P1.z : this.P2.z;
+        }
     }
 
     class Ellipse {
@@ -229,6 +383,21 @@ const geometryModule = (function () {
         }
     }
 
+    class Polygon {
+        _filledIn = false;
+
+        constructor(vertices) {
+            this._vertices = vertices.map(vertex => new Point(vertex.x, vertex.y, vertex.z));
+        }
+
+        get vertices() { return this._vertices; }
+        get filledIn() { return this._filledIn; }
+
+        fill() {
+            this._filledIn = true;
+        }
+    }
+
     return {
         Point,
         Vector,
@@ -239,7 +408,8 @@ const geometryModule = (function () {
         Parabola,
         HermiteCurve,
         BezierCurve,
-        VSpline
+        VSpline,
+        Polygon
     }
 })();
 const Point = geometryModule.Point;

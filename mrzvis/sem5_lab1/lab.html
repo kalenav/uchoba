@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Document</title>
+</head>
+<body style="display: flex; flex-direction: column">
+    <input type="file" style="margin-bottom: 1rem" id="image-input" accept="image/jpeg, image/png, image/jpg">
+    <div style="margin-bottom: 1rem; display: flex">
+        <div class="canvas-container">
+            <canvas width="256" height="256" style="width: 256px; height: 256px" id="image-container"></canvas>
+            <span class="label">Original image</span>
+        </div>
+        <div class="canvas-container">
+            <canvas width="256" height="256" style="width: 256px; height: 256px" id="compressed-image-container"></canvas>
+            <span class="label">Transformed and de-compressed</span>
+        </div>
+    </div>
+    <button style="width: 10rem; margin-bottom: 1rem" id="reset-button">Initialize/Reset</button>
+    <button style="width: 10rem; margin-bottom: 1rem" id="compress-button">Compress</button>
+    <button style="width: 10rem; margin-bottom: 1rem" id="next-learning-step-button">Next learning step</button>
+    <button style="width: 10rem;" id="next-n-learning-steps-button">Next N learning steps</button>
+</body>
+<script src="lab.js"></script>
+</html>

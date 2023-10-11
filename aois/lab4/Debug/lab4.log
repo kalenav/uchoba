@@ -1,0 +1,15 @@
+﻿  lab4.cpp
+E:\Important\uchoba)\aois\lab4\lab4.cpp(27,22): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+E:\Important\uchoba)\aois\lab4\lab4.cpp(18,13): warning C4101: 'error': unreferenced local variable
+E:\Important\uchoba)\aois\lab4\lab4.cpp(52,15): warning C4101: 'error': unreferenced local variable
+E:\Important\uchoba)\aois\lab4\lab4.cpp(75,15): warning C4101: 'error': unreferenced local variable
+  lab4functions.cpp
+E:\Important\uchoba)\aois\lab4\lab4functions.cpp(6,20): warning C4018: '<': signed/unsigned mismatch
+E:\Important\uchoba)\aois\lab4\lab4functions.cpp(13,20): warning C4018: '<': signed/unsigned mismatch
+E:\Important\uchoba)\aois\lab4\lab4functions.cpp(24,21): warning C4018: '<': signed/unsigned mismatch
+E:\Important\uchoba)\aois\lab4\lab4functions.cpp(35,21): warning C4018: '<': signed/unsigned mismatch
+E:\Important\uchoba)\aois\lab4\lab4functions.cpp(52,20): warning C4018: '<': signed/unsigned mismatch
+E:\Important\uchoba)\aois\lab4\lab4functions.cpp(63,21): warning C4018: '<': signed/unsigned mismatch
+E:\Important\uchoba)\aois\lab4\lab4functions.cpp(74,21): warning C4018: '<': signed/unsigned mismatch
+  Generating Code...
+  lab4.vcxproj -> E:\Important\uchoba)\aois\lab4\Debug\lab4.exe

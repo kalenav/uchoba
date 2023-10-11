@@ -1,0 +1,4 @@
+﻿  oaip_deck.cpp
+E:\Important\ОАиП\oaip s nouta\oaip\oaip_deck\oaip_deck.cpp(119,79): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+E:\Important\ОАиП\oaip s nouta\oaip\oaip_deck\oaip_deck.cpp(120,105): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+  oaip_deck.vcxproj -> E:\Important\ОАиП\oaip s nouta\oaip\oaip_deck\Debug\oaip_deck.exe

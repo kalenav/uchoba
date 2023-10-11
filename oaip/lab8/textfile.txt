@@ -1,0 +1,46 @@
+FIO: a
+Year of birth: 123
+Group: 123
+Physics: 7
+Maths: 7
+Informatics: 8
+Chemistry: 8
+Average: 7.500000
+_
+FIO: hellothere
+Year of birth: 321
+Group: 444
+Physics: 8
+Maths: 8
+Informatics: 9
+Chemistry: 9
+Average: 8.500000
+_
+FIO: hithere
+Year of birth: 123
+Group: 123
+Physics: 8
+Maths: 8
+Informatics: 8
+Chemistry: 8
+Average: 8.000000
+_
+FIO: ddd
+Year of birth: 444
+Group: 444
+Physics: 6
+Maths: 6
+Informatics: 8
+Chemistry: 9
+Average: 7.250000
+_
+FIO: morning
+Year of birth: 123
+Group: 123
+Physics: 7
+Maths: 7
+Informatics: 10
+Chemistry: 7
+Average: 7.750000
+_
+

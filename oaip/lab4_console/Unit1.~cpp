@@ -1,0 +1,76 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#include <math.h>
+#include <conio.h>
+#include <iostream.h>
+#pragma hdrstop
+
+//---------------------------------------------------------------------------
+double S(double x, double up)
+{
+        double sum = 0;
+        for(int k = 1; k <= up; k++)
+        {
+                double fact = 1;
+                for(double next = 2; next <= 2*k; next++)
+                {
+                        fact *= next;
+                }
+                sum += pow(-1,k) * pow(2*x,2*k) / fact;
+        }
+        return sum;
+}
+
+double Y(double x)
+{
+        return 2*(cos(x)*cos(x) - 1);
+}
+
+AnsiString out(double x,double up,int chosen)
+{
+        AnsiString out;
+        switch(chosen)
+        {
+                case 0:
+                {
+                        out = "S(x) = " + FloatToStr(S(x,up));
+                        break;
+                }
+                case 1:
+                {
+                        out = "Y(x) = " + FloatToStr(Y(x));
+                        break;
+                }
+                case 2:
+                {
+                        out = "|Y(x) - S(x)| = " + FloatToStr(fabs(Y(x) - S(x,up)));
+                        break;
+                }
+        }
+        return out;
+}
+#pragma argsused
+int main(int argc, char* argv[])
+{
+        double a,b,h,n;
+        cout << "a = ";
+        cin >> a;
+        cout << "b = ";
+        cin >> b;
+        cout << "h = ";
+        cin >> h;
+        cout << "n = ";
+        cin >> n;
+        double choice;
+        cout << "Choose function: 0 - S(x); 1 - Y(x); 2 - |Y(x) - S(x)|" << endl;
+        cin >> choice;
+        for(double x = a; x <= b; x += h)
+        {
+                cout << "For x = " << x << ", " << out(x,n,choice).c_str() << endl;
+        }
+        getch();
+        return 0;
+}
+
+//---------------------------------------------------------------------------
