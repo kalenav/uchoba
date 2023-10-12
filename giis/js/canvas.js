@@ -23,7 +23,8 @@ const canvasModule = (function () {
         _hermiteCurves = [];
         _bezierCurves = [];
         _vSplines = [];
-        _polygons = [];
+        _vertexPolygons = [];
+        _lineSegmentPolygons = [];
 
         _addFigure(list, figure) {
             list.push(figure);
@@ -99,8 +100,8 @@ const canvasModule = (function () {
             ];
         }
 
-        addPolygon(vertices) {
-            this._addFigure(this._polygons, new geometryModule.Polygon(vertices));
+        addPolygon(polygon) {
+            this._addFigure(this._vertexPolygons, new geometryModule.Polygon(polygon.vertices));
         }
 
         updatePolygons() {
@@ -110,7 +111,7 @@ const canvasModule = (function () {
                 ...this.wuLineSegments
             ];
 
-            this._polygons = GeometryUtils.getPolygons(lineSegments).slice();
+            this._lineSegmentPolygons = GeometryUtils.getPolygons(lineSegments).slice();
         }
 
         get ddaLineSegments() { return this._ddaLineSegments; }
@@ -130,7 +131,10 @@ const canvasModule = (function () {
             ];
         }
         get polygons() {
-            return this._polygons;
+            return [
+                ...this._vertexPolygons,
+                ...this._lineSegmentPolygons
+            ];
         }
 
         rotateBy(degreesX, degreesY, degreesZ) {
@@ -1558,11 +1562,10 @@ const canvasModule = (function () {
                 }
                 const lastPoint = verticesStack.get(1);
                 const secondToLastPoint = verticesStack.get(2);
+                verticesStack.push(vertex);
                 const vector1 = new Vector(secondToLastPoint, lastPoint);
                 const vector2 = new Vector(lastPoint, vertex);
-                if (vector1.crossProduct(vector2).modulus > 0) {
-                    verticesStack.push(vertex);
-                } else {
+                if (vector1.angleToXAxis > vector2.angleToXAxis) {
                     verticesStack.pop();
                 }
             });
@@ -1580,6 +1583,15 @@ const canvasModule = (function () {
             return constituentLineSegments
                 .map(lineSegment => this._ddaLine({ start: lineSegment.P1, end: lineSegment.P2 }))
                 .flat();
+        }
+
+        enterVertexPolygonDrawingMode() {
+            const vertices = +prompt('Введите количество вершин многоугольника');
+            this._enterPointSelection(vertices, this._exitVertexPolygonDrawingMode.bind(this));
+        }
+
+        _exitVertexPolygonDrawingMode(selectedPoints) {
+            this._model.addPolygon(new geometryModule.Polygon(selectedPoints));
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////

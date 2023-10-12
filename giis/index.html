@@ -109,8 +109,10 @@
                 alert(`Режим изменения перспективы ${changingPerspective ? 'включен' : 'отключен'}`);
             })
         ]),
-        new Section('Заливка', [
-            new Button('тест', () => {
+        new Section('Закраска', [
+            new Button('Многоугольник', () => {
+                canvas.enterVertexPolygonDrawingMode();
+                hint.setHintText('Режим рисования многоугольника по вершинам');
             })
         ])
     ]);
