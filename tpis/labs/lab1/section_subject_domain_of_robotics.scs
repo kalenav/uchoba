@@ -1,7 +1,7 @@
 section_subject_domain_of_robotics
 => nrel_main_idtf:
-    [Раздел. Предметная область интеллектуальных обучающих систем] (* <- lang_ru;; *);
-    [Section. Subject domain of intelligent study systems] (* <- lang_en;; *);
+    [Раздел. Предметная область робототехники] (* <- lang_ru;; *);
+    [Section. Subject domain of robotics] (* <- lang_en;; *);
 <- atomic_section;;
 
 section_subject_domain_of_robotics = [*

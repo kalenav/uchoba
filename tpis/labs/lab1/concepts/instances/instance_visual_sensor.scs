@@ -1,0 +1,3 @@
+vsb2000
+<- concept_visual_sensor;
+=> nrel_main_idtf: [VS-B-2000] (* <- lang_ru;; <- lang_en;; *);;
