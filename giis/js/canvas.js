@@ -563,11 +563,12 @@ const canvasModule = (function () {
         _segmentConnectingModeEnabled = false;
         _segmentConnectingSnapDistance = 20;
         _segmentConnectingMouseForceUnsnapDistance = 100;
+        _scanningLines = [];
         _polygonBoundaryDefaultColor = {
             red: 255,
             green: 0,
             blue: 0
-        }
+        };
 
         constructor({
             width = 1000,
@@ -615,6 +616,7 @@ const canvasModule = (function () {
             this._canvasHtmlElem = document.getElementById(canvasHtmlElemId);
             this._addScalingEventListener();
             this._addTranslationEventListener();
+            this._initScanningLines();
         }
 
         _addScalingEventListener() {
@@ -648,6 +650,13 @@ const canvasModule = (function () {
 
                 this._redrawCanvas();
             });
+        }
+
+        _initScanningLines() {
+            const [topCap, bottomCap] = [this._view.height / 2, -this._view.height / 2];
+            for (let lineY = bottomCap; lineY <= topCap; lineY++) {
+                this._scanningLines.push(new Line(new Point(0, lineY), new Point(1, lineY)));
+            }
         }
 
         _getCanvasCoordsFromMouseEvent(event) {
@@ -723,10 +732,7 @@ const canvasModule = (function () {
             const bezierCurves = this._model.bezierCurves.map(curve => this._bezierForm(curve.P1, curve.P2, curve.P3, curve.P4));
             const vSplines = this._model.vSplines.map(vSpline => this._vSpline(vSpline.referencePoints));
 
-            const polygons = this._model.polygons.map(polygon => this._convexPolygon(polygon.vertices).map(point => ({
-                ...point,
-                color: this._polygonBoundaryDefaultColor
-            })));
+            const polygons = this._model.polygons.map(polygon => this._convexPolygon(polygon));
 
             const transformationMatrix = this._model.getTransformationMatrix();
             const pointsToDraw = [
@@ -782,11 +788,7 @@ const canvasModule = (function () {
             let currX = x_start;
             let currY = y_start;
             for (let stepsElapsed = 1; stepsElapsed <= rasterizationSteps; stepsElapsed++) {
-                points.push({
-                    x: currX,
-                    y: currY
-                });
-    
+                points.push(new Point(currX, currY));
                 currX += xGrowth;
                 currY += yGrowth;
             }
@@ -1538,59 +1540,18 @@ const canvasModule = (function () {
         ///////////////// lab5 /////////////////
         ////////////////////////////////////////
 
-        _convexPolygon(vertices) {
-            if (vertices.length < 3) {
-                return [];
-            }
-
-            const constituentLineSegments = [];
-
-            const sortedVertices = vertices.toSorted((p1, p2) => (p1.y - p2.y) || (p1.x - p2.x));
-            const [extremeVertex, otherVertices] = [sortedVertices[0], sortedVertices.slice(1)];
-            otherVertices.sort((p1, p2) => {
-                const vectorToP1 = new Vector(extremeVertex, p1);
-                const vectorToP2 = new Vector(extremeVertex, p2);
-                return (vectorToP1.angleToXAxis - vectorToP2.angleToXAxis) || (vectorToP1.modulus - vectorToP2.modulus);
-            });
-
-            const verticesStack = new Stack();
-            verticesStack.push(extremeVertex);
-            verticesStack.push(otherVertices[0]);
-            otherVertices.forEach((vertex, index) => {
-                if (index === 0) { // already in stack
-                    return;
-                }
-                const lastPoint = verticesStack.get(1);
-                const secondToLastPoint = verticesStack.get(2);
-                verticesStack.push(vertex);
-                const vector1 = new Vector(secondToLastPoint, lastPoint);
-                const vector2 = new Vector(lastPoint, vertex);
-                if (vector1.angleToXAxis > vector2.angleToXAxis) {
-                    verticesStack.pop();
-                }
-            });
-
-            const verticesArray = [];
-            while (!verticesStack.empty) verticesArray.push(verticesStack.pop());
-            verticesArray.forEach((vertex, index) => {
-                if (index === verticesArray.length - 1) {
-                    constituentLineSegments.push(new geometryModule.LineSegment(vertex, verticesArray[0]));
-                } else {
-                    constituentLineSegments.push(new geometryModule.LineSegment(vertex, verticesArray[index + 1]));
-                }
-            });
-
-            return constituentLineSegments
+        _convexPolygon(polygon) {
+            return polygon.constituentLineSegments
                 .map(lineSegment => this._ddaLine({ start: lineSegment.P1, end: lineSegment.P2 }))
                 .flat();
         }
 
-        enterVertexPolygonDrawingMode() {
+        enterPolygonDrawingMode() {
             const vertices = +prompt('Введите количество вершин многоугольника');
-            this._enterPointSelection(vertices, this._exitVertexPolygonDrawingMode.bind(this));
+            this._enterPointSelection(vertices, this._exitPolygonDrawingMode.bind(this));
         }
 
-        _exitVertexPolygonDrawingMode(selectedPoints) {
+        _exitPolygonDrawingMode(selectedPoints) {
             this._model.addPolygon(new geometryModule.Polygon(selectedPoints));
         }
 

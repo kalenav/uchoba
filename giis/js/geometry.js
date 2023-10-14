@@ -392,6 +392,46 @@ const geometryModule = (function () {
 
         get vertices() { return this._vertices; }
         get filledIn() { return this._filledIn; }
+        get constituentLineSegments() {
+            const constituentLineSegments = [];
+
+            const sortedVertices = this._vertices.toSorted((p1, p2) => (p1.y - p2.y) || (p1.x - p2.x));
+            const [extremeVertex, otherVertices] = [sortedVertices[0], sortedVertices.slice(1)];
+            otherVertices.sort((p1, p2) => {
+                const vectorToP1 = new Vector(extremeVertex, p1);
+                const vectorToP2 = new Vector(extremeVertex, p2);
+                return (vectorToP1.angleToXAxis - vectorToP2.angleToXAxis) || (vectorToP1.modulus - vectorToP2.modulus);
+            });
+
+            const verticesStack = new Stack();
+            verticesStack.push(extremeVertex);
+            verticesStack.push(otherVertices[0]);
+            otherVertices.forEach((vertex, index) => {
+                if (index === 0) { // already in stack
+                    return;
+                }
+                const lastPoint = verticesStack.get(1);
+                const secondToLastPoint = verticesStack.get(2);
+                verticesStack.push(vertex);
+                const vector1 = new Vector(secondToLastPoint, lastPoint);
+                const vector2 = new Vector(lastPoint, vertex);
+                if (vector1.angleToXAxis > vector2.angleToXAxis) {
+                    verticesStack.pop();
+                }
+            });
+
+            const verticesArray = [];
+            while (!verticesStack.empty) verticesArray.push(verticesStack.pop());
+            verticesArray.forEach((vertex, index) => {
+                if (index === verticesArray.length - 1) {
+                    constituentLineSegments.push(new geometryModule.LineSegment(vertex, verticesArray[0]));
+                } else {
+                    constituentLineSegments.push(new geometryModule.LineSegment(vertex, verticesArray[index + 1]));
+                }
+            });
+
+            return constituentLineSegments;
+        }
 
         fill() {
             this._filledIn = true;
