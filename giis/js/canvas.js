@@ -569,6 +569,7 @@ const canvasModule = (function () {
             green: 0,
             blue: 0
         };
+        _RASTER_FILL_ORDERED_EDGES_METHOD_ID = 1;
 
         constructor({
             width = 1000,
@@ -654,8 +655,9 @@ const canvasModule = (function () {
 
         _initScanningLines() {
             const [topCap, bottomCap] = [this._view.height / 2, -this._view.height / 2];
+            const [leftCap, rightCap] = [-this._view.width / 2, this._view.width / 2];
             for (let lineY = bottomCap; lineY <= topCap; lineY++) {
-                this._scanningLines.push(new Line(new Point(0, lineY), new Point(1, lineY)));
+                this._scanningLines.push(new geometryModule.LineSegment(new Point(leftCap, lineY), new Point(rightCap, lineY)));
             }
         }
 
@@ -732,7 +734,21 @@ const canvasModule = (function () {
             const bezierCurves = this._model.bezierCurves.map(curve => this._bezierForm(curve.P1, curve.P2, curve.P3, curve.P4));
             const vSplines = this._model.vSplines.map(vSpline => this._vSpline(vSpline.referencePoints));
 
-            const polygons = this._model.polygons.map(polygon => this._convexPolygon(polygon));
+            const polygons = this._model.polygons.map(polygon => {
+                const polygonPointsToDraw = [...this._convexPolygon(polygon)];
+                if (polygon.filledIn) {
+                    switch(polygon.fillMethodId) {
+                        case 1:
+                            polygonPointsToDraw.push(...this._rasterFill_orderedEdges(polygon));
+                            break;
+                        case 2:
+                            break;
+                        case 3:
+                            break;
+                    }
+                }
+                return polygonPointsToDraw;
+            });
 
             const transformationMatrix = this._model.getTransformationMatrix();
             const pointsToDraw = [
@@ -1554,6 +1570,37 @@ const canvasModule = (function () {
         _exitPolygonDrawingMode(selectedPoints) {
             this._model.addPolygon(new geometryModule.Polygon(selectedPoints));
         }
+
+        _rasterFill_orderedEdges(polygon) {
+            const pointsToDraw = [];
+
+            const intersectionPoints = GeometryUtils.getLineSegmentSetIntersectionPoints([
+                ...polygon.constituentLineSegments,
+                ...this._scanningLines
+            ]);
+            const flattenedFillIntervals = intersectionPoints.toSorted((p1, p2) => (p1.y < p2.y || p1.y === p2.y && p1.x <= p2.x) ? 1 : -1);
+            const fillIntervals = [];
+            for (let intersectionPointIndex = 0; intersectionPointIndex < flattenedFillIntervals.length; intersectionPointIndex += 2) {
+                fillIntervals.push([flattenedFillIntervals[intersectionPointIndex], flattenedFillIntervals[intersectionPointIndex + 1]]);
+            }
+            fillIntervals.forEach(fillInterval => {
+                pointsToDraw.push(...this._ddaLine({ start: fillInterval[0], end: fillInterval[1] }));
+            });
+
+            return pointsToDraw;
+        }
+
+        enterPolygonRasterFillOrderedEdgesMode() {
+            this._enterPointSelection(1, this._exitPolygonRasterFillOrderedEdgesMode.bind(this));
+        }
+
+        // ne rabotaet esli polygon is otrezkov??
+        _exitPolygonRasterFillOrderedEdgesMode(selectedPoints) {
+            const selectedPoint = selectedPoints[0];
+            const polygonToFill = this._model.polygons.find(polygon => polygon.containsPoint(selectedPoint));
+            polygonToFill.fill(this._RASTER_FILL_ORDERED_EDGES_METHOD_ID);
+        }
+        
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////
 

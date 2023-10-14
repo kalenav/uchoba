@@ -113,6 +113,10 @@
             new Button('Многоугольник', () => {
                 canvas.enterPolygonDrawingMode();
                 hint.setHintText('Режим рисования многоугольника по вершинам');
+            }),
+            new Button('Растровая развёрстка с упорядоченным списком рёбер', () => {
+                canvas.enterPolygonRasterFillOrderedEdgesMode();
+                hint.setHintText('Режим закраски многоугольника методом растровой развёрстки с упорядоченным списком рёбер');
             })
         ])
     ]);

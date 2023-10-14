@@ -385,6 +385,7 @@ const geometryModule = (function () {
 
     class Polygon {
         _filledIn = false;
+        _fillMethodId = 0;
 
         constructor(vertices) {
             this._vertices = vertices.map(vertex => new Point(vertex.x, vertex.y, vertex.z));
@@ -392,6 +393,7 @@ const geometryModule = (function () {
 
         get vertices() { return this._vertices; }
         get filledIn() { return this._filledIn; }
+        get fillMethodId() { return this._fillMethodId; }
         get constituentLineSegments() {
             const constituentLineSegments = [];
 
@@ -433,8 +435,17 @@ const geometryModule = (function () {
             return constituentLineSegments;
         }
 
-        fill() {
+        fill(methodId) {
             this._filledIn = true;
+            this._fillMethodId = methodId;
+        }
+
+        containsPoint(point) {
+            const helperLineSegment = new LineSegment(new Point(100000, 0), point);
+            return (GeometryUtils.getLineSegmentSetIntersectionPoints([
+                helperLineSegment,
+                ...this.constituentLineSegments
+            ]).length - this.constituentLineSegments.length) % 2 === 1; 
         }
     }
 
