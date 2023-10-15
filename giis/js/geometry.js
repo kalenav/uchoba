@@ -21,6 +21,7 @@ class GeometryUtils {
             }
         }
 
+        console.log(intersectionPoints);
         return intersectionPoints;
     }
     
@@ -441,7 +442,7 @@ const geometryModule = (function () {
         }
 
         containsPoint(point) {
-            const helperLineSegment = new LineSegment(new Point(100000, 0), point);
+            const helperLineSegment = new LineSegment(new Point(1000, 1000), point);
             return (GeometryUtils.getLineSegmentSetIntersectionPoints([
                 helperLineSegment,
                 ...this.constituentLineSegments

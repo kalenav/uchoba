@@ -1574,11 +1574,16 @@ const canvasModule = (function () {
         _rasterFill_orderedEdges(polygon) {
             const pointsToDraw = [];
 
+            const lowermostScanningLineY = polygon.vertices.reduce((minY, point) => minY < point.y ? minY : point.y, Infinity);
+            const uppermostScanningLineY = polygon.vertices.reduce((maxY, point) => maxY > point.y ? maxY : point.y, -Infinity);
             const intersectionPoints = GeometryUtils.getLineSegmentSetIntersectionPoints([
                 ...polygon.constituentLineSegments,
-                ...this._scanningLines
+                ...this._scanningLines.filter(line => line.P1.y >= lowermostScanningLineY && line.P1.y <= uppermostScanningLineY)
             ]);
             const flattenedFillIntervals = intersectionPoints.toSorted((p1, p2) => (p1.y < p2.y || p1.y === p2.y && p1.x <= p2.x) ? 1 : -1);
+            if (flattenedFillIntervals.length % 2 === 1) {
+                flattenedFillIntervals.pop();
+            }
             const fillIntervals = [];
             for (let intersectionPointIndex = 0; intersectionPointIndex < flattenedFillIntervals.length; intersectionPointIndex += 2) {
                 fillIntervals.push([flattenedFillIntervals[intersectionPointIndex], flattenedFillIntervals[intersectionPointIndex + 1]]);
@@ -1594,13 +1599,15 @@ const canvasModule = (function () {
             this._enterPointSelection(1, this._exitPolygonRasterFillOrderedEdgesMode.bind(this));
         }
 
-        // ne rabotaet esli polygon is otrezkov??
         _exitPolygonRasterFillOrderedEdgesMode(selectedPoints) {
             const selectedPoint = selectedPoints[0];
             const polygonToFill = this._model.polygons.find(polygon => polygon.containsPoint(selectedPoint));
             polygonToFill.fill(this._RASTER_FILL_ORDERED_EDGES_METHOD_ID);
         }
-        
+
+        _rasterFill_orderedEdgesWithActiveEdges(polygon) {
+            
+        }
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////
 
