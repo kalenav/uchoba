@@ -1576,6 +1576,9 @@ const canvasModule = (function () {
         _getFillIntervals(pointList) {
             const fillIntervals = [];
 
+            if (pointList.length % 2 === 1) {
+                pointList.pop();
+            }
             for (let intersectionPointIndex = 0; intersectionPointIndex < pointList.length; intersectionPointIndex += 2) {
                 fillIntervals.push([pointList[intersectionPointIndex], pointList[intersectionPointIndex + 1]]);
             }
@@ -1583,14 +1586,24 @@ const canvasModule = (function () {
             return fillIntervals;
         }
 
-        _rasterFill_orderedEdges(polygon) {
-            const pointsToDraw = [];
+        _getPointsFromFillIntervals(fillIntervals) {
+            const points = [];
 
-            const lowermostScanningLineY = Math.trunc(polygon.vertices.reduce((minY, point) => minY < point.y ? minY : point.y, Infinity));
-            const uppermostScanningLineY = Math.trunc(polygon.vertices.reduce((maxY, point) => maxY > point.y ? maxY : point.y, -Infinity));
+            fillIntervals.forEach(fillInterval => {
+                points.push(...this._ddaLine({ start: fillInterval[0], end: fillInterval[1] }));
+            });
+
+            return points;
+        }
+
+        _getScanningLinesInRange(from, to) {
+            return this._scanningLines.filter(scanningLine => scanningLine.P1.y >= from && scanningLine.P1.y <= to)
+        }
+
+        _rasterFill_orderedEdges(polygon) {
             const intersectionPoints = GeometryUtils.getLineSegmentSetIntersectionPoints([
                 ...polygon.constituentLineSegments.filter(lineSegment => !lineSegment.isHorizontal),
-                ...this._scanningLines.filter(line => line.P1.y >= lowermostScanningLineY && line.P1.y <= uppermostScanningLineY)
+                ...this._getScanningLinesInRange(polygon.lowestY, polygon.highestY)
             ]);
             intersectionPoints.sort((p1, p2) => (p1.y < p2.y || p1.y === p2.y && p1.x <= p2.x) ? 1 : -1);
             if (intersectionPoints[0].y !== intersectionPoints[1].y) {
@@ -1600,23 +1613,19 @@ const canvasModule = (function () {
                 intersectionPoints.pop(); // single point at the bottom
             }
 
-            this._getFillIntervals(intersectionPoints).forEach(fillInterval => {
-                pointsToDraw.push(...this._ddaLine({ start: fillInterval[0], end: fillInterval[1] }));
-            });
-
-            return pointsToDraw;
+            return this._getPointsFromFillIntervals(this._getFillIntervals(intersectionPoints));
         }
 
         _rasterFill_orderedEdgesWithActiveEdges(polygon) {
             const pointsToDraw = [];
 
-            const polygonConstituentLineSegments = polygon.constituentLineSegments;
+            const polygonConstituentLineSegments = polygon.constituentLineSegments.filter(lineSegment => !lineSegment.isHorizontal);
             const yGroups = [];
-            this._scanningLines
+            this._getScanningLinesInRange(polygon.lowestY, polygon.highestY)
                 .sort((sl1, sl2) => sl2.P1.y - sl1.P1.y) // scan from top to bottom <=> sort scanning lines in descending order
                 .forEach(scanningLine => {
                     const currYGroup = {
-                        y: scanningLine.y,
+                        y: scanningLine.P1.y,
                         edges: []
                     };
                     polygonConstituentLineSegments.forEach((lineSegment, index) => {
@@ -1628,7 +1637,7 @@ const canvasModule = (function () {
                             edgeId: index,
                             x: scanningLine.intersectionPoint(lineSegment).x,
                             deltaX: -1 * (lineSegment.P1.x - lineSegment.P2.x) / (lineSegment.P1.y - lineSegment.P2.y),
-                            deltaY: Math.floor(Math.abs(lineSegment.P1.y - lineSegment.P2.y))
+                            deltaY: Math.abs(lineSegment.P1.y - lineSegment.P2.y)
                         });
                     });
                     if (currYGroup.empty) {
@@ -1637,14 +1646,28 @@ const canvasModule = (function () {
                     yGroups.push(currYGroup);
                 });
 
-            const activeEdgeList = [];
+            let activeEdgeList = [];
             yGroups.forEach(yGroup => {
                 yGroup.edges.forEach(edgeDescrition => { // add all new edges to active edge list
                     if (!activeEdgeList.some(activeEdge => activeEdge.edgeId === edgeDescrition.edgeId)) {
-                        activeEdgeList.push(edgeDescrition);
+                        activeEdgeList.push({ ...edgeDescrition });
                     }
                 });
                 activeEdgeList.sort((ae1, ae2) => ae1.x - ae2.x);
+                const scanningLineIntersectionPoints = activeEdgeList.map(activeEdge => new Point(activeEdge.x, yGroup.y));
+                if (scanningLineIntersectionPoints.length === 1) {
+                    return;
+                }
+                if (scanningLineIntersectionPoints.length === 3) {
+                    console.log(activeEdgeList.slice());
+                }
+                pointsToDraw.push(...this._getPointsFromFillIntervals(this._getFillIntervals(scanningLineIntersectionPoints)));
+
+                activeEdgeList.forEach(activeEdge => {
+                    activeEdge.x += activeEdge.deltaX;
+                    activeEdge.deltaY -= 1;
+                });
+                activeEdgeList = activeEdgeList.filter(activeEdge => activeEdge.deltaY <= 0);
             });
 
             return pointsToDraw;

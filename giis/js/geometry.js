@@ -452,6 +452,14 @@ const geometryModule = (function () {
                 ...this.constituentLineSegments
             ]).length % 2 === 1; 
         }
+
+        get highestY() {
+            return this.vertices.reduce((highestY, vertex) => vertex.y > highestY ? vertex.y : highestY, -Infinity);
+        }
+
+        get lowestY() {
+            return this.vertices.reduce((lowestY, vertex) => vertex.y < lowestY ? vertex.y : lowestY, Infinity);
+        }
     }
 
     return {
