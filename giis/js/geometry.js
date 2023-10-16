@@ -78,8 +78,8 @@ class GeometryUtils {
 
 const geometryModule = (function () {
     class Point {
-        constructor(x, y, z = 0, w = 1) {
-            [this._x, this._y, this._z, this._w] = [x, y, z, w];
+        constructor(x, y, z = 0, w = 1, truncCoordinates = true) {
+            [this._x, this._y, this._z, this._w] = [x, y, z, w].map(coord => truncCoordinates ? Math.trunc(coord) : coord);
         }
 
         get x() {
@@ -188,7 +188,7 @@ const geometryModule = (function () {
     }
 
     class Line {
-        _pointContainmentError = 1e-10;
+        _pointContainmentError = 1;
 
         constructor(point1, point2) {
             this._point = new Point(point1.x, point1.y, point1.z, point1.w);

@@ -658,8 +658,8 @@ const canvasModule = (function () {
         }
 
         _initScanningLines() {
-            const [topCap, bottomCap] = [this._view.height / 2, -this._view.height / 2];
-            const [leftCap, rightCap] = [-this._view.width / 2, this._view.width / 2];
+            const [topCap, bottomCap] = [this._view.height / 2, -this._view.height / 2].map(Math.trunc);
+            const [leftCap, rightCap] = [-this._view.width / 2, this._view.width / 2].map(Math.trunc);
             for (let lineY = bottomCap; lineY <= topCap; lineY++) {
                 this._scanningLines.push(new geometryModule.LineSegment(new Point(leftCap, lineY), new Point(rightCap, lineY)));
             }
@@ -1586,8 +1586,8 @@ const canvasModule = (function () {
         _rasterFill_orderedEdges(polygon) {
             const pointsToDraw = [];
 
-            const lowermostScanningLineY = polygon.vertices.reduce((minY, point) => minY < point.y ? minY : point.y, Infinity);
-            const uppermostScanningLineY = polygon.vertices.reduce((maxY, point) => maxY > point.y ? maxY : point.y, -Infinity);
+            const lowermostScanningLineY = Math.trunc(polygon.vertices.reduce((minY, point) => minY < point.y ? minY : point.y, Infinity));
+            const uppermostScanningLineY = Math.trunc(polygon.vertices.reduce((maxY, point) => maxY > point.y ? maxY : point.y, -Infinity));
             const intersectionPoints = GeometryUtils.getLineSegmentSetIntersectionPoints([
                 ...polygon.constituentLineSegments,
                 ...this._scanningLines.filter(line => line.P1.y >= lowermostScanningLineY && line.P1.y <= uppermostScanningLineY)
