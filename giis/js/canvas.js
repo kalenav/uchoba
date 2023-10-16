@@ -570,6 +570,7 @@ const canvasModule = (function () {
             blue: 0
         };
         _RASTER_FILL_ORDERED_EDGES_METHOD_ID = 1;
+        _RASTER_FILL_ORDERED_EDGES_ACTIVE_EDGES_METHOD_ID = 2;
 
         constructor({
             width = 1000,
@@ -742,6 +743,7 @@ const canvasModule = (function () {
                             polygonPointsToDraw.push(...this._rasterFill_orderedEdges(polygon));
                             break;
                         case 2:
+                            polygonPointsToDraw.push(...this._rasterFill_orderedEdgesWithActiveEdges(polygon));
                             break;
                         case 3:
                             break;
@@ -1571,6 +1573,16 @@ const canvasModule = (function () {
             this._model.addPolygon(new geometryModule.Polygon(selectedPoints));
         }
 
+        _getFillIntervals(pointList) {
+            const fillIntervals = [];
+
+            for (let intersectionPointIndex = 0; intersectionPointIndex < pointList.length; intersectionPointIndex += 2) {
+                fillIntervals.push([pointList[intersectionPointIndex], pointList[intersectionPointIndex + 1]]);
+            }
+
+            return fillIntervals;
+        }
+
         _rasterFill_orderedEdges(polygon) {
             const pointsToDraw = [];
 
@@ -1580,33 +1592,72 @@ const canvasModule = (function () {
                 ...polygon.constituentLineSegments,
                 ...this._scanningLines.filter(line => line.P1.y >= lowermostScanningLineY && line.P1.y <= uppermostScanningLineY)
             ]);
-            const flattenedFillIntervals = intersectionPoints.toSorted((p1, p2) => (p1.y < p2.y || p1.y === p2.y && p1.x <= p2.x) ? 1 : -1);
-            if (flattenedFillIntervals.length % 2 === 1) {
-                flattenedFillIntervals.pop();
+            intersectionPoints.sort((p1, p2) => (p1.y < p2.y || p1.y === p2.y && p1.x <= p2.x) ? 1 : -1);
+            if (intersectionPoints.length % 2 === 1) {
+                intersectionPoints.pop();
             }
-            const fillIntervals = [];
-            for (let intersectionPointIndex = 0; intersectionPointIndex < flattenedFillIntervals.length; intersectionPointIndex += 2) {
-                fillIntervals.push([flattenedFillIntervals[intersectionPointIndex], flattenedFillIntervals[intersectionPointIndex + 1]]);
-            }
-            fillIntervals.forEach(fillInterval => {
+
+            this._getFillIntervals(intersectionPoints).forEach(fillInterval => {
                 pointsToDraw.push(...this._ddaLine({ start: fillInterval[0], end: fillInterval[1] }));
             });
 
             return pointsToDraw;
         }
 
-        enterPolygonRasterFillOrderedEdgesMode() {
-            this._enterPointSelection(1, this._exitPolygonRasterFillOrderedEdgesMode.bind(this));
+        _rasterFill_orderedEdgesWithActiveEdges(polygon) {
+            const pointsToDraw = [];
+
+            const polygonConstituentLineSegments = polygon.constituentLineSegments;
+            const yGroups = [];
+            this._scanningLines
+                .sort((sl1, sl2) => sl2.P1.y - sl1.P1.y) // scan from top to bottom <=> sort scanning lines in descending order
+                .forEach(scanningLine => {
+                    const currYGroup = {
+                        y: scanningLine.y,
+                        edges: []
+                    };
+                    polygonConstituentLineSegments.forEach((lineSegment, index) => {
+                        if (!scanningLine.intersects(lineSegment)) {
+                            return;
+                        }
+
+                        currYGroup.edges.push({
+                            edgeId: index,
+                            x: scanningLine.intersectionPoint(lineSegment).x,
+                            deltaX: -1 * (lineSegment.P1.x - lineSegment.P2.x) / (lineSegment.P1.y - lineSegment.P2.y),
+                            deltaY: Math.floor(Math.abs(lineSegment.P1.y - lineSegment.P2.y))
+                        });
+                    });
+                    if (currYGroup.empty) {
+                        return;
+                    }
+                    yGroups.push(currYGroup);
+                });
+
+            const activeEdgeList = [];
+            yGroups.forEach(yGroup => {
+                yGroup.edges.forEach(edgeDescrition => { // add all new edges to active edge list
+                    if (!activeEdgeList.some(activeEdge => activeEdge.edgeId === edgeDescrition.edgeId)) {
+                        activeEdgeList.push(edgeDescrition);
+                    }
+                });
+                activeEdgeList.sort((ae1, ae2) => ae1.x - ae2.x);
+            });
+
+            return pointsToDraw;
         }
 
-        _exitPolygonRasterFillOrderedEdgesMode(selectedPoints) {
+        enterPolygonFillMode(methodId) {
+            this._enterPointSelection(1, this._exitPolygonFillMode.bind({ 
+                ...this,
+                _METHOD_ID: methodId
+            }));
+        }
+
+        _exitPolygonFillMode(selectedPoints) {
             const selectedPoint = selectedPoints[0];
             const polygonToFill = this._model.polygons.find(polygon => polygon.containsPoint(selectedPoint));
-            polygonToFill.fill(this._RASTER_FILL_ORDERED_EDGES_METHOD_ID);
-        }
-
-        _rasterFill_orderedEdgesWithActiveEdges(polygon) {
-            
+            polygonToFill.fill(this._METHOD_ID);
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////
