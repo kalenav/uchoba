@@ -32,14 +32,17 @@ const canvasModule = (function () {
 
         addDdaLineSegment(lineSegment) {
             this._addFigure(this._ddaLineSegments, new geometryModule.LineSegment(lineSegment.P1, lineSegment.P2));
+            this._updatePolygons();
         }
 
         addBresenhamLineSegment(lineSegment) {
             this._addFigure(this._bresenhamLineSegments, new geometryModule.LineSegment(lineSegment.P1, lineSegment.P2));
+            this._updatePolygons();
         }
         
         addWuLineSegment(lineSegment) {
             this._addFigure(this._wuLineSegments, new geometryModule.LineSegment(lineSegment.P1, lineSegment.P2));
+            this._updatePolygons();
         }
 
         addEllipse(ellipse) {
@@ -104,7 +107,7 @@ const canvasModule = (function () {
             this._addFigure(this._vertexPolygons, new geometryModule.Polygon(polygon.vertices));
         }
 
-        updatePolygons() {
+        _updatePolygons() {
             const lineSegments = [
                 ...this.ddaLineSegments,
                 ...this.bresenhamLineSegments,
@@ -969,7 +972,6 @@ const canvasModule = (function () {
             const endPoint = new Point(selectedPoints[1].x, selectedPoints[1].y);
 
             this._model.addDdaLineSegment(new geometryModule.LineSegment(startPoint, endPoint));
-            this._model.updatePolygons();
         }
 
         enterBresenhamDrawingMode() {
@@ -981,7 +983,6 @@ const canvasModule = (function () {
             const endPoint = new Point(selectedPoints[1].x, selectedPoints[1].y);
 
             this._model.addBresenhamLineSegment(new geometryModule.LineSegment(startPoint, endPoint));
-            this._model.updatePolygons();
         }
 
         enterWuDrawingMode() {
@@ -993,7 +994,6 @@ const canvasModule = (function () {
             const endPoint = new Point(selectedPoints[1].x, selectedPoints[1].y);
 
             this._model.addWuLineSegment(new geometryModule.LineSegment(startPoint, endPoint));
-            this._model.updatePolygons();
         }
 
         ////////////////////////////////////////

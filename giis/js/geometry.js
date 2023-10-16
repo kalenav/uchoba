@@ -21,7 +21,6 @@ class GeometryUtils {
             }
         }
 
-        console.log(intersectionPoints);
         return intersectionPoints;
     }
     
@@ -254,23 +253,24 @@ const geometryModule = (function () {
 
         intersectionPoint(lineSegment) {
             const lineIntersectionPoint = (new Line(this.P1, this.P2)).intersectionPoint(new Line(lineSegment.P1, lineSegment.P2));
-            return this.containsPoint(lineIntersectionPoint) ? lineIntersectionPoint : null;
+            return this.containsPoint(lineIntersectionPoint) && lineSegment.containsPoint(lineIntersectionPoint) ? lineIntersectionPoint : null;
         }
 
         containsPoint(point) {
-            if (point.x < this.minX ||
-                point.x > this.maxX ||
-                point.y < this.minY ||
-                point.y > this.maxY ||
-                point.z < this.minZ ||
-                point.z > this.maxZ) {
-                return false;
-            }
-            return (new Line(this.P1, this.P2)).containsPoint(point);
+            return this.pointInLineSegmentBounds(point) && (new Line(this.P1, this.P2)).containsPoint(point);
         }
 
         intersects(lineSegment) {
             return this.intersectionPoint(lineSegment) !== null;
+        }
+
+        pointInLineSegmentBounds(point) {
+            return point.x >= this.minX
+                && point.x <= this.maxX
+                && point.y >= this.minY
+                && point.y <= this.maxY
+                && point.z >= this.minZ
+                && point.z <= this.maxZ
         }
 
         get minX() {
@@ -442,11 +442,11 @@ const geometryModule = (function () {
         }
 
         containsPoint(point) {
-            const helperLineSegment = new LineSegment(new Point(1000, 1000), point);
-            return (GeometryUtils.getLineSegmentSetIntersectionPoints([
+            const helperLineSegment = new LineSegment(new Point(0, 10000), point);
+            return GeometryUtils.getLineSegmentSetIntersectionPoints([
                 helperLineSegment,
                 ...this.constituentLineSegments
-            ]).length - this.constituentLineSegments.length) % 2 === 1; 
+            ]).length % 2 === 1; 
         }
     }
 
