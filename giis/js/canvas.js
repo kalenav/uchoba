@@ -746,9 +746,7 @@ const canvasModule = (function () {
                             polygonPointsToDraw.push(...this._rasterFill_orderedEdges(polygon));
                             break;
                         case 2:
-                            polygonPointsToDraw.push(...this._rasterFill_orderedEdgesWithActiveEdges(polygon));
-                            break;
-                        case 3:
+                            polygonPointsToDraw.push(...this._seedFill(polygon, polygon.filledFromPoint));
                             break;
                     }
                 }
@@ -1600,6 +1598,10 @@ const canvasModule = (function () {
             return this._scanningLines.filter(scanningLine => scanningLine.P1.y >= from && scanningLine.P1.y <= to)
         }
 
+        _pointArrayHasPoint(pointArray, point) {
+            return pointArray.some(p => p.x === point.x && p.y === point.y)
+        }
+
         _rasterFill_orderedEdges(polygon) {
             const intersectionPoints = GeometryUtils.getLineSegmentSetIntersectionPoints([
                 ...polygon.constituentLineSegments.filter(lineSegment => !lineSegment.isHorizontal),
@@ -1616,59 +1618,29 @@ const canvasModule = (function () {
             return this._getPointsFromFillIntervals(this._getFillIntervals(intersectionPoints));
         }
 
-        _rasterFill_orderedEdgesWithActiveEdges(polygon) {
+        _seedFill(polygon, point) {
             const pointsToDraw = [];
 
-            const polygonConstituentLineSegments = polygon.constituentLineSegments.filter(lineSegment => !lineSegment.isHorizontal);
-            const yGroups = [];
-            this._getScanningLinesInRange(polygon.lowestY, polygon.highestY)
-                .sort((sl1, sl2) => sl2.P1.y - sl1.P1.y) // scan from top to bottom <=> sort scanning lines in descending order
-                .forEach(scanningLine => {
-                    const currYGroup = {
-                        y: scanningLine.P1.y,
-                        edges: []
-                    };
-                    polygonConstituentLineSegments.forEach((lineSegment, index) => {
-                        if (!scanningLine.intersects(lineSegment)) {
-                            return;
-                        }
-
-                        currYGroup.edges.push({
-                            edgeId: index,
-                            x: scanningLine.intersectionPoint(lineSegment).x,
-                            deltaX: -1 * (lineSegment.P1.x - lineSegment.P2.x) / (lineSegment.P1.y - lineSegment.P2.y),
-                            deltaY: Math.abs(lineSegment.P1.y - lineSegment.P2.y)
-                        });
-                    });
-                    if (currYGroup.empty) {
-                        return;
-                    }
-                    yGroups.push(currYGroup);
-                });
-
-            let activeEdgeList = [];
-            yGroups.forEach(yGroup => {
-                yGroup.edges.forEach(edgeDescrition => { // add all new edges to active edge list
-                    if (!activeEdgeList.some(activeEdge => activeEdge.edgeId === edgeDescrition.edgeId)) {
-                        activeEdgeList.push({ ...edgeDescrition });
+            const pointStack = new Stack();
+            pointStack.push(point);
+            while (!pointStack.empty) {
+                const currSeed = pointStack.pop();
+                pointsToDraw.push(currSeed);
+                const possibleNewSeeds = [
+                    new Point(currSeed.x, currSeed.y + 1),
+                    new Point(currSeed.x + 1, currSeed.y),
+                    new Point(currSeed.x, currSeed.y - 1),
+                    new Point(currSeed.x - 1, currSeed.y)
+                ];
+                possibleNewSeeds.forEach(possibleSeed => {
+                    if (
+                        polygon.containsPoint(possibleSeed) &&
+                        !this._pointArrayHasPoint(pointsToDraw, possibleSeed)
+                    ) {
+                        pointStack.push(possibleSeed);
                     }
                 });
-                activeEdgeList.sort((ae1, ae2) => ae1.x - ae2.x);
-                const scanningLineIntersectionPoints = activeEdgeList.map(activeEdge => new Point(activeEdge.x, yGroup.y));
-                if (scanningLineIntersectionPoints.length === 1) {
-                    return;
-                }
-                if (scanningLineIntersectionPoints.length === 3) {
-                    console.log(activeEdgeList.slice());
-                }
-                pointsToDraw.push(...this._getPointsFromFillIntervals(this._getFillIntervals(scanningLineIntersectionPoints)));
-
-                activeEdgeList.forEach(activeEdge => {
-                    activeEdge.x += activeEdge.deltaX;
-                    activeEdge.deltaY -= 1;
-                });
-                activeEdgeList = activeEdgeList.filter(activeEdge => activeEdge.deltaY <= 0);
-            });
+            }
 
             return pointsToDraw;
         }
@@ -1683,7 +1655,7 @@ const canvasModule = (function () {
         _exitPolygonFillMode(selectedPoints) {
             const selectedPoint = selectedPoints[0];
             const polygonToFill = this._model.polygons.find(polygon => polygon.containsPoint(selectedPoint));
-            polygonToFill.fill(this._METHOD_ID);
+            polygonToFill.fill(this._METHOD_ID, selectedPoint);
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////
