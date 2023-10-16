@@ -1589,12 +1589,15 @@ const canvasModule = (function () {
             const lowermostScanningLineY = Math.trunc(polygon.vertices.reduce((minY, point) => minY < point.y ? minY : point.y, Infinity));
             const uppermostScanningLineY = Math.trunc(polygon.vertices.reduce((maxY, point) => maxY > point.y ? maxY : point.y, -Infinity));
             const intersectionPoints = GeometryUtils.getLineSegmentSetIntersectionPoints([
-                ...polygon.constituentLineSegments,
+                ...polygon.constituentLineSegments.filter(lineSegment => !lineSegment.isHorizontal),
                 ...this._scanningLines.filter(line => line.P1.y >= lowermostScanningLineY && line.P1.y <= uppermostScanningLineY)
             ]);
             intersectionPoints.sort((p1, p2) => (p1.y < p2.y || p1.y === p2.y && p1.x <= p2.x) ? 1 : -1);
-            if (intersectionPoints.length % 2 === 1) {
-                intersectionPoints.pop();
+            if (intersectionPoints[0].y !== intersectionPoints[1].y) {
+                intersectionPoints.shift(); // single point at the top
+            }
+            if (intersectionPoints.at(-1).y !== intersectionPoints.at(-2).y) {
+                intersectionPoints.pop(); // single point at the bottom
             }
 
             this._getFillIntervals(intersectionPoints).forEach(fillInterval => {

@@ -296,6 +296,10 @@ const geometryModule = (function () {
         get maxZ() {
             return this.P1.z > this.P2.z ? this.P1.z : this.P2.z;
         }
+
+        get isHorizontal() {
+            return this.P1.y === this.P2.y;
+        }
     }
 
     class Ellipse {
