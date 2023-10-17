@@ -115,8 +115,12 @@
                 hint.setHintText('Режим рисования многоугольника по вершинам');
             }),
             new Button('Растровая развёрстка с упорядоченным списком рёбер', () => {
-                canvas.enterPolygonRasterFillOrderedEdgesMode();
+                canvas.enterPolygonFillMode(1);
                 hint.setHintText('Режим закраски многоугольника методом растровой развёрстки с упорядоченным списком рёбер');
+            }),
+            new Button('Заполнение с затравкой', () => {
+                canvas.enterPolygonFillMode(2);
+                hint.setHintText('Режим заполнения многоугольника с затравкой');
             })
         ])
     ]);

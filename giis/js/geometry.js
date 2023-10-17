@@ -21,7 +21,6 @@ class GeometryUtils {
             }
         }
 
-        console.log(intersectionPoints);
         return intersectionPoints;
     }
     
@@ -79,8 +78,8 @@ class GeometryUtils {
 
 const geometryModule = (function () {
     class Point {
-        constructor(x, y, z = 0, w = 1) {
-            [this._x, this._y, this._z, this._w] = [x, y, z, w];
+        constructor(x, y, z = 0, w = 1, truncCoordinates = true) {
+            [this._x, this._y, this._z, this._w] = [x, y, z, w].map(coord => truncCoordinates ? Math.trunc(coord) : coord);
         }
 
         get x() {
@@ -189,7 +188,7 @@ const geometryModule = (function () {
     }
 
     class Line {
-        _pointContainmentError = 1e-10;
+        _pointContainmentError = 1;
 
         constructor(point1, point2) {
             this._point = new Point(point1.x, point1.y, point1.z, point1.w);
@@ -254,23 +253,24 @@ const geometryModule = (function () {
 
         intersectionPoint(lineSegment) {
             const lineIntersectionPoint = (new Line(this.P1, this.P2)).intersectionPoint(new Line(lineSegment.P1, lineSegment.P2));
-            return this.containsPoint(lineIntersectionPoint) ? lineIntersectionPoint : null;
+            return this.containsPoint(lineIntersectionPoint) && lineSegment.containsPoint(lineIntersectionPoint) ? lineIntersectionPoint : null;
         }
 
         containsPoint(point) {
-            if (point.x < this.minX ||
-                point.x > this.maxX ||
-                point.y < this.minY ||
-                point.y > this.maxY ||
-                point.z < this.minZ ||
-                point.z > this.maxZ) {
-                return false;
-            }
-            return (new Line(this.P1, this.P2)).containsPoint(point);
+            return this.pointInLineSegmentBounds(point) && (new Line(this.P1, this.P2)).containsPoint(point);
         }
 
         intersects(lineSegment) {
             return this.intersectionPoint(lineSegment) !== null;
+        }
+
+        pointInLineSegmentBounds(point) {
+            return point.x >= this.minX
+                && point.x <= this.maxX
+                && point.y >= this.minY
+                && point.y <= this.maxY
+                && point.z >= this.minZ
+                && point.z <= this.maxZ
         }
 
         get minX() {
@@ -295,6 +295,10 @@ const geometryModule = (function () {
 
         get maxZ() {
             return this.P1.z > this.P2.z ? this.P1.z : this.P2.z;
+        }
+
+        get isHorizontal() {
+            return this.P1.y === this.P2.y;
         }
     }
 
@@ -387,6 +391,7 @@ const geometryModule = (function () {
     class Polygon {
         _filledIn = false;
         _fillMethodId = 0;
+        _filledFromPoint = null;
 
         constructor(vertices) {
             this._vertices = vertices.map(vertex => new Point(vertex.x, vertex.y, vertex.z));
@@ -395,6 +400,7 @@ const geometryModule = (function () {
         get vertices() { return this._vertices; }
         get filledIn() { return this._filledIn; }
         get fillMethodId() { return this._fillMethodId; }
+        get filledFromPoint() { return this._filledFromPoint; }
         get constituentLineSegments() {
             const constituentLineSegments = [];
 
@@ -436,17 +442,34 @@ const geometryModule = (function () {
             return constituentLineSegments;
         }
 
-        fill(methodId) {
+        fill(methodId, point = null) {
             this._filledIn = true;
             this._fillMethodId = methodId;
+            this._filledFromPoint = point;
         }
 
         containsPoint(point) {
-            const helperLineSegment = new LineSegment(new Point(1000, 1000), point);
-            return (GeometryUtils.getLineSegmentSetIntersectionPoints([
+            const helperLineSegment = new LineSegment(new Point(0, 10000), point);
+            return GeometryUtils.getLineSegmentSetIntersectionPoints([
                 helperLineSegment,
                 ...this.constituentLineSegments
-            ]).length - this.constituentLineSegments.length) % 2 === 1; 
+            ]).length % 2 === 1; 
+        }
+
+        get highestY() {
+            return this.vertices.reduce((highestY, vertex) => vertex.y > highestY ? vertex.y : highestY, -Infinity);
+        }
+
+        get lowestY() {
+            return this.vertices.reduce((lowestY, vertex) => vertex.y < lowestY ? vertex.y : lowestY, Infinity);
+        }
+
+        get leftmostX() {
+            return this.vertices.reduce((leftmostX, vertex) => vertex.x < leftmostX ? vertex.x : leftmostX, Infinity);
+        }
+
+        get rightmostX() {
+            return this.vertices.reduce((rightmostX, vertex) => vertex.x > rightmostX ? vertex.x : rightmostX, -Infinity);
         }
     }
 

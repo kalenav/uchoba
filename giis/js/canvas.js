@@ -32,14 +32,17 @@ const canvasModule = (function () {
 
         addDdaLineSegment(lineSegment) {
             this._addFigure(this._ddaLineSegments, new geometryModule.LineSegment(lineSegment.P1, lineSegment.P2));
+            this._updatePolygons();
         }
 
         addBresenhamLineSegment(lineSegment) {
             this._addFigure(this._bresenhamLineSegments, new geometryModule.LineSegment(lineSegment.P1, lineSegment.P2));
+            this._updatePolygons();
         }
         
         addWuLineSegment(lineSegment) {
             this._addFigure(this._wuLineSegments, new geometryModule.LineSegment(lineSegment.P1, lineSegment.P2));
+            this._updatePolygons();
         }
 
         addEllipse(ellipse) {
@@ -104,7 +107,7 @@ const canvasModule = (function () {
             this._addFigure(this._vertexPolygons, new geometryModule.Polygon(polygon.vertices));
         }
 
-        updatePolygons() {
+        _updatePolygons() {
             const lineSegments = [
                 ...this.ddaLineSegments,
                 ...this.bresenhamLineSegments,
@@ -570,6 +573,7 @@ const canvasModule = (function () {
             blue: 0
         };
         _RASTER_FILL_ORDERED_EDGES_METHOD_ID = 1;
+        _RASTER_FILL_ORDERED_EDGES_ACTIVE_EDGES_METHOD_ID = 2;
 
         constructor({
             width = 1000,
@@ -654,8 +658,8 @@ const canvasModule = (function () {
         }
 
         _initScanningLines() {
-            const [topCap, bottomCap] = [this._view.height / 2, -this._view.height / 2];
-            const [leftCap, rightCap] = [-this._view.width / 2, this._view.width / 2];
+            const [topCap, bottomCap] = [this._view.height / 2, -this._view.height / 2].map(Math.trunc);
+            const [leftCap, rightCap] = [-this._view.width / 2, this._view.width / 2].map(Math.trunc);
             for (let lineY = bottomCap; lineY <= topCap; lineY++) {
                 this._scanningLines.push(new geometryModule.LineSegment(new Point(leftCap, lineY), new Point(rightCap, lineY)));
             }
@@ -742,8 +746,7 @@ const canvasModule = (function () {
                             polygonPointsToDraw.push(...this._rasterFill_orderedEdges(polygon));
                             break;
                         case 2:
-                            break;
-                        case 3:
+                            polygonPointsToDraw.push(...this._seedFill(polygon, polygon.filledFromPoint));
                             break;
                     }
                 }
@@ -967,7 +970,6 @@ const canvasModule = (function () {
             const endPoint = new Point(selectedPoints[1].x, selectedPoints[1].y);
 
             this._model.addDdaLineSegment(new geometryModule.LineSegment(startPoint, endPoint));
-            this._model.updatePolygons();
         }
 
         enterBresenhamDrawingMode() {
@@ -979,7 +981,6 @@ const canvasModule = (function () {
             const endPoint = new Point(selectedPoints[1].x, selectedPoints[1].y);
 
             this._model.addBresenhamLineSegment(new geometryModule.LineSegment(startPoint, endPoint));
-            this._model.updatePolygons();
         }
 
         enterWuDrawingMode() {
@@ -991,7 +992,6 @@ const canvasModule = (function () {
             const endPoint = new Point(selectedPoints[1].x, selectedPoints[1].y);
 
             this._model.addWuLineSegment(new geometryModule.LineSegment(startPoint, endPoint));
-            this._model.updatePolygons();
         }
 
         ////////////////////////////////////////
@@ -1571,42 +1571,91 @@ const canvasModule = (function () {
             this._model.addPolygon(new geometryModule.Polygon(selectedPoints));
         }
 
+        _getFillIntervals(pointList) {
+            const fillIntervals = [];
+
+            if (pointList.length % 2 === 1) {
+                pointList.pop();
+            }
+            for (let intersectionPointIndex = 0; intersectionPointIndex < pointList.length; intersectionPointIndex += 2) {
+                fillIntervals.push([pointList[intersectionPointIndex], pointList[intersectionPointIndex + 1]]);
+            }
+
+            return fillIntervals;
+        }
+
+        _getPointsFromFillIntervals(fillIntervals) {
+            const points = [];
+
+            fillIntervals.forEach(fillInterval => {
+                points.push(...this._ddaLine({ start: fillInterval[0], end: fillInterval[1] }));
+            });
+
+            return points;
+        }
+
+        _getScanningLinesInRange(from, to) {
+            return this._scanningLines.filter(scanningLine => scanningLine.P1.y >= from && scanningLine.P1.y <= to)
+        }
+
+        _pointArrayHasPoint(pointArray, point) {
+            return pointArray.some(p => p.x === point.x && p.y === point.y)
+        }
+
         _rasterFill_orderedEdges(polygon) {
+            const intersectionPoints = GeometryUtils.getLineSegmentSetIntersectionPoints([
+                ...polygon.constituentLineSegments.filter(lineSegment => !lineSegment.isHorizontal),
+                ...this._getScanningLinesInRange(polygon.lowestY, polygon.highestY)
+            ]);
+            intersectionPoints.sort((p1, p2) => (p1.y < p2.y || p1.y === p2.y && p1.x <= p2.x) ? 1 : -1);
+            if (intersectionPoints[0].y !== intersectionPoints[1].y) {
+                intersectionPoints.shift(); // single point at the top
+            }
+            if (intersectionPoints.at(-1).y !== intersectionPoints.at(-2).y) {
+                intersectionPoints.pop(); // single point at the bottom
+            }
+
+            return this._getPointsFromFillIntervals(this._getFillIntervals(intersectionPoints));
+        }
+
+        _seedFill(polygon, point) {
             const pointsToDraw = [];
 
-            const lowermostScanningLineY = polygon.vertices.reduce((minY, point) => minY < point.y ? minY : point.y, Infinity);
-            const uppermostScanningLineY = polygon.vertices.reduce((maxY, point) => maxY > point.y ? maxY : point.y, -Infinity);
-            const intersectionPoints = GeometryUtils.getLineSegmentSetIntersectionPoints([
-                ...polygon.constituentLineSegments,
-                ...this._scanningLines.filter(line => line.P1.y >= lowermostScanningLineY && line.P1.y <= uppermostScanningLineY)
-            ]);
-            const flattenedFillIntervals = intersectionPoints.toSorted((p1, p2) => (p1.y < p2.y || p1.y === p2.y && p1.x <= p2.x) ? 1 : -1);
-            if (flattenedFillIntervals.length % 2 === 1) {
-                flattenedFillIntervals.pop();
+            const pointStack = new Stack();
+            pointStack.push(point);
+            while (!pointStack.empty) {
+                const currSeed = pointStack.pop();
+                pointsToDraw.push(currSeed);
+                const possibleNewSeeds = [
+                    new Point(currSeed.x, currSeed.y + 1),
+                    new Point(currSeed.x + 1, currSeed.y),
+                    new Point(currSeed.x, currSeed.y - 1),
+                    new Point(currSeed.x - 1, currSeed.y)
+                ];
+                possibleNewSeeds.forEach(possibleSeed => {
+                    if (
+                        polygon.containsPoint(possibleSeed) &&
+                        !this._pointArrayHasPoint(pointsToDraw, possibleSeed)
+                    ) {
+                        pointStack.push(possibleSeed);
+                    }
+                });
             }
-            const fillIntervals = [];
-            for (let intersectionPointIndex = 0; intersectionPointIndex < flattenedFillIntervals.length; intersectionPointIndex += 2) {
-                fillIntervals.push([flattenedFillIntervals[intersectionPointIndex], flattenedFillIntervals[intersectionPointIndex + 1]]);
-            }
-            fillIntervals.forEach(fillInterval => {
-                pointsToDraw.push(...this._ddaLine({ start: fillInterval[0], end: fillInterval[1] }));
-            });
 
             return pointsToDraw;
         }
 
-        enterPolygonRasterFillOrderedEdgesMode() {
-            this._enterPointSelection(1, this._exitPolygonRasterFillOrderedEdgesMode.bind(this));
+        enterPolygonFillMode(methodId) {
+            this._enterPointSelection(1, this._exitPolygonFillMode.bind({ 
+                ...this,
+                _METHOD_ID: methodId
+            }));
         }
 
-        _exitPolygonRasterFillOrderedEdgesMode(selectedPoints) {
+        _exitPolygonFillMode(selectedPoints) {
             const selectedPoint = selectedPoints[0];
             const polygonToFill = this._model.polygons.find(polygon => polygon.containsPoint(selectedPoint));
-            polygonToFill.fill(this._RASTER_FILL_ORDERED_EDGES_METHOD_ID);
-        }
-
-        _rasterFill_orderedEdgesWithActiveEdges(polygon) {
-            
+            polygonToFill.fill(this._METHOD_ID, selectedPoint);
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////
