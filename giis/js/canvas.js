@@ -509,7 +509,7 @@ const canvasModule = (function () {
 
         _drawNextPoint() {
             const pointToDraw = this._pointsToDrawQueue.shift();
-            this._drawPoint(pointToDraw.x, pointToDraw.y, pointToDraw.opacity);
+            this._drawPoint(pointToDraw);
         }
 
         _drawAllRemainingPoints() {
