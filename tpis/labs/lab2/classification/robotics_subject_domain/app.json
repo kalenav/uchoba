@@ -1,0 +1,7 @@
+{
+    "version": 20200513,
+    "zip-command": "zip robotics_subject_domain.zip robotics_subject_domain\/app.json robotics_subject_domain\/entities\/*.json robotics_subject_domain\/intents\/*.json robotics_subject_domain\/traits\/*.json robotics_subject_domain\/utterances\/*.json robotics_subject_domain\/composer\/*.json",
+    "name": "robotics_subject_domain",
+    "lang": "ru",
+    "timezone": "America\/Los_Angeles"
+}

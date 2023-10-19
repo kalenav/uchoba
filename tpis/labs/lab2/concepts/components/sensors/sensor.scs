@@ -1,0 +1,12 @@
+concept_sensor
+<- sc_node_class;
+<- concept_wit_entity;
+=> nrel_main_idtf: [Датчик] (* <- lang_ru;; *);
+=> nrel_note: [устройство, предназначенное для измерения физических параметров или сбора информации из окружающей среды с целью обеспечения робота данными о его окружении.] (* <- lang_ru;; *);
+<= nrel_subdividing:
+    ...
+    (*
+        <- sc_node_tuple;;
+        -> concept_tactile_sensor;;
+        -> concept_visual_sensor;;
+    *);;

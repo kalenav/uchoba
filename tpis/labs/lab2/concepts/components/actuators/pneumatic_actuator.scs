@@ -1,0 +1,5 @@
+concept_pneumatic_actuator
+<- sc_node_class;
+<- concept_wit_entity;
+=> nrel_main_idtf: [Пневматический привод] (* <- lang_ru;; *);
+=> nrel_note: [устройство, которое использует сжатый воздух для создания движения или управления механическими системами.] (* <- lang_ru;; *);;

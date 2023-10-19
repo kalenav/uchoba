@@ -1,0 +1,3 @@
+tsb2000
+<- concept_tactile_sensor;
+=> nrel_main_idtf: [TS-B-2000] (* <- lang_ru;; <- lang_en;; *);;

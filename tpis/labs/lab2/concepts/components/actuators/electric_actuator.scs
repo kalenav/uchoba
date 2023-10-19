@@ -1,0 +1,5 @@
+concept_electric_actuator
+<- sc_node_class;
+<- concept_wit_entity;
+=> nrel_main_idtf: [Электрический привод] (* <- lang_ru;; *);
+=> nrel_note: [устройство, которое использует электрическую энергию для создания движения или управления механизмом.] (* <- lang_ru;; *);;

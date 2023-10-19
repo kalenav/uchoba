@@ -1,0 +1,3 @@
+spsa2000
+<- concept_solar_power_source;
+=> nrel_main_idtf: [SPS-A-2000] (* <- lang_ru;; <- lang_en;; *);;

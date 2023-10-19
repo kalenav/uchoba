@@ -1,0 +1,14 @@
+concept_power_source
+<- sc_node_class;
+<- concept_wit_entity;
+=> nrel_main_idtf: [Источник энергии] (* <- lang_ru;; *);
+=> nrel_note: [устройство или система, которая обеспечивает энергией робота, питая его двигатели, сенсоры, вычислительные компоненты и другие системы.] (* <- lang_ru;; *);
+<= nrel_subdividing:
+    ...
+    (*
+        <- sc_node_tuple;;
+        -> concept_hydraulic_power_source;;
+        -> concept_nuclear_power_source;;
+        -> concept_solar_power_source;;
+        -> concept_pneumatic_power_source;;
+    *);;
