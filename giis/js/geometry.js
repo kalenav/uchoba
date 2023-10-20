@@ -237,8 +237,7 @@ const geometryModule = (function () {
         }
 
         containsPoint(point) {
-            const helperVector = new Vector(this._point, point);
-            return Math.abs(this._directionVector.dotProduct(helperVector)) / (this._directionVector.modulus * helperVector.modulus) >= 1 - this._pointContainmentError;
+            return this.distanceToPoint(point) <= this._pointContainmentError;
         }
     }
 

@@ -122,6 +122,17 @@
                 canvas.enterPolygonFillMode(2);
                 hint.setHintText('Режим заполнения многоугольника с затравкой');
             })
+        ]),
+        new Section('Отсечение', [
+            new Button('Сбросить отсечение', () => {
+                canvas.clearClipping();
+            }),
+            new Button('Метод Коэна-Сазерленда', () => {
+                canvas.askForClippingWindowDimensionsAndSet(1);
+            }),
+            new Button('Метод Кируса-Бека', () => {
+                canvas.askForClippingWindowDimensionsAndSet(2);
+            })
         ])
     ]);
 

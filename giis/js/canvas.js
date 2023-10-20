@@ -25,6 +25,7 @@ const canvasModule = (function () {
         _vSplines = [];
         _vertexPolygons = [];
         _lineSegmentPolygons = [];
+        _clippingWindow = null;
 
         _addFigure(list, figure) {
             list.push(figure);
@@ -258,6 +259,32 @@ const canvasModule = (function () {
                 .multiply(this._yRotationMatrix)
                 .multiply(this._zRotationMatrix)
                 .multiply(this._perspectiveMatrix)
+        }
+
+        setClippingWindow(width, height, rotationDegrees = 0) {
+            const rotationMatrix = new linearAlgebraModule.Matrix(4, 4);
+            const rotationInRadians = GeometryUtils.degreesToRadians(rotationDegrees);
+            const sin = Math.sin(rotationInRadians);
+            const cos = Math.cos(rotationInRadians);
+            rotationMatrix.setElements([
+                [cos, sin, 0, 0],
+                [-sin, cos, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1]
+            ]);
+
+            this._clippingWindow = new geometryModule.Polygon([
+                new Point(width / 2, height / 2),
+                new Point(width / 2, -1 * height / 2),
+                new Point(-1 * width / 2, height / 2),
+                new Point(-1 * width / 2, -1 * height / 2)
+            ]
+                .map(point => point.applyMatrix(rotationMatrix))
+            );
+        }
+
+        get clippingWindow() {
+            return this._clippingWindow;
         }
     }
 
@@ -572,8 +599,7 @@ const canvasModule = (function () {
             green: 0,
             blue: 0
         };
-        _RASTER_FILL_ORDERED_EDGES_METHOD_ID = 1;
-        _RASTER_FILL_ORDERED_EDGES_ACTIVE_EDGES_METHOD_ID = 2;
+        _selectedClippingAlgorithmId = 0;
 
         constructor({
             width = 1000,
@@ -697,24 +723,24 @@ const canvasModule = (function () {
         }
 
         _redrawCanvas() {
-            const ddaLineSegments = this._model.ddaLineSegments.map(lineSegment => this._ddaLine(
-                {
-                    start: lineSegment.P1,
-                    end: lineSegment.P2
+            const lineSegments = [
+                ...this._model.ddaLineSegments,
+                ...this._model.bresenhamLineSegments,
+                ...this._model.wuLineSegments
+            ].map(lineSegment => {
+                let clippedLineSegment = lineSegment;
+                switch(this._selectedClippingAlgorithmId) {
+                    case 1:
+                        clippedLineSegment = this._clip_cohenSutherland(lineSegment);
+                        break;
+                    case 2:
+                        clippedLineSegment = this._clip_cyrusBeck(lineSegment);
+                        break;
+                    default:
+                        break;
                 }
-            ));
-            const bresenhamLineSegments = this._model.bresenhamLineSegments.map(lineSegment => this._bresenhamsLine(
-                {
-                    start: lineSegment.P1,
-                    end: lineSegment.P2
-                }
-            ));
-            const wuLineSegments = this._model.wuLineSegments.map(lineSegment => this._wuLine(
-                {
-                    start: lineSegment.P1,
-                    end: lineSegment.P2
-                }
-            ));
+                return this._ddaLine({ start: clippedLineSegment.P1, end: clippedLineSegment.P2 });
+            });
 
             const ellipses = this._model.ellipses.map(ellipse => this._ellipse(ellipse.origin, ellipse.a, ellipse.b));
 
@@ -755,9 +781,7 @@ const canvasModule = (function () {
 
             const transformationMatrix = this._model.getTransformationMatrix();
             const pointsToDraw = [
-                ...ddaLineSegments.flat(),
-                ...bresenhamLineSegments.flat(),
-                ...wuLineSegments.flat(),
+                ...lineSegments.flat(),
                 ...ellipses.flat(),
                 ...horizontalParabolas.flat(),
                 ...verticalParabolas.flat(),
@@ -1656,6 +1680,63 @@ const canvasModule = (function () {
             const selectedPoint = selectedPoints[0];
             const polygonToFill = this._model.polygons.find(polygon => polygon.containsPoint(selectedPoint));
             polygonToFill.fill(this._METHOD_ID, selectedPoint);
+        }
+
+        ////////////////////////////////////////
+        ///////////////// lab6 /////////////////
+        ////////////////////////////////////////
+
+        askForClippingWindowDimensionsAndSet(clippingAlgorithmId, askForRotation = false) {
+            const width = +prompt('Введите ширину окна отсечения');
+            const height = +prompt('Введите высоту окна отсечения');
+            const rotation = askForRotation ? +prompt('Введите поворот окна отсечения в градусах') : 0;
+            this._selectedClippingAlgorithmId = clippingAlgorithmId;
+            this._model.setClippingWindow(width, height, rotation);
+            this._redrawCanvas();
+        }
+
+        _getBitwisePointInfo(point, clippingWindow) {
+            return [
+                +(point.y > clippingWindow.highestY),
+                +(point.y < clippingWindow.lowestY),
+                +(point.x > clippingWindow.rightmostX),
+                +(point.x < clippingWindow.leftmostX)
+            ];
+        }
+
+        _clip_cohenSutherland(lineSegment) {
+            const bitwiseP1Info = this._getBitwisePointInfo(lineSegment.P1, this._model.clippingWindow);
+            const bitwiseP2Info = this._getBitwisePointInfo(lineSegment.P2, this._model.clippingWindow);
+            const emptyLineSegment = new geometryModule.LineSegment(new Point(0, 0), new Point(0, 0));
+
+            if (bitwiseP1Info.every(bit => bit === 0) && bitwiseP2Info.every(bit => bit === 0)) {
+                return lineSegment;
+            }
+
+            for (let i = 0; i < 4; i++) {
+                if (bitwiseP1Info[i] === 1 && bitwiseP2Info[i] === 1) {
+                    return emptyLineSegment;
+                }
+            }
+
+            const intersectionPoints = [];
+            this._model.clippingWindow.constituentLineSegments.forEach(constituentLineSegment => {
+                if (lineSegment.intersects(constituentLineSegment)) {
+                    intersectionPoints.push(lineSegment.intersectionPoint(constituentLineSegment));
+                }
+            });
+            if (intersectionPoints.length < 2) {
+                return emptyLineSegment;
+            }
+            return new geometryModule.LineSegment(intersectionPoints[0], intersectionPoints[1]);
+        }
+
+        _clip_cyrusBeck(lineSegment) {
+        }
+
+        clearClipping() {
+            this._selectedClippingAlgorithmId = 0;
+            this._redrawCanvas();
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////
