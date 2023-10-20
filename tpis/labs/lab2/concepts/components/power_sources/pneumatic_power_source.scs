@@ -1,0 +1,5 @@
+concept_pneumatic_power_source
+<- sc_node_class;
+<- concept_wit_entity;
+=> nrel_main_idtf: [Пневматический источник энергии] (* <- lang_ru;; *);
+=> nrel_note: [система, которая использует сжатый воздух для создания механической работы или энергии.] (* <- lang_ru;; *);;

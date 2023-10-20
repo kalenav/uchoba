@@ -1,0 +1,13 @@
+concept_message_about_robot_components
+<- sc_node_not_relation;
+=> nrel_main_idtf: [сообщение о компонентах робота] (* <- lang_ru;; *);
+=> nrel_wit_ai_idtf: [about_robot_components];
+<- rrel_key_sc_element: ... (*
+    => nrel_main_idtf: [Опр. (сообщение о компонентах робота)] (* <- lang_ru;; *);;
+    <- definition;;
+    <= nrel_sc_text_translation: ... (*
+        -> rrel_example: [Сообщение о компонентах робота - атомарное сообщение, которое содержит робота, информацию о компонентах которого необходимо найти.] (* <- lang_ru;; *);;
+    *);;
+    <= nrel_using_constants: { concept_atomic_message };;
+*);
+<- concept_intent_possible_class;;

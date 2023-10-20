@@ -1,0 +1,5 @@
+concept_suction_end_manipulator
+<- sc_node_class;
+<- concept_wit_entity;
+=> nrel_main_idtf: [Манипулятор с пневматическим присосом] (* <- lang_ru;; *);
+=> nrel_note: [устройство, которое использует присоски и пневматическую силу для захвата и перемещения объектов.] (* <- lang_ru;; *);;

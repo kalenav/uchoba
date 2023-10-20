@@ -1,0 +1,5 @@
+concept_tactile_sensor
+<- sc_node_class;
+<- concept_wit_entity;
+=> nrel_main_idtf: [Тактильный датчик] (* <- lang_ru;; *);
+=> nrel_note: [устройство, способное оценивать и измерять физический контакт или давление, которое оказывается на его поверхность.] (* <- lang_ru;; *);;

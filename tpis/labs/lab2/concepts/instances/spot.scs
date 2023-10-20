@@ -1,0 +1,8 @@
+spot
+<- concept_robot;
+=> nrel_main_idtf: [Spot] (* <- lang_ru;; <- lang_en;; *);
+=> nrel_component:
+    vsb_2000;
+    tsb_2000;
+    elaa_2000;
+    mma_2000;;
