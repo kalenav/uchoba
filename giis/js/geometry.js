@@ -181,7 +181,9 @@ const geometryModule = (function () {
                 new Point(
                     this._x / this.modulus,
                     this._y / this.modulus,
-                    this._z / this.modulus
+                    this._z / this.modulus,
+                    1,
+                    false
                 )
             );
         }
