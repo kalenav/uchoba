@@ -779,6 +779,16 @@ const canvasModule = (function () {
                 return polygonPointsToDraw;
             });
 
+            const clippingWindowPointsToDraw = [];
+            if (this._model.clippingWindow) {
+                clippingWindowPointsToDraw.push(...this._convexPolygon(this._model.clippingWindow).map(point => ({
+                    x: point.x,
+                    y: point.y,
+                    z: point.z,
+                    color: { red: 255, green: 0, blue: 0 }
+                })));
+            }
+
             const transformationMatrix = this._model.getTransformationMatrix();
             const pointsToDraw = [
                 ...lineSegments.flat(),
@@ -790,7 +800,8 @@ const canvasModule = (function () {
                 ...hermiteCurves.flat(),
                 ...bezierCurves.flat(),
                 ...vSplines.flat(),
-                ...polygons.flat()
+                ...polygons.flat(),
+                ...clippingWindowPointsToDraw
             ]
                 .map(point => {
                     const transformedPoint = (new Point(point.x, point.y, point.z)).applyMatrix(transformationMatrix);
@@ -1732,6 +1743,58 @@ const canvasModule = (function () {
         }
 
         _clip_cyrusBeck(lineSegment) {
+            const emptyLineSegment = new geometryModule.LineSegment(new Point(0, 0), new Point(0, 0));
+
+            const D = new Vector(lineSegment.P1, lineSegment.P2);
+            const numerators = [];
+            const denominators = [];
+            const tValues = [];
+            for (const constituentLineSegment of this._model.clippingWindow.constituentLineSegments) {
+                const n = new Vector(constituentLineSegment.P1, constituentLineSegment.P2).orthogonalVector().toNormalized();
+                if (n.dotProduct(D) === 0) {
+                    return emptyLineSegment;
+                }
+
+                const w = new Vector(constituentLineSegment.P1, lineSegment.P1);
+                numerators.push(n.dotProduct(w));
+                denominators.push(n.dotProduct(D));
+                tValues.push(-1 * (numerators.at(-1)) / (denominators.at(-1)));
+            }
+
+            const allTValuesOutsideInterval = tValues.every(t => t < 0 || t > 1);
+            const allNumeratorsPositive = numerators.every(numerator => numerator > 0);
+            const allNumeratorsNegative = numerators.every(numerator => numerator < 0);
+            const allSumsPositive = numerators.every((numerator, index) => numerator + denominators[index] > 0);
+            const allSumsNegative = numerators.every((numerator, index) => numerator + denominators[index] < 0);
+            if (allTValuesOutsideInterval) {
+                if (allNumeratorsNegative && allSumsNegative) {
+                    return emptyLineSegment;
+                } else if (allNumeratorsPositive && allSumsPositive) {
+                    return lineSegment;
+                }
+            }
+
+            let lowerEdgeCandidateT, upperEdgeCandidateT;
+            for (let index = 0; index < 4; index++) {
+                if (denominators[index] > 0) {
+                    if (lowerEdgeCandidateT === undefined || tValues[index] > lowerEdgeCandidateT) {
+                        lowerEdgeCandidateT = tValues[index];
+                    }
+                } else if (upperEdgeCandidateT === undefined || tValues[index] < upperEdgeCandidateT) {
+                    upperEdgeCandidateT = tValues[index];
+                }
+            }
+            if (upperEdgeCandidateT < lowerEdgeCandidateT) {
+                return emptyLineSegment;
+            }
+
+            function parameterizedLineSegmentPoint(t) {
+                return lineSegment.P1.moveAlongVector(D, t);
+            }
+            return new geometryModule.LineSegment(
+                parameterizedLineSegmentPoint(lowerEdgeCandidateT),
+                parameterizedLineSegmentPoint(upperEdgeCandidateT)
+            );
         }
 
         clearClipping() {

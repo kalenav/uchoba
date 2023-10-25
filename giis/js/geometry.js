@@ -185,6 +185,17 @@ const geometryModule = (function () {
                 )
             );
         }
+
+        orthogonalVector() { // z stays the same
+            return new Vector(
+                new Point(0, 0, 0),
+                new Point(
+                    this._y,
+                    -this._x,
+                    this._z
+                )
+            );
+        }
     }
 
     class Line {
@@ -298,6 +309,10 @@ const geometryModule = (function () {
 
         get isHorizontal() {
             return this.P1.y === this.P2.y;
+        }
+
+        get length() {
+            return new Vector(this.P1, this.P2).modulus;
         }
     }
 
