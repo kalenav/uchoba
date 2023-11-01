@@ -1,3 +1,9 @@
+/////////////////////////////////////////////////////////
+// Лабораторная работа №1 по дисциплине "Логические основы интеллектуальных систем"
+// Выполнена студентами группы 021702 БГУИР Локтевым Константином Алексеевичем, Мохаммади Арианой, Макаревич Кариной Сергеевной
+// Файл с описанием функционала графического интерфейса
+// 01.11.2023
+
 const setListContainer = document.getElementById('set-list');
 const predicateListContainer = document.getElementById('predicate-list');
 const addSetButton = document.getElementById('add-set');
