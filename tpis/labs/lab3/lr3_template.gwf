@@ -22,9 +22,6 @@
         <node type="node/const/perm/group" idtf="lang_ru" shapeColor="0" id="2551092602960" parent="2551016509088" left="0" top="0" right="55" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="810" y="345" haveBus="false" idtf_pos="0">
             <content type="0" mime_type="" content_visibility="false" file_name=""/>
         </node>
-        <node type="node/const/perm/group" idtf="concept_robot" shapeColor="0" id="2551092598384" parent="2551016509088" left="0" top="0" right="98" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="630" y="405" haveBus="false" idtf_pos="1">
-            <content type="0" mime_type="" content_visibility="false" file_name=""/>
-        </node>
         <node type="node/const/perm/relation" idtf="nrel_main_idtf" shapeColor="0" id="2551092601296" parent="2551016509088" left="0" top="0" right="99" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="735" y="240" haveBus="false" idtf_pos="1">
             <content type="0" mime_type="" content_visibility="false" file_name=""/>
         </node>
@@ -55,9 +52,6 @@
         <pair type="pair/var/pos/perm/orient/membership" idtf="" shapeColor="0" id="2551093422800" parent="2551016509088" id_b="2551092605248" id_e="2551093423040" b_x="735" b_y="450" e_x="0" e_y="0" dotBBalance="0" dotEBalance="0.595549">
             <points/>
         </pair>
-        <pair type="pair/var/pos/perm/orient/membership" idtf="" shapeColor="0" id="2551093423760" parent="2551016509088" id_b="2551092598384" id_e="2551092603376" b_x="630" b_y="405" e_x="630" e_y="345" dotBBalance="0" dotEBalance="0">
-            <points/>
-        </pair>
         <pair type="pair/var/pos/perm/orient/membership" idtf="" shapeColor="0" id="2551093427600" parent="2551016509088" id_b="2551092601504" id_e="2551093424720" b_x="585" b_y="285" e_x="0" e_y="0" dotBBalance="0" dotEBalance="0.5">
             <points/>
         </pair>
@@ -69,6 +63,9 @@
                 <point x="945" y="210"/>
             </points>
         </contour>
+        <node type="node/const/perm/general" idtf="" shapeColor="0" id="2551088868208" parent="0" x="180" y="465" haveBus="false" idtf_pos="0">
+            <content type="1" mime_type="content/term" content_visibility="true" file_name=""><![CDATA[Робот ${_robot_name} содержит следующие компоненты: ${_component_list}]]></content>
+        </node>
         <node type="node/const/perm/general" idtf="" shapeColor="0" id="2551144981040" parent="0" x="360" y="645" haveBus="false" idtf_pos="0">
             <content type="1" mime_type="content/term" content_visibility="true" file_name=""><![CDATA[Я не знаю про такого робота.]]></content>
         </node>
@@ -92,9 +89,6 @@
         </node>
         <node type="node/const/perm/relation" idtf="nrel_phrase_template" shapeColor="0" id="2551088873616" parent="0" left="0" top="0" right="140" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="360" y="345" haveBus="false" idtf_pos="1">
             <content type="0" mime_type="" content_visibility="false" file_name=""/>
-        </node>
-        <node type="node/const/perm/general" idtf="" shapeColor="0" id="2551088868208" parent="0" x="180" y="465" haveBus="false" idtf_pos="0">
-            <content type="1" mime_type="content/term" content_visibility="true" file_name=""><![CDATA[Робот ${_robot_name} содержит следующие компоненты: ${_component_list}]]></content>
         </node>
         <node type="node/const/perm/general" idtf="" shapeColor="0" id="2551088871120" parent="0" x="180" y="225" haveBus="false" idtf_pos="0">
             <content type="1" mime_type="content/term" content_visibility="true" file_name=""><![CDATA[Вот список компонентов робота ${_robot_name}: ${_component_list}]]></content>
