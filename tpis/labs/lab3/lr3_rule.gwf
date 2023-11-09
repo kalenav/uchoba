@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GWF version="2.0">
     <staticSector>
-        <node type="node/var/perm/general" idtf="_robot" shapeColor="0" id="2551150188256" parent="2551016511008" left="0" top="0" right="49" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="480" y="210" haveBus="false" idtf_pos="0">
-            <content type="0" mime_type="" content_visibility="false" file_name=""/>
-        </node>
         <node type="node/const/perm/group" idtf="concept_message_about_robot_components" shapeColor="0" id="2551088874448" parent="2551016511008" left="0" top="0" right="283" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="315" y="375" haveBus="false" idtf_pos="1">
             <content type="0" mime_type="" content_visibility="false" file_name=""/>
         </node>
@@ -13,9 +10,6 @@
         <node type="node/var/perm/general" idtf="_message" shapeColor="0" id="2551088867792" parent="2551016511008" left="0" top="0" right="68" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="480" y="345" haveBus="false" idtf_pos="0">
             <content type="0" mime_type="" content_visibility="false" file_name=""/>
         </node>
-        <pair type="pair/var/pos/perm/orient/membership" idtf="" shapeColor="0" id="2551088376368" parent="2551016511008" id_b="2551088867792" id_e="2551150188256" b_x="480" b_y="345" e_x="480" e_y="210" dotBBalance="0" dotEBalance="0">
-            <points/>
-        </pair>
         <pair type="pair/var/pos/perm/orient/membership" idtf="" shapeColor="0" id="2551093427360" parent="2551016511008" id_b="2551088874448" id_e="2551088867792" b_x="315" b_y="375" e_x="480" e_y="345" dotBBalance="0" dotEBalance="0">
             <points/>
         </pair>
