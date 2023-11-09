@@ -28,13 +28,13 @@
         <node type="node/const/perm/group" idtf="concept_message" shapeColor="0" id="2783009635776" parent="2783006240512" left="0" top="0" right="117" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="540" y="240" haveBus="false" idtf_pos="3">
             <content type="0" mime_type="" content_visibility="false" file_name=""/>
         </node>
+        <pair type="pair/var/pos/perm/orient/membership" idtf="" shapeColor="0" id="2783063559536" parent="2783006240512" id_b="2783011780624" id_e="2783011781040" b_x="840" b_y="345" e_x="840" e_y="435" dotBBalance="0" dotEBalance="0">
+            <points/>
+        </pair>
         <pair type="pair/var/pos/perm/orient/membership" idtf="" shapeColor="0" id="2783063554256" parent="2783006240512" id_b="2783007813712" id_e="2783063554016" b_x="712" b_y="437" e_x="0" e_y="0" dotBBalance="0" dotEBalance="0.50898">
             <points/>
         </pair>
         <pair type="pair/var/-/perm/orient" idtf="" shapeColor="0" id="2783063554016" parent="2783006240512" id_b="2783007811632" id_e="2783011781040" b_x="630" b_y="345" e_x="840" e_y="435" dotBBalance="0" dotEBalance="0">
-            <points/>
-        </pair>
-        <pair type="pair/const/pos/perm/orient/membership" idtf="" shapeColor="0" id="2783063559536" parent="2783006240512" id_b="2783011780624" id_e="2783011781040" b_x="840" b_y="345" e_x="840" e_y="435" dotBBalance="0" dotEBalance="0">
             <points/>
         </pair>
         <pair type="pair/var/pos/perm/orient/membership" idtf="" shapeColor="0" id="2783011027184" parent="2783006240512" id_b="2783011780624" id_e="2783011780000" b_x="840" b_y="345" e_x="840" e_y="255" dotBBalance="0" dotEBalance="0">
