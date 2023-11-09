@@ -69,7 +69,13 @@
                 <point x="945" y="210"/>
             </points>
         </contour>
-        <node type="node/const/perm/group" idtf="concept_reply_about_robot_components" shapeColor="0" id="2551092598176" parent="0" left="0" top="0" right="261" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="179" y="345" haveBus="false" idtf_pos="1">
+        <node type="node/const/perm/relation" idtf="nrel_inclusion" shapeColor="0" id="2551088869248" parent="0" left="0" top="0" right="96" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="15" y="300" haveBus="false" idtf_pos="0">
+            <content type="0" mime_type="" content_visibility="false" file_name=""/>
+        </node>
+        <node type="node/const/perm/group" idtf="concept_phrase" shapeColor="0" id="2551092604832" parent="0" left="0" top="0" right="105" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="-135" y="345" haveBus="false" idtf_pos="1">
+            <content type="0" mime_type="" content_visibility="false" file_name=""/>
+        </node>
+        <node type="node/const/perm/group" idtf="concept_reply_about_robot_components" shapeColor="0" id="2551092598176" parent="0" left="0" top="0" right="261" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="180" y="345" haveBus="false" idtf_pos="1">
             <content type="0" mime_type="" content_visibility="false" file_name=""/>
         </node>
         <node type="node/const/perm/relation" idtf="nrel_phrase_template" shapeColor="0" id="2551088873616" parent="0" left="0" top="0" right="140" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="360" y="345" haveBus="false" idtf_pos="1">
@@ -87,6 +93,12 @@
         <node type="node/const/perm/group" idtf="lang_ru" shapeColor="0" id="2551092599632" parent="0" left="0" top="0" right="55" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="-15" y="225" haveBus="false" idtf_pos="1">
             <content type="0" mime_type="" content_visibility="false" file_name=""/>
         </node>
+        <pair type="pair/const/pos/perm/orient/membership" idtf="" shapeColor="0" id="2551087920464" parent="0" id_b="2551088869248" id_e="2551016224832" b_x="15" b_y="300" e_x="0" e_y="0" dotBBalance="0" dotEBalance="0.474662">
+            <points/>
+        </pair>
+        <pair type="pair/const/pos/perm/orient/membership" idtf="" shapeColor="0" id="2551016224832" parent="0" id_b="2551092604832" id_e="2551092598176" b_x="-135" b_y="345" e_x="180" e_y="345" dotBBalance="0" dotEBalance="0">
+            <points/>
+        </pair>
         <pair type="pair/const/pos/perm/orient/membership" idtf="" shapeColor="0" id="2551087917344" parent="0" id_b="2551088873616" id_e="2551087916384" b_x="360" b_y="345" e_x="0" e_y="0" dotBBalance="0" dotEBalance="0.414819">
             <points/>
         </pair>
@@ -102,13 +114,13 @@
         <pair type="pair/const/pos/perm/orient/membership" idtf="" shapeColor="0" id="2551087916864" parent="0" id_b="2551092601712" id_e="2551088868208" b_x="-15" b_y="465" e_x="180" e_y="465" dotBBalance="0" dotEBalance="0">
             <points/>
         </pair>
-        <pair type="pair/const/pos/perm/orient/membership" idtf="" shapeColor="0" id="2551087913024" parent="0" id_b="2551092598176" id_e="2551088868208" b_x="179" b_y="345" e_x="180" e_y="465" dotBBalance="0" dotEBalance="0">
+        <pair type="pair/const/pos/perm/orient/membership" idtf="" shapeColor="0" id="2551087913024" parent="0" id_b="2551092598176" id_e="2551088868208" b_x="180" b_y="345" e_x="180" e_y="465" dotBBalance="0" dotEBalance="0">
             <points/>
         </pair>
         <pair type="pair/const/pos/perm/orient/membership" idtf="" shapeColor="0" id="2551087915184" parent="0" id_b="2551092599632" id_e="2551088871120" b_x="-15" b_y="225" e_x="180" e_y="225" dotBBalance="0" dotEBalance="0">
             <points/>
         </pair>
-        <pair type="pair/const/pos/perm/orient/membership" idtf="" shapeColor="0" id="2551093424240" parent="0" id_b="2551092598176" id_e="2551088871120" b_x="179" b_y="345" e_x="180" e_y="225" dotBBalance="0" dotEBalance="0">
+        <pair type="pair/const/pos/perm/orient/membership" idtf="" shapeColor="0" id="2551093424240" parent="0" id_b="2551092598176" id_e="2551088871120" b_x="180" b_y="345" e_x="180" e_y="225" dotBBalance="0" dotEBalance="0">
             <points/>
         </pair>
     </staticSector>
