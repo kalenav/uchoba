@@ -84,6 +84,9 @@
         <node type="node/const/perm/group" idtf="lang_ru" shapeColor="0" id="2551092599632" parent="0" left="0" top="0" right="55" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="-15" y="225" haveBus="false" idtf_pos="1">
             <content type="0" mime_type="" content_visibility="false" file_name=""/>
         </node>
+        <pair type="pair/const/pos/perm/orient/membership" idtf="" shapeColor="0" id="2551088383568" parent="0" id_b="2551092601712" id_e="2551150196992" b_x="-15" b_y="465" e_x="473" e_y="647" dotBBalance="0" dotEBalance="0">
+            <points/>
+        </pair>
         <pair type="pair/const/pos/perm/orient/membership" idtf="" shapeColor="0" id="2551088381648" parent="0" id_b="2551150191584" id_e="2551150196992" b_x="332.5" b_y="649.5" e_x="473" e_y="647" dotBBalance="0" dotEBalance="0">
             <points/>
         </pair>
