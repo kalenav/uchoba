@@ -48,11 +48,11 @@
                 <point x="945" y="210"/>
             </points>
         </contour>
-        <node type="node/const/perm/general" idtf="" shapeColor="0" id="2551088868208" parent="0" x="180" y="465" haveBus="false" idtf_pos="0">
-            <content type="1" mime_type="content/term" content_visibility="true" file_name=""><![CDATA[Робот ${_robot_name} содержит следующие компоненты: ${_component_list}]]></content>
-        </node>
         <node type="node/const/perm/general" idtf="" shapeColor="0" id="2551088871120" parent="0" x="180" y="225" haveBus="false" idtf_pos="0">
-            <content type="1" mime_type="content/term" content_visibility="true" file_name=""><![CDATA[Вот список компонентов робота ${_robot_name}: ${_component_list}]]></content>
+            <content type="1" mime_type="content/term" content_visibility="true" file_name=""><![CDATA[Вот список компонентов робота ${_robot_name}]]></content>
+        </node>
+        <node type="node/const/perm/general" idtf="" shapeColor="0" id="2551088868208" parent="0" x="180" y="465" haveBus="false" idtf_pos="0">
+            <content type="1" mime_type="content/term" content_visibility="true" file_name=""><![CDATA[Робот ${_robot_name} содержит следующие компоненты]]></content>
         </node>
         <node type="node/const/perm/group" idtf="concept_phrase" shapeColor="0" id="2551092604832" parent="0" left="0" top="0" right="105" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="-135" y="345" haveBus="false" idtf_pos="1">
             <content type="0" mime_type="" content_visibility="false" file_name=""/>
