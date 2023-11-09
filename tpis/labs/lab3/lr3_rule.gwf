@@ -59,13 +59,13 @@
                 <point x="525" y="525"/>
             </points>
         </contour>
+        <node type="node/const/perm/group" idtf="concept_cringe" shapeColor="0" id="2551088873408" parent="0" left="0" top="0" right="103" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="990" y="435" haveBus="false" idtf_pos="0">
+            <content type="0" mime_type="" content_visibility="false" file_name=""/>
+        </node>
         <node type="node/const/perm/role" idtf="rrel_main_key_sc_element" shapeColor="0" id="2551086124592" parent="0" left="0" top="0" right="173" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="450" y="480" haveBus="false" idtf_pos="0">
             <content type="0" mime_type="" content_visibility="false" file_name=""/>
         </node>
         <node type="node/const/perm/role" idtf="rrel_1" shapeColor="0" id="2551086122304" parent="0" left="0" top="0" right="43" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="930" y="480" haveBus="false" idtf_pos="0">
-            <content type="0" mime_type="" content_visibility="false" file_name=""/>
-        </node>
-        <node type="node/const/perm/group" idtf="concept_reply_about_robot_components" shapeColor="0" id="2551088873408" parent="0" left="0" top="0" right="261" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="990" y="435" haveBus="false" idtf_pos="0">
             <content type="0" mime_type="" content_visibility="false" file_name=""/>
         </node>
         <node type="node/const/perm/relation" idtf="nrel_answer_pattern" shapeColor="0" id="2551086125424" parent="0" left="0" top="0" right="132" bottom="24" textColor="164" text_angle="0" text_font="Times New Roman [Arial]" font_size="10" x="765" y="375" haveBus="false" idtf_pos="0">
