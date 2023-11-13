@@ -24,8 +24,8 @@
 <script src="js/canvas.js"></script>
 <script src="js/hint.js"></script>
 <script src="js/toolbar.js"></script>
-<script src="js/geometry.js"></script>
 <script src="js/linear-algebra.js"></script>
+<script src="js/geometry.js"></script>
 <script>
     const canvas = new canvasModule.CanvasController();
     const hint = new HintController();
@@ -132,6 +132,14 @@
             }),
             new Button('Метод Кируса-Бека', () => {
                 canvas.askForClippingWindowDimensionsAndSet(2, true);
+            })
+        ]),
+        new Section('Удаление невидимых граней', [
+            new Button('Случайный куб', () => {
+                canvas.drawRandomCube();
+            }),
+            new Button('Переключить видимость невидимых граней куба', () => {
+                canvas.toggleCubeFaceHiding();
             })
         ])
     ]);

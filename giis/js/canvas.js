@@ -26,6 +26,7 @@ const canvasModule = (function () {
         _vertexPolygons = [];
         _lineSegmentPolygons = [];
         _clippingWindow = null;
+        _cube = null;
 
         _addFigure(list, figure) {
             list.push(figure);
@@ -286,6 +287,17 @@ const canvasModule = (function () {
         get clippingWindow() {
             return this._clippingWindow;
         }
+
+        randomCube() {
+            this._cube = new geometryModule.Cube(
+                Utils.randomIntegerFromInterval(250, 400),
+                Utils.randomIntegerFromInterval(0, 30),
+                Utils.randomIntegerFromInterval(0, 30),
+                Utils.randomIntegerFromInterval(0, 30)
+            );
+        }
+
+        get cube() { return this._cube; }
     }
 
     class CanvasView {
@@ -600,6 +612,7 @@ const canvasModule = (function () {
             blue: 0
         };
         _selectedClippingAlgorithmId = 0;
+        _hidingInvisibleCubeFaces = false;
 
         constructor({
             width = 1000,
@@ -789,6 +802,14 @@ const canvasModule = (function () {
                 })));
             }
 
+            const cubePointsToDraw = [];
+            if (this._model.cube) {
+                cubePointsToDraw.push(...this._model.cube.getLineSegments(this._hidingInvisibleCubeFaces)
+                    .map(lineSegment => this._ddaLine({ start: lineSegment.P1, end: lineSegment.P2 }))
+                    .flat()
+                );
+            }
+
             const transformationMatrix = this._model.getTransformationMatrix();
             const pointsToDraw = [
                 ...lineSegments.flat(),
@@ -801,7 +822,8 @@ const canvasModule = (function () {
                 ...bezierCurves.flat(),
                 ...vSplines.flat(),
                 ...polygons.flat(),
-                ...clippingWindowPointsToDraw
+                ...clippingWindowPointsToDraw,
+                ...cubePointsToDraw
             ]
                 .map(point => {
                     const transformedPoint = (new Point(point.x, point.y, point.z)).applyMatrix(transformationMatrix);
@@ -1799,6 +1821,20 @@ const canvasModule = (function () {
 
         clearClipping() {
             this._selectedClippingAlgorithmId = 0;
+            this._redrawCanvas();
+        }
+
+        ////////////////////////////////////////
+        ///////////////// lab7 /////////////////
+        ////////////////////////////////////////
+
+        drawRandomCube() {
+            this._model.randomCube();
+            this._redrawCanvas();
+        }
+
+        toggleCubeFaceHiding() {
+            this._hidingInvisibleCubeFaces = !this._hidingInvisibleCubeFaces;
             this._redrawCanvas();
         }
 
