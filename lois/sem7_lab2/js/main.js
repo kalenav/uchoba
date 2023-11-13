@@ -105,22 +105,23 @@ addSetButton.addEventListener('click', () => {
 });
 
 addPredicateButton.addEventListener('click', () => {
+    const predicate = new FuzzySet();
+
     const name = prompt("Введите наименование предиката");
-    let set1Name;
-    while (![...sets.keys()].includes(set1Name)) {
-        set1Name = prompt("Введите наименование первого множества");
-    }
-    let set2Name;
-    while (![...sets.keys()].includes(set2Name)) {
-        set2Name = prompt("Введите наименование второго множества");
+    while (true) {
+        const el1Name = prompt("Введите наименование первого элемента пары");
+        const el2Name = prompt("Введите наименование второго элемента пары");
+        const fuzzyValue = prompt('Введите значение соответствующей нечеткой величины');
+        if (isNaN(fuzzyValue)) {
+            continue;
+        }
+        predicate.add([el1Name, el2Name], fuzzyValue);
+        if (!confirm('Добавить ещё одну сущность?')) {
+            break;
+        }
     }
 
-    predicates.set(name, new ImplicationPredicate({
-        set1: sets.get(set1Name),
-        set2: sets.get(set2Name),
-        implication: FuzzyOperations.implication
-    }));
-
+    predicates.set(name, predicate);
     redisplayLists();
 });
 
@@ -172,6 +173,34 @@ function initMockSets() {
     const set7 = new FuzzySet();
     set7.add('y', 0.8);
 
+    const set8 = new FuzzySet();
+    set8.add('y1', 0.4);
+    set8.add('y2', 0.2);
+    set8.add('y3', 0.3);
+    set8.add('y4', 0.1);
+
+    const rule1 = new FuzzySet();
+    rule1.add(['x1', 'y'], 0.4);
+    rule1.add(['x2', 'y'], 0.5);
+
+    const rule2 = new FuzzySet();
+    rule2.add(['x1', 'y1'], 0.1);
+    rule2.add(['x2', 'y1'], 0.8);
+    rule2.add(['x3', 'y1'], 0.8);
+    rule2.add(['x4', 'y1'], 0.8);
+    rule2.add(['x1', 'y2'], 0.4);
+    rule2.add(['x2', 'y2'], 0.1);
+    rule2.add(['x3', 'y2'], 0.4);
+    rule2.add(['x4', 'y2'], 0.4);
+    rule2.add(['x1', 'y3'], 0.6);
+    rule2.add(['x2', 'y3'], 0.6);
+    rule2.add(['x3', 'y3'], 0.1);
+    rule2.add(['x4', 'y3'], 0.6);
+    rule2.add(['x1', 'y4'], 0.2);
+    rule2.add(['x2', 'y4'], 0.2);
+    rule2.add(['x3', 'y4'], 0.2);
+    rule2.add(['x4', 'y4'], 0.1);
+
     sets.set("A", set1);
     sets.set("B", set2);
     sets.set("C", set3);
@@ -179,12 +208,10 @@ function initMockSets() {
     sets.set("Y", set5);
     sets.set("Y2", set6);
     sets.set("Y3", set7);
+    sets.set("Y4", set8);
 
-    predicates.set('P1', new ImplicationPredicate({
-        set1: sets.get('X'),
-        set2: sets.get('Y'),
-        implication: FuzzyOperations.implication
-    }));
+    predicates.set("P1", rule1);
+    predicates.set("P2", rule2);
 }
 
 initMockSets();
