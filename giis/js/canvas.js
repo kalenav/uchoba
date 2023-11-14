@@ -295,6 +295,12 @@ const canvasModule = (function () {
                 Utils.randomIntegerFromInterval(0, 30),
                 Utils.randomIntegerFromInterval(0, 30)
             );
+            // this._cube = new geometryModule.Cube(
+            //     255,
+            //     30,
+            //     30,
+            //     30
+            // );
         }
 
         get cube() { return this._cube; }
@@ -777,7 +783,10 @@ const canvasModule = (function () {
             const bezierCurves = this._model.bezierCurves.map(curve => this._bezierForm(curve.P1, curve.P2, curve.P3, curve.P4));
             const vSplines = this._model.vSplines.map(vSpline => this._vSpline(vSpline.referencePoints));
 
-            const polygons = this._model.polygons.map(polygon => {
+            const polygons = [
+                ...this._model.polygons,
+                ...(this._model.cube?.getFaces(this._hidingInvisibleCubeFaces) ?? [])
+            ].map(polygon => {
                 const polygonPointsToDraw = [...this._convexPolygon(polygon)];
                 if (polygon.filledIn) {
                     switch(polygon.fillMethodId) {
@@ -802,14 +811,6 @@ const canvasModule = (function () {
                 })));
             }
 
-            const cubePointsToDraw = [];
-            if (this._model.cube) {
-                cubePointsToDraw.push(...this._model.cube.getLineSegments(this._hidingInvisibleCubeFaces)
-                    .map(lineSegment => this._ddaLine({ start: lineSegment.P1, end: lineSegment.P2 }))
-                    .flat()
-                );
-            }
-
             const transformationMatrix = this._model.getTransformationMatrix();
             const pointsToDraw = [
                 ...lineSegments.flat(),
@@ -822,8 +823,7 @@ const canvasModule = (function () {
                 ...bezierCurves.flat(),
                 ...vSplines.flat(),
                 ...polygons.flat(),
-                ...clippingWindowPointsToDraw,
-                ...cubePointsToDraw
+                ...clippingWindowPointsToDraw
             ]
                 .map(point => {
                     const transformedPoint = (new Point(point.x, point.y, point.z)).applyMatrix(transformationMatrix);

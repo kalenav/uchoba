@@ -497,81 +497,69 @@ const geometryModule = (function () {
             this._rotZ = rotZ;
         }
 
-        get sideLength() { return this._sideLength; }
-        get rotX() { return this._rotX; }
-        get rotY() { return this._rotY; }
-        get rotZ() { return this._rotZ; }
-
-        get _xRotationMatrix() {
+        _getXRotationMatrix(negatedSine = false) {
             const rotationMatrix = new linearAlgebraModule.Matrix(4, 4);
-            const rotationInRadians = GeometryUtils.degreesToRadians(this._rotX);
+            const rotationInRadians = GeometryUtils.degreesToRadians(-this._rotX);
             const sin = Math.sin(rotationInRadians);
             const cos = Math.cos(rotationInRadians);
+            const sineCoef = negatedSine ? -1 : 1;
             rotationMatrix.setElements([
-                [cos, sin, 0, 0],
-                [-sin, cos, 0, 0],
+                [1, 0, 0, 0],
+                [0, cos, sin * sineCoef, 0],
+                [0, -sin * sineCoef, cos, 0],
+                [0, 0, 0, 1]
+            ]);
+            return rotationMatrix;
+        }
+
+        _getYRotationMatrix(negatedSine = false) {
+            const rotationMatrix = new linearAlgebraModule.Matrix(4, 4);
+            const rotationInRadians = GeometryUtils.degreesToRadians(-this._rotY);
+            const sin = Math.sin(rotationInRadians);
+            const cos = Math.cos(rotationInRadians);
+            const sineCoef = negatedSine ? -1 : 1;
+            rotationMatrix.setElements([
+                [cos, 0, sin * sineCoef, 0],
+                [0, 1, 0, 0],
+                [-sin * sineCoef, 0, cos, 0],
+                [0, 0, 0, 1]
+            ]);
+            return rotationMatrix;
+        }
+
+        _getZRotationMatrix(negatedSine = false) {
+            const rotationMatrix = new linearAlgebraModule.Matrix(4, 4);
+            const rotationInRadians = GeometryUtils.degreesToRadians(-this._rotZ);
+            const sin = Math.sin(rotationInRadians);
+            const cos = Math.cos(rotationInRadians);
+            const sineCoef = negatedSine ? -1 : 1;
+            rotationMatrix.setElements([
+                [cos, sin * sineCoef, 0, 0],
+                [-sin * sineCoef, cos, 0, 0],
                 [0, 0, 1, 0],
                 [0, 0, 0, 1]
             ]);
             return rotationMatrix;
         }
 
-        get _yRotationMatrix() {
-            const rotationMatrix = new linearAlgebraModule.Matrix(4, 4);
-            const rotationInRadians = GeometryUtils.degreesToRadians(this._rotY);
-            const sin = Math.sin(rotationInRadians);
-            const cos = Math.cos(rotationInRadians);
-            rotationMatrix.setElements([
-                [cos, 0, sin, 0],
-                [0, 1, 0, 0],
-                [-sin, 0, cos, 0],
-                [0, 0, 0, 1]
-            ]);
-            return rotationMatrix;
-        }
-
-        get _zRotationMatrix() {
-            const rotationMatrix = new linearAlgebraModule.Matrix(4, 4);
-            const rotationInRadians = GeometryUtils.degreesToRadians(this._rotZ);
-            const sin = Math.sin(rotationInRadians);
-            const cos = Math.cos(rotationInRadians);
-            rotationMatrix.setElements([
-                [1, 0, 0, 0],
-                [0, cos, sin, 0],
-                [0, -sin, cos, 0],
-                [0, 0, 0, 1]
-            ]);
-            return rotationMatrix;
-        }
-
-        get _combinedRotationMatrix() {
-            return this._xRotationMatrix
-                .multiply(this._yRotationMatrix)
-                .multiply(this._zRotationMatrix);
+        _getCombinedRotationMatrix(negated = false) {
+            return this._getXRotationMatrix(negated)
+                .multiply(this._getYRotationMatrix(negated))
+                .multiply(this._getZRotationMatrix(negated));
         }
 
         get _bodyMatrix() {
             const rawBodyMatrix = new linearAlgebraModule.Matrix(6, 4);
             const neg = -1 * this._sideLength / 2;
             rawBodyMatrix.setElements([
-                [1, 0, 0, neg],
-                [-1, 0, 0, neg],
-                [0, 1, 0, neg],
-                [0, -1, 0, neg],
-                [0, 0, 1, neg],
-                [0, 0, -1, neg]
+                [-1, 0, 0, -neg],
+                [1, 0, 0, -neg],
+                [0, -1, 0, -neg],
+                [0, 1, 0, -neg],
+                [0, 0, -1, -neg],
+                [0, 0, 1, -neg]
             ]);
-
-            const bodyMatrix = rawBodyMatrix.multiply(this._combinedRotationMatrix);
-            // this is horrendous but i need to negate these after the transformation
-            bodyMatrix.setElementAt(1, 1, -1 * bodyMatrix.getElementAt(1, 1));
-            bodyMatrix.setElementAt(2, 1, -1 * bodyMatrix.getElementAt(2, 1));
-            bodyMatrix.setElementAt(3, 2, -1 * bodyMatrix.getElementAt(3, 2));
-            bodyMatrix.setElementAt(4, 2, -1 * bodyMatrix.getElementAt(4, 2));
-            bodyMatrix.setElementAt(5, 3, -1 * bodyMatrix.getElementAt(5, 3));
-            bodyMatrix.setElementAt(6, 3, -1 * bodyMatrix.getElementAt(6, 3));
-
-            return bodyMatrix;
+            return rawBodyMatrix.multiply(this._getCombinedRotationMatrix());
         }
 
         get _rawVertices() {
@@ -588,36 +576,36 @@ const geometryModule = (function () {
             ]
         }
 
-        get _constituentLineSegmentsFacewise() {
+        get _faces() {
             const rawVertices = this._rawVertices;
             return [
-                new Polygon(rawVertices.filter(vertex => vertex.x > 0).map(point => point.applyMatrix(this._combinedRotationMatrix))).constituentLineSegments,
-                new Polygon(rawVertices.filter(vertex => vertex.x < 0).map(point => point.applyMatrix(this._combinedRotationMatrix))).constituentLineSegments,
-                new Polygon(rawVertices.filter(vertex => vertex.y > 0).map(point => point.applyMatrix(this._combinedRotationMatrix))).constituentLineSegments,
-                new Polygon(rawVertices.filter(vertex => vertex.y < 0).map(point => point.applyMatrix(this._combinedRotationMatrix))).constituentLineSegments,
-                new Polygon(rawVertices.filter(vertex => vertex.z > 0).map(point => point.applyMatrix(this._combinedRotationMatrix))).constituentLineSegments,
-                new Polygon(rawVertices.filter(vertex => vertex.z < 0).map(point => point.applyMatrix(this._combinedRotationMatrix))).constituentLineSegments
+                new Polygon(rawVertices.filter(vertex => vertex.x > 0).map(point => point.applyMatrix(this._getCombinedRotationMatrix(true)))),
+                new Polygon(rawVertices.filter(vertex => vertex.x < 0).map(point => point.applyMatrix(this._getCombinedRotationMatrix(true)))),
+                new Polygon(rawVertices.filter(vertex => vertex.y > 0).map(point => point.applyMatrix(this._getCombinedRotationMatrix(true)))),
+                new Polygon(rawVertices.filter(vertex => vertex.y < 0).map(point => point.applyMatrix(this._getCombinedRotationMatrix(true)))),
+                new Polygon(rawVertices.filter(vertex => vertex.z > 0).map(point => point.applyMatrix(this._getCombinedRotationMatrix(true)))),
+                new Polygon(rawVertices.filter(vertex => vertex.z < 0).map(point => point.applyMatrix(this._getCombinedRotationMatrix(true))))
             ]
         }
 
-        getLineSegments(hideInvisible, spectatorViewDirection = new Vector(new Point(0, 0, 0), new Point(0, 0, -1))) {
+        getFaces(hideInvisible = false, spectatorViewDirection = new Vector(new Point(0, 0, 0), new Point(0, 0, -1))) {
             if (!hideInvisible) {
-                return this._constituentLineSegmentsFacewise.flat();
+                return this._faces;
             }
-            return this._constituentLineSegmentsFacewise
+            return this._faces
                 .filter((face, index) => {
+                    const currFace = this._bodyMatrix.getRowAt(index + 1);
                     const currFaceNormalVector = new Vector(
                         new Point(0, 0, 0),
                         new Point(
-                            this._bodyMatrix.getRowAt(index + 1)[0],
-                            this._bodyMatrix.getRowAt(index + 1)[1],
-                            this._bodyMatrix.getRowAt(index + 1)[2],
+                            currFace[0],
+                            currFace[1],
+                            currFace[2],
                             1,
                             false
                         ));
                     return currFaceNormalVector.dotProduct(spectatorViewDirection) > 0;
                 })
-                .flat();
         }
     }
 
