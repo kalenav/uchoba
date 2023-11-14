@@ -291,16 +291,10 @@ const canvasModule = (function () {
         randomCube() {
             this._cube = new geometryModule.Cube(
                 Utils.randomIntegerFromInterval(250, 400),
-                Utils.randomIntegerFromInterval(0, 30),
-                Utils.randomIntegerFromInterval(0, 30),
-                Utils.randomIntegerFromInterval(0, 30)
+                Utils.randomIntegerFromInterval(5, 30),
+                Utils.randomIntegerFromInterval(5, 30),
+                Utils.randomIntegerFromInterval(5, 30)
             );
-            // this._cube = new geometryModule.Cube(
-            //     255,
-            //     30,
-            //     30,
-            //     30
-            // );
         }
 
         get cube() { return this._cube; }

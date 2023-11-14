@@ -585,7 +585,7 @@ const geometryModule = (function () {
                 new Polygon(rawVertices.filter(vertex => vertex.y < 0).map(point => point.applyMatrix(this._getCombinedRotationMatrix(true)))),
                 new Polygon(rawVertices.filter(vertex => vertex.z > 0).map(point => point.applyMatrix(this._getCombinedRotationMatrix(true)))),
                 new Polygon(rawVertices.filter(vertex => vertex.z < 0).map(point => point.applyMatrix(this._getCombinedRotationMatrix(true))))
-            ]
+            ];
         }
 
         getFaces(hideInvisible = false, spectatorViewDirection = new Vector(new Point(0, 0, 0), new Point(0, 0, -1))) {
@@ -605,7 +605,7 @@ const geometryModule = (function () {
                             false
                         ));
                     return currFaceNormalVector.dotProduct(spectatorViewDirection) > 0;
-                })
+                });
         }
     }
 
