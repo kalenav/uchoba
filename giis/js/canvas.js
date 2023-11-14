@@ -26,6 +26,7 @@ const canvasModule = (function () {
         _vertexPolygons = [];
         _lineSegmentPolygons = [];
         _clippingWindow = null;
+        _cube = null;
 
         _addFigure(list, figure) {
             list.push(figure);
@@ -286,6 +287,23 @@ const canvasModule = (function () {
         get clippingWindow() {
             return this._clippingWindow;
         }
+
+        randomCube() {
+            this._cube = new geometryModule.Cube(
+                Utils.randomIntegerFromInterval(250, 400),
+                Utils.randomIntegerFromInterval(0, 30),
+                Utils.randomIntegerFromInterval(0, 30),
+                Utils.randomIntegerFromInterval(0, 30)
+            );
+            // this._cube = new geometryModule.Cube(
+            //     255,
+            //     30,
+            //     30,
+            //     30
+            // );
+        }
+
+        get cube() { return this._cube; }
     }
 
     class CanvasView {
@@ -600,6 +618,7 @@ const canvasModule = (function () {
             blue: 0
         };
         _selectedClippingAlgorithmId = 0;
+        _hidingInvisibleCubeFaces = false;
 
         constructor({
             width = 1000,
@@ -764,7 +783,10 @@ const canvasModule = (function () {
             const bezierCurves = this._model.bezierCurves.map(curve => this._bezierForm(curve.P1, curve.P2, curve.P3, curve.P4));
             const vSplines = this._model.vSplines.map(vSpline => this._vSpline(vSpline.referencePoints));
 
-            const polygons = this._model.polygons.map(polygon => {
+            const polygons = [
+                ...this._model.polygons,
+                ...(this._model.cube?.getFaces(this._hidingInvisibleCubeFaces) ?? [])
+            ].map(polygon => {
                 const polygonPointsToDraw = [...this._convexPolygon(polygon)];
                 if (polygon.filledIn) {
                     switch(polygon.fillMethodId) {
@@ -1799,6 +1821,20 @@ const canvasModule = (function () {
 
         clearClipping() {
             this._selectedClippingAlgorithmId = 0;
+            this._redrawCanvas();
+        }
+
+        ////////////////////////////////////////
+        ///////////////// lab7 /////////////////
+        ////////////////////////////////////////
+
+        drawRandomCube() {
+            this._model.randomCube();
+            this._redrawCanvas();
+        }
+
+        toggleCubeFaceHiding() {
+            this._hidingInvisibleCubeFaces = !this._hidingInvisibleCubeFaces;
             this._redrawCanvas();
         }
 

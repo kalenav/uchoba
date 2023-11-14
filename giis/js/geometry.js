@@ -489,6 +489,126 @@ const geometryModule = (function () {
         }
     }
 
+    class Cube {
+        constructor(sideLength, rotX = 0, rotY = 0, rotZ = 0) {
+            this._sideLength = sideLength;
+            this._rotX = rotX;
+            this._rotY = rotY;
+            this._rotZ = rotZ;
+        }
+
+        _getXRotationMatrix(negatedSine = false) {
+            const rotationMatrix = new linearAlgebraModule.Matrix(4, 4);
+            const rotationInRadians = GeometryUtils.degreesToRadians(-this._rotX);
+            const sin = Math.sin(rotationInRadians);
+            const cos = Math.cos(rotationInRadians);
+            const sineCoef = negatedSine ? -1 : 1;
+            rotationMatrix.setElements([
+                [1, 0, 0, 0],
+                [0, cos, sin * sineCoef, 0],
+                [0, -sin * sineCoef, cos, 0],
+                [0, 0, 0, 1]
+            ]);
+            return rotationMatrix;
+        }
+
+        _getYRotationMatrix(negatedSine = false) {
+            const rotationMatrix = new linearAlgebraModule.Matrix(4, 4);
+            const rotationInRadians = GeometryUtils.degreesToRadians(-this._rotY);
+            const sin = Math.sin(rotationInRadians);
+            const cos = Math.cos(rotationInRadians);
+            const sineCoef = negatedSine ? -1 : 1;
+            rotationMatrix.setElements([
+                [cos, 0, sin * sineCoef, 0],
+                [0, 1, 0, 0],
+                [-sin * sineCoef, 0, cos, 0],
+                [0, 0, 0, 1]
+            ]);
+            return rotationMatrix;
+        }
+
+        _getZRotationMatrix(negatedSine = false) {
+            const rotationMatrix = new linearAlgebraModule.Matrix(4, 4);
+            const rotationInRadians = GeometryUtils.degreesToRadians(-this._rotZ);
+            const sin = Math.sin(rotationInRadians);
+            const cos = Math.cos(rotationInRadians);
+            const sineCoef = negatedSine ? -1 : 1;
+            rotationMatrix.setElements([
+                [cos, sin * sineCoef, 0, 0],
+                [-sin * sineCoef, cos, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1]
+            ]);
+            return rotationMatrix;
+        }
+
+        _getCombinedRotationMatrix(negated = false) {
+            return this._getXRotationMatrix(negated)
+                .multiply(this._getYRotationMatrix(negated))
+                .multiply(this._getZRotationMatrix(negated));
+        }
+
+        get _bodyMatrix() {
+            const rawBodyMatrix = new linearAlgebraModule.Matrix(6, 4);
+            const neg = -1 * this._sideLength / 2;
+            rawBodyMatrix.setElements([
+                [-1, 0, 0, -neg],
+                [1, 0, 0, -neg],
+                [0, -1, 0, -neg],
+                [0, 1, 0, -neg],
+                [0, 0, -1, -neg],
+                [0, 0, 1, -neg]
+            ]);
+            return rawBodyMatrix.multiply(this._getCombinedRotationMatrix());
+        }
+
+        get _rawVertices() {
+            const originOffset = this._sideLength / 2;
+            return [
+                new Point(originOffset, originOffset, originOffset),
+                new Point(originOffset, originOffset, -originOffset),
+                new Point(originOffset, -originOffset, originOffset),
+                new Point(originOffset, -originOffset, -originOffset),
+                new Point(-originOffset, originOffset, originOffset),
+                new Point(-originOffset, originOffset, -originOffset),
+                new Point(-originOffset, -originOffset, originOffset),
+                new Point(-originOffset, -originOffset, -originOffset)
+            ]
+        }
+
+        get _faces() {
+            const rawVertices = this._rawVertices;
+            return [
+                new Polygon(rawVertices.filter(vertex => vertex.x > 0).map(point => point.applyMatrix(this._getCombinedRotationMatrix(true)))),
+                new Polygon(rawVertices.filter(vertex => vertex.x < 0).map(point => point.applyMatrix(this._getCombinedRotationMatrix(true)))),
+                new Polygon(rawVertices.filter(vertex => vertex.y > 0).map(point => point.applyMatrix(this._getCombinedRotationMatrix(true)))),
+                new Polygon(rawVertices.filter(vertex => vertex.y < 0).map(point => point.applyMatrix(this._getCombinedRotationMatrix(true)))),
+                new Polygon(rawVertices.filter(vertex => vertex.z > 0).map(point => point.applyMatrix(this._getCombinedRotationMatrix(true)))),
+                new Polygon(rawVertices.filter(vertex => vertex.z < 0).map(point => point.applyMatrix(this._getCombinedRotationMatrix(true))))
+            ]
+        }
+
+        getFaces(hideInvisible = false, spectatorViewDirection = new Vector(new Point(0, 0, 0), new Point(0, 0, -1))) {
+            if (!hideInvisible) {
+                return this._faces;
+            }
+            return this._faces
+                .filter((face, index) => {
+                    const currFace = this._bodyMatrix.getRowAt(index + 1);
+                    const currFaceNormalVector = new Vector(
+                        new Point(0, 0, 0),
+                        new Point(
+                            currFace[0],
+                            currFace[1],
+                            currFace[2],
+                            1,
+                            false
+                        ));
+                    return currFaceNormalVector.dotProduct(spectatorViewDirection) > 0;
+                })
+        }
+    }
+
     return {
         Point,
         Vector,
@@ -500,7 +620,8 @@ const geometryModule = (function () {
         HermiteCurve,
         BezierCurve,
         VSpline,
-        Polygon
+        Polygon,
+        Cube
     }
 })();
 const Point = geometryModule.Point;

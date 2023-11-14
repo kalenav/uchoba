@@ -10,6 +10,10 @@ class Utils {
 
         return subarrays.sort((subarr1, subarr2) => subarr1.length - subarr2.length);
     }
+
+    static randomIntegerFromInterval(from, to) {
+        return Math.round(Math.random() * (to - from)) + from;
+    }
 }
 
 class StackElem {
