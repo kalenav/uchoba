@@ -11,7 +11,9 @@ class MaxEquationSystem {
         this._getAllEquationSolutionCombinations()
             .forEach(solutionCombination => solutionVariableToIntervalMaps.push(this._intersectIntervalMaps(solutionCombination)));
 
-        return solutionVariableToIntervalMaps;
+        return solutionVariableToIntervalMaps.filter(variableToIntervalMap => {
+            return [...variableToIntervalMap.values()].every(interval => !interval.isEmpty);
+        });
     }
 
     _intersectIntervalMaps(maps) {
@@ -32,6 +34,7 @@ class MaxEquationSystem {
         const allSolutionCombinations = [];
 
         const equationWiseSolutions = this._maxEquations.map(equation => equation.solve());
+        console.log(equationWiseSolutions);
 
         for (let currCombinationAsNumber = 0; currCombinationAsNumber < this._totalIndividualSolutions; currCombinationAsNumber++) {
             const currCombinationAsString = Number(currCombinationAsNumber).toString(this._solutionsPerEquation).padStart(this._equationsQuantity, '0');

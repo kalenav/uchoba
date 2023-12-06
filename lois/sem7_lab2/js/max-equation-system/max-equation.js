@@ -22,6 +22,7 @@ class MaxEquation {
         const variableToIntervalMap = new Map();
 
         this.variables.forEach((variable, index) => {
+            // TO DO: treat case when upper bound for main variable is greater than 1
             const currVariableUpperBound = this._solveLinearEquation(this._coefficients[index]);
 
             if (variable === mainVariable) {

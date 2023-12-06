@@ -112,12 +112,20 @@ class Interval {
         return this._to;
     }
 
+    get includingFrom() {
+        return this._includingFrom;
+    }
+
+    get includingTo() {
+        return this._includingTo;
+    }
+
     get isEmpty() {
-        return this.from === this.to && (!this.includingFrom || !this.includingTo);
+        return (this.from === this.to) && (!this.includingFrom || !this.includingTo);
     }
 
     get isSingleElementInterval() {
-        return this.from === this.to && this.includingFrom && this.includingTo;
+        return (this.from === this.to) && this.includingFrom && this.includingTo;
     }
 
     _getRelativeIntervalInfo(another) {
