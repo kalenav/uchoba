@@ -1,3 +1,7 @@
+function capBetweenZeroAndOne(num) {
+    return Math.min(1, Math.max(0, num));
+}
+
 class Interval {
     _from;
     _to;
@@ -10,7 +14,8 @@ class Interval {
         includingFrom,
         includingTo,
         open,
-        closed
+        closed,
+        cap = true
     }) {
         if (from > to) {
             const fromSnapshot = from;
@@ -21,6 +26,11 @@ class Interval {
         this._to = to;
         this._includingFrom = includingFrom ?? closed ?? !open ?? true;
         this._includingTo = includingTo ?? closed ?? !open ?? true;
+
+        if (cap) {
+            this._from = capBetweenZeroAndOne(this._from);
+            this._to = capBetweenZeroAndOne(this._to);
+        }
     }
 
     intersection(another) {
@@ -76,7 +86,7 @@ class Interval {
                 from: another.from,
                 to: this.to,
                 includingFrom: another.includingFrom,
-                to: this.includingTo
+                includingTo: this.includingTo
             });
         }
 
@@ -85,7 +95,7 @@ class Interval {
                 from: this.from,
                 to: another.to,
                 includingFrom: this.includingFrom,
-                to: another.includingTo
+                includingTo: another.includingTo
             });
         }
     }
@@ -163,3 +173,4 @@ class Interval {
 }
  
 const emptyInterval = new Interval({ from: 0, to: 0, open: true });
+const fromZeroToOne = new Interval({ from: 0, to: 1, closed: true });
