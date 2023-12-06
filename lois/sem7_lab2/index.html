@@ -1,0 +1,31 @@
+<!--
+Лабораторная работа №1 по дисциплине "Логические основы интеллектуальных систем"
+Выполнена студентами группы 021702 БГУИР Локтевым Константином Алексеевичем, Мохаммади Арианой, Макаревич Кариной Сергеевной
+Файл-точка входа для графического интерфейса
+01.11.2023
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Обратный нечеткий логический вывод</title>
+</head>
+<body>
+    <h3>Множества (факты)</h3>
+    <ul id="set-list"></ul>
+    <button id="add-set">Добавить</button>
+    <hr>
+    <h3>Предикаты (правила)</h3>
+    <ul id="predicate-list"></ul>
+    <button id="add-predicate">Добавить</button>
+    <hr>
+    <button id="conclusion">Обратный нечеткий логический вывод</button>
+</body>
+<script src="js/view-utils.js"></script>
+<script src="js/fuzzy-entities.js"></script>
+<script src="js/fuzzy-operations.js"></script>
+<script src="js/inverse-fuzzy-logical-conclusion.js"></script>
+<script src="js/main.js"></script>
+</html>
