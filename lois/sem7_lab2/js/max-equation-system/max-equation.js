@@ -9,30 +9,29 @@ class MaxEquation {
     }
 
     solve() {
-        const variableToIntervalMaps = [];
-
-        this.variables.forEach(variable => {
-            variableToIntervalMaps.push(this._getVariableToIntervalMap(variable));
-        });
-
-        return variableToIntervalMaps;
+        return this.variables
+            .map(variable => this._getVariableToIntervalMap(variable))
+            .filter(map => map.size > 1);
     }
 
     _getVariableToIntervalMap(mainVariable) {
         const variableToIntervalMap = new Map();
+        let unsolvable = false;
 
         this.variables.forEach((variable, index) => {
-            // TO DO: treat case when upper bound for main variable is greater than 1
             const currVariableUpperBound = this._solveLinearEquation(this._coefficients[index]);
+            if (variable === mainVariable && currVariableUpperBound > 1) {
+                unsolvable = true;
+            }
 
             if (variable === mainVariable) {
-                variableToIntervalMap.set(mainVariable, new Interval({ from: currVariableUpperBound, to: currVariableUpperBound, closed: true }));
+                variableToIntervalMap.set(mainVariable, new Interval({ from: currVariableUpperBound, to: 1, closed: true }));
             } else {
                 variableToIntervalMap.set(variable, new Interval({ from: 0, to: currVariableUpperBound, includingTo: false }));
             }
         });
 
-        return variableToIntervalMap;
+        return unsolvable ? new Map() : variableToIntervalMap;
     }
 
     _solveLinearEquation(a, b = -this._mustBeEqualTo) { // ax + b = 0
