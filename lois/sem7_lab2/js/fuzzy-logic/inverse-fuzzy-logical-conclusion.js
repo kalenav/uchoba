@@ -1,17 +1,23 @@
 function inverseFuzzyLogicalConclusion(predicate, consequence) {
-    const premise = new FuzzySet();
+    const maxEquations = [];
 
-    for (const premiseElement of predicate.preimage) {
-        let currMax = 0;
-
-        for (const predicateElement of predicate) {
-            if (predicateElement[0][0] === premiseElement) {
-                currMax = Math.max(currMax, predicateElement[1].value * consequence.get(predicateElement[0][1]).value);
+    const variables = [...predicate.preimage];
+    for (const consequenceElement of consequence) {
+        const currMaxEquationVariableToCoefficientMap = new Map();
+        for (const variable of variables) {
+            for (const pair of predicate) {
+                if ((pair[0][0] === variable) && (pair[0][1] === consequenceElement[0])) {
+                    currMaxEquationVariableToCoefficientMap.set(variable, pair[1].value);
+                    break;
+                }
             }
         }
 
-        premise.add(premiseElement, currMax);
+        maxEquations.push(new MaxEquation({
+            variableToCoefficientMap: currMaxEquationVariableToCoefficientMap,
+            mustBeEqualTo: consequenceElement[1].value
+        }));
     }
 
-    return premise;
+    return new MaxEquationSystem(maxEquations).solve();
 }

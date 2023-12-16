@@ -134,7 +134,7 @@ conclusionButton.addEventListener('click', () => {
         consequenceName = prompt("Введите наименование множества-следствия");
     }
 
-    alert(FuzzyEntityToTextUtils.getTextOfFuzzySet(inverseFuzzyLogicalConclusion(predicates.get(predicateName), sets.get(consequenceName))));
+    alert(equationSystemSolutionStringRepresentation(inverseFuzzyLogicalConclusion(predicates.get(predicateName), sets.get(consequenceName))));
 });
 
 ///////////////////////////////////////////////////
@@ -162,31 +162,13 @@ function initMockSets() {
     sets.set("A", set1);
     sets.set("B", set2);
     sets.set("C", set3);
+
+    predicates.set('P1', new ImplicationPredicate({
+        set1: sets.get('A'),
+        set2: sets.get('B'),
+        implication: FuzzyOperations.implication
+    }));
 }
 
 initMockSets();
 redisplayLists();
-
-console.log(equationSystemSolutionStringRepresentation(new MaxEquationSystem([
-    new MaxEquation({
-        mustBeEqualTo: 0.7,
-        variableToCoefficientMap: new Map([
-            ['x1', 0.7],
-            ['x2', 0.7]
-        ])
-    }),
-    new MaxEquation({
-        mustBeEqualTo: 0.2,
-        variableToCoefficientMap: new Map([
-            ['x1', 0.1],
-            ['x2', 0.4]
-        ])
-    }),
-    new MaxEquation({
-        mustBeEqualTo: 0.2,
-        variableToCoefficientMap: new Map([
-            ['x1', 0.5],
-            ['x2', 0.1]
-        ])
-    })
-]).solve()));

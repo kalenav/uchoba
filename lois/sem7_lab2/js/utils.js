@@ -32,7 +32,7 @@ function equationSystemSolutionStringRepresentation(solutions) {
     const variables = [...solutions[0].keys()];
     return `<${
         variables.map(variable => `X(${variable})`).join(', ')
-    }> ∊ ${
-        solutions.map(solution => `(${equationSolutionStringRepresentation(solution)})`).join('∪')
+    }> ∊ \n\n${
+        solutions.map(solution => `(${equationSolutionStringRepresentation(solution)})`).join('\n∪')
     }`
 }
