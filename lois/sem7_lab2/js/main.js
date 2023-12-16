@@ -159,13 +159,22 @@ function initMockSets() {
     set3.add('x4', 0.5);
     set3.add('x5', 0.8);
 
+    const set4 = new FuzzySet();
+    set4.add('x1', 0.5);
+    set4.add('x2', 0.4);
+
+    const set5 = new FuzzySet();
+    set5.add('y', 0.2);
+
     sets.set("A", set1);
     sets.set("B", set2);
     sets.set("C", set3);
+    sets.set("X", set4);
+    sets.set("Y", set5);
 
     predicates.set('P1', new ImplicationPredicate({
-        set1: sets.get('A'),
-        set2: sets.get('B'),
+        set1: sets.get('X'),
+        set2: sets.get('Y'),
         implication: FuzzyOperations.implication
     }));
 }
