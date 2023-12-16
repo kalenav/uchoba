@@ -172,11 +172,9 @@ class Interval {
             return `{${this.from}}`;
         }
 
-        return this.includingFrom ? '[' : '('
-            + this.from
-            + ', '
-            + this.to
-            + this.includingTo ? ']' : ')';
+        const startingSymbol = this.includingFrom ? '[' : '(';
+        const endingSymbol = this.includingTo ? ']' : ')';
+        return `${startingSymbol}${this.from}, ${this.to}${endingSymbol}`;
     }
 }
  

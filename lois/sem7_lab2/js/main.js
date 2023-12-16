@@ -166,3 +166,27 @@ function initMockSets() {
 
 initMockSets();
 redisplayLists();
+
+console.log(equationSystemSolutionStringRepresentation(new MaxEquationSystem([
+    new MaxEquation({
+        mustBeEqualTo: 0.7,
+        variableToCoefficientMap: new Map([
+            ['x1', 0.7],
+            ['x2', 0.7]
+        ])
+    }),
+    new MaxEquation({
+        mustBeEqualTo: 0.2,
+        variableToCoefficientMap: new Map([
+            ['x1', 0.1],
+            ['x2', 0.4]
+        ])
+    }),
+    new MaxEquation({
+        mustBeEqualTo: 0.2,
+        variableToCoefficientMap: new Map([
+            ['x1', 0.5],
+            ['x2', 0.1]
+        ])
+    })
+]).solve()));

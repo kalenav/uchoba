@@ -21,3 +21,18 @@ function get2dArrayRowElementCombinations(array, currRow = 0, result = [], curre
 
     return result;
 }
+
+function equationSolutionStringRepresentation(solution) {
+    return [...solution.values()]
+        .map(interval => `${interval}`)
+        .join('×');
+}
+
+function equationSystemSolutionStringRepresentation(solutions) {
+    const variables = [...solutions[0].keys()];
+    return `<${
+        variables.map(variable => `X(${variable})`).join(', ')
+    }> ∊ ${
+        solutions.map(solution => `(${equationSolutionStringRepresentation(solution)})`).join('∪')
+    }`
+}
