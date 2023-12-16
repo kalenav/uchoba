@@ -20,35 +20,23 @@ class MaxEquationSystem {
         const intersection = new Map();
 
         maps.forEach(currMap => currMap.forEach((interval, variable) => {
-            if (intersection.has(variable)) {
-                intersection.set(variable, intersection.get(variable).intersection(interval));
-            } else {
-                intersection.set(variable, interval);
-            }
+            intersection.set(
+                variable,
+                intersection.has(variable) ? intersection.get(variable).intersection(interval) : interval
+            );
         }));
 
         return intersection;
     }
 
     _getAllEquationSolutionCombinations() {
-        const allSolutionCombinations = [];
-
         const equationWiseSolutions = this._maxEquations.map(equation => equation.solve());
-        console.log(equationWiseSolutions);
-
-        for (let currCombinationAsNumber = 0; currCombinationAsNumber < this._totalIndividualSolutions; currCombinationAsNumber++) {
-            const currCombinationAsString = Number(currCombinationAsNumber).toString(this._solutionsPerEquation).padStart(this._equationsQuantity, '0');
-            const currEquationSolutionCombination = equationWiseSolutions.map((equationSolution, index) => {
-                const individualSolutionToTakeIndex = parseInt(currCombinationAsString[index], this._solutionsPerEquation);
-                return equationSolution[individualSolutionToTakeIndex];
-            });
-
-            allSolutionCombinations.push(currEquationSolutionCombination);
+        if (equationWiseSolutions.some(solution => solution.length === 0)) {
+            return [];
         }
 
-        return allSolutionCombinations;
+        return get2dArrayRowElementCombinations(equationWiseSolutions);
     }
-
     // предполагается, что все уравнения имеют одни и те же переменные в одном и том же порядке
     get _variables() {
         return this._maxEquations[0].variables;
@@ -56,13 +44,5 @@ class MaxEquationSystem {
 
     get _equationsQuantity() {
         return this._maxEquations.length;
-    }
-
-    get _solutionsPerEquation() {
-        return this._variables.length;
-    }
-
-    get _totalIndividualSolutions() {
-        return this._equationsQuantity * this._solutionsPerEquation;
     }
 }
