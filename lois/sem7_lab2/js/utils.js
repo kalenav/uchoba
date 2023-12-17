@@ -29,6 +29,9 @@ function equationSolutionStringRepresentation(solution) {
 }
 
 function equationSystemSolutionStringRepresentation(solutions) {
+    if (solutions.length === 0) {
+        return 'обратный вывод невозможен';
+    }
     const variables = [...solutions[0].keys()];
     return `<${
         variables.map(variable => `X(${variable})`).join(', ')
