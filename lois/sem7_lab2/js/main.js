@@ -166,11 +166,19 @@ function initMockSets() {
     const set5 = new FuzzySet();
     set5.add('y', 0.2);
 
+    const set6 = new FuzzySet();
+    set6.add('y', 0.5);
+
+    const set7 = new FuzzySet();
+    set7.add('y', 0.8);
+
     sets.set("A", set1);
     sets.set("B", set2);
     sets.set("C", set3);
     sets.set("X", set4);
     sets.set("Y", set5);
+    sets.set("Y2", set6);
+    sets.set("Y3", set7);
 
     predicates.set('P1', new ImplicationPredicate({
         set1: sets.get('X'),
