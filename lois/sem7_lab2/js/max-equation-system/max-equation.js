@@ -31,7 +31,7 @@ class MaxEquation {
             }
 
             if (variable === mainVariable) {
-                variableToIntervalMap.set(mainVariable, new Interval({ from: currVariableUpperBound, to: 1, closed: true }));
+                variableToIntervalMap.set(mainVariable, new Interval({ from: currVariableUpperBound, to: currVariableUpperBound, closed: true }));
             } else {
                 variableToIntervalMap.set(variable, new Interval({ from: 0, to: currVariableUpperBound, includingTo: true }));
             }
