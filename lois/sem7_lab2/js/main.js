@@ -9,6 +9,7 @@ const predicateListContainer = document.getElementById('predicate-list');
 const addSetButton = document.getElementById('add-set');
 const addPredicateButton = document.getElementById('add-predicate');
 const conclusionButton = document.getElementById('conclusion');
+const resultBlock = document.getElementById('prev-result');
 
 class ViewUtils {
     static tag({
@@ -84,6 +85,10 @@ function redisplayLists() {
     });
 }
 
+function setResultText(text) {
+    resultBlock.innerText = text;
+}
+
 addSetButton.addEventListener('click', () => {
     const newSet = new FuzzySet();
 
@@ -135,7 +140,7 @@ conclusionButton.addEventListener('click', () => {
         consequenceName = prompt("Введите наименование множества-следствия");
     }
 
-    alert(equationSystemSolutionStringRepresentation(inverseFuzzyLogicalConclusion(predicates.get(predicateName), sets.get(consequenceName))));
+    setResultText(equationSystemSolutionStringRepresentation(inverseFuzzyLogicalConclusion(predicates.get(predicateName), sets.get(consequenceName))));
 });
 
 ///////////////////////////////////////////////////
